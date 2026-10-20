@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Signing out — Shiloh Clinic</title>
+</head>
+<body style="font-family:'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#f4f6fb;margin:0;">
+<div style="text-align:center;">
+  <div style="font-size:16px;font-weight:800;color:#0d1b4c;">Signing out…</div>
+  <div style="font-size:13px;color:#64748b;margin-top:6px;">Redirecting to login</div>
+</div>
+<script>
+try { localStorage.removeItem('shiloh_token'); localStorage.removeItem('shiloh_user'); } catch (e) {}
+setTimeout(function () { window.location.replace('login.html'); }, 400);
+</script>
+</body>
+</html>

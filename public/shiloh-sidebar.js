@@ -168,6 +168,21 @@
     const nav = options.navItems || DEFAULT_NAV;
     let activeFile = options.activeFile || _currentFile();
     let user = Object.assign({ name: 'User', role: '', avatar: null }, options.user || {});
+    // Always prefer the actually signed-in account (set at login)
+    try {
+      const raw = localStorage.getItem('shiloh_user');
+      if (raw) {
+        const u = JSON.parse(raw);
+        if (u && (u.name || u.username)) {
+          const seed = String(u.id || u.username || u.name).split('').reduce((s, c) => s + c.charCodeAt(0), 0);
+          user = {
+            name: u.name || u.username || 'User',
+            role: u.role || u.roleName || '',
+            avatar: u.avatar || ('https://i.pravatar.cc/64?img=' + ((seed % 60) + 1))
+          };
+        }
+      }
+    } catch (e) {}
 
     function navHtml() {
       return nav.map(group => `
@@ -217,7 +232,10 @@
       }
       document.getElementById(instId + '-logout').addEventListener('click', () => {
         if (typeof options.onLogout === 'function') options.onLogout();
-        else location.href = 'logout.html';
+        else {
+          try { localStorage.removeItem('shiloh_token'); localStorage.removeItem('shiloh_user'); } catch (e) {}
+          location.href = 'login.html';
+        }
       });
       const userBlock = document.getElementById(instId + '-userblock');
       if (userBlock && typeof options.onUserClick === 'function') {
