@@ -25,6 +25,11 @@
   .field input, .field select{width:100%;border:1px solid var(--border);border-radius:10px;padding:11px 12px;font-size:13px;color:var(--text-dark);outline:none;background:#fff;font-family:inherit;}
   .field input:focus, .field select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1);}
   .field.invalid input, .field.invalid select{border-color:var(--red);}
+  .input-wrap{position:relative;}
+  .input-wrap i.fa-lock{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-light);font-size:13px;}
+  .input-wrap input{padding:11px 38px 11px 36px;}
+  .input-wrap .eye{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-light);cursor:pointer;font-size:13px;padding:4px;line-height:1;}
+  .input-wrap .eye:hover{color:var(--blue);}
   .field-err{font-size:11px;color:var(--red);margin-top:4px;display:none;}
   .field.invalid .field-err{display:block;}
   .row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
@@ -58,8 +63,8 @@
     </div>
     <div class="field" id="fEmail"><label>Email <span class="req">*</span></label><input type="email" id="email" placeholder="e.g. tolu@shiloh.clinic"></div>
     <div class="row">
-      <div class="field" id="fPass"><label>Password <span class="req">*</span> <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-light)">min 6</span></label><input type="password" id="password" placeholder="Min. 6 characters"></div>
-      <div class="field" id="fConfirm"><label>Confirm <span class="req">*</span></label><input type="password" id="confirm" placeholder="Re-enter"></div>
+      <div class="field" id="fPass"><label>Password <span class="req">*</span> <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-light)">min 6</span></label><div class="input-wrap"><i class="fa-solid fa-lock"></i><input type="password" id="password" placeholder="Min. 6 characters"><button type="button" class="eye" onclick="togglePw('password',this)" aria-label="Show password"><i class="fa-regular fa-eye"></i></button></div></div>
+      <div class="field" id="fConfirm"><label>Confirm <span class="req">*</span></label><div class="input-wrap"><i class="fa-solid fa-lock"></i><input type="password" id="confirm" placeholder="Re-enter"><button type="button" class="eye" onclick="togglePw('confirm',this)" aria-label="Show password"><i class="fa-regular fa-eye"></i></button></div></div>
     </div>
     <button class="btn" id="signupBtn"><i class="fa-solid fa-user-plus"></i> Create Account</button>
     <div class="foot">Already have an account? <a href="login.html">Sign in</a></div>
@@ -68,6 +73,12 @@
 <script>
 const API = (function(){ try { if (window.__SHILOH_API__) return window.__SHILOH_API__; var loc = location; if (loc.protocol === 'file:') return 'http://localhost:5001/api'; var h = loc.hostname; var isLocal = (h === 'localhost' || h === '127.0.0.1'); if (isLocal && loc.port && loc.port !== '5001') return 'http://localhost:5001/api'; return loc.origin + '/api'; } catch (e) { return 'http://localhost:5001/api'; } })();
 const $ = id => document.getElementById(id);
+function togglePw(id, btn){
+  const inp = $(id);
+  const show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  btn.innerHTML = show ? '<i class="fa-regular fa-eye-slash"></i>' : '<i class="fa-regular fa-eye"></i>';
+}
 function showErr(m){ const a=$('alertErr'); a.textContent=m; a.className='alert err'; a.style.display='block'; }
 function clearErr(){ $('alertErr').style.display='none'; }
 function isEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }

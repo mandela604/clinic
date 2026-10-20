@@ -11,7 +11,21 @@ const connectDB = require('./config/db');
 const app = express();
 
 // ── Security ──
-app.use(helmet({ crossOriginResourcePolicy: false }));
+app.use(helmet({
+  crossOriginResourcePolicy: false,
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://cdnjs.cloudflare.com", "https://fonts.gstatic.com", "data:"],
+      imgSrc: ["'self'", "data:", "https:", "http:"],
+      connectSrc: ["'self'", "http://localhost:5001", "http://127.0.0.1:5001"],
+      objectSrc: ["'none'"],
+      frameAncestors: ["'none'"]
+    }
+  }
+}));
 const allowedOrigins = (process.env.FRONTEND_URL || process.env.RENDER_EXTERNAL_URL || 'http://127.0.0.1:5502').split(',').map(s=>s.trim());
 app.use(cors({
   origin: (origin, cb) => {

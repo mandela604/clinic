@@ -21,7 +21,9 @@
   .field label{display:block;font-size:11px;font-weight:700;color:var(--text-mid);text-transform:uppercase;letter-spacing:.03em;margin-bottom:6px;}
   .input-wrap{position:relative;}
   .input-wrap i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-light);font-size:13px;}
-  .field input{width:100%;border:1px solid var(--border);border-radius:10px;padding:11px 12px 11px 36px;font-size:13px;color:var(--text-dark);outline:none;background:#fff;font-family:inherit;}
+  .field input{width:100%;border:1px solid var(--border);border-radius:10px;padding:11px 38px 11px 36px;font-size:13px;color:var(--text-dark);outline:none;background:#fff;font-family:inherit;}
+  .input-wrap .eye{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-light);cursor:pointer;font-size:13px;padding:4px;line-height:1;}
+  .input-wrap .eye:hover{color:var(--blue);}
   .field input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1);}
   .field.invalid input{border-color:var(--red);}
   .field-err{font-size:11px;color:var(--red);margin-top:4px;display:none;}
@@ -49,7 +51,7 @@
     <div class="card-sub">Sign in to continue to your dashboard</div>
     <div class="alert err" id="alertErr"></div>
     <div class="field" id="fUser"><label>Username or Email</label><div class="input-wrap"><i class="fa-regular fa-user"></i><input type="text" id="username" placeholder="e.g. admin or admin@shiloh.clinic" autocomplete="username"></div><div class="field-err">Required</div></div>
-    <div class="field" id="fPass"><label>Password</label><div class="input-wrap"><i class="fa-solid fa-lock"></i><input type="password" id="password" placeholder="Enter your password" autocomplete="current-password"></div><div class="field-err">Required</div></div>
+    <div class="field" id="fPass"><label>Password</label><div class="input-wrap"><i class="fa-solid fa-lock"></i><input type="password" id="password" placeholder="Enter your password" autocomplete="current-password"><button type="button" class="eye" onclick="togglePw('password',this)" aria-label="Show password"><i class="fa-regular fa-eye"></i></button></div><div class="field-err">Required</div></div>
     <button class="btn" id="loginBtn"><i class="fa-solid fa-right-to-bracket"></i> Sign In</button>
     <div class="foot">No account yet? <a href="signup.html">Create account</a> — first user becomes Admin</div>
   </div>
@@ -57,6 +59,12 @@
 <script>
 const API = (function(){ try { if (window.__SHILOH_API__) return window.__SHILOH_API__; var loc = location; if (loc.protocol === 'file:') return 'http://localhost:5001/api'; var h = loc.hostname; var isLocal = (h === 'localhost' || h === '127.0.0.1'); if (isLocal && loc.port && loc.port !== '5001') return 'http://localhost:5001/api'; return loc.origin + '/api'; } catch (e) { return 'http://localhost:5001/api'; } })();
 const $ = id => document.getElementById(id);
+function togglePw(id, btn){
+  const inp = $(id);
+  const show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  btn.innerHTML = show ? '<i class="fa-regular fa-eye-slash"></i>' : '<i class="fa-regular fa-eye"></i>';
+}
 function showErr(msg){ const a=$('alertErr'); a.textContent=msg; a.className='alert err'; a.style.display='block'; }
 function clearErr(){ const a=$('alertErr'); a.style.display='none'; }
 $('loginBtn').addEventListener('click', async ()=>{
