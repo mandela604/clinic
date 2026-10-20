@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shiloh Clinic &amp; Maternity — Appointments</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root{
+    --navy:#0b1a4d; --blue-accent:#2f6fed; --bg:#f4f6fb; --card:#ffffff; --border:#eef0f6;
+    --text-dark:#1c2440; --text-mid:#6b7280; --text-light:#9aa1b3;
+    --green:#12b76a; --green-bg:#e9f9f0;
+    --blue:#2f6fed; --blue-bg:#eaf1ff;
+    --purple:#8b5cf6; --purple-bg:#f4efff;
+    --orange:#f79009; --orange-bg:#fff4e5;
+    --red:#f04438; --red-bg:#feecec;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif;
+    background:var(--bg); color:var(--text-dark); font-size:13px; padding:26px;
+    display:flex; justify-content:center;
+  }
+
+  .page-wrap{width:100%; max-width:1100px;}
+
+  .back-btn{
+    display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border);border-radius:10px;
+    padding:9px 14px;font-size:12.5px;font-weight:700;color:var(--text-dark);white-space:nowrap;cursor:pointer;
+    margin-bottom:16px;max-width:fit-content;
+  }
+  .back-btn:hover{background:var(--bg);}
+  .back-btn i{color:var(--text-mid);font-size:11px;}
+
+  .panel{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px;}
+
+  .ap-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px;flex-wrap:wrap;}
+  .ap-title{font-size:15px;font-weight:800;color:var(--text-dark);}
+  .ap-sub{font-size:11.5px;color:var(--text-light);font-weight:600;margin-top:2px;}
+  .btn-primary{
+    display:flex;align-items:center;gap:8px;background:var(--blue-accent);border:1px solid var(--blue-accent);
+    border-radius:10px;padding:10px 16px;font-size:12.5px;font-weight:700;color:#fff;white-space:nowrap;cursor:pointer;
+    box-shadow:0 4px 10px rgba(47,111,237,0.28);
+  }
+  .btn-primary:hover{background:#2660d6;}
+  .btn-primary:disabled{opacity:.5;cursor:not-allowed;box-shadow:none;}
+  .btn-secondary{
+    display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border);
+    border-radius:10px;padding:9px 14px;font-size:12px;font-weight:700;color:var(--text-mid);white-space:nowrap;cursor:pointer;
+  }
+  .btn-secondary:hover{background:var(--bg);color:var(--text-dark);}
+
+  /* stat chips */
+  .ap-stats{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
+  .ap-stat{flex:1;min-width:130px;border:1px solid var(--border);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;}
+  .ap-stat-ic{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+  .ap-stat-label{font-size:10.5px;color:var(--text-mid);font-weight:700;}
+  .ap-stat-value{font-size:16px;font-weight:800;color:var(--text-dark);}
+
+  /* filters */
+  .ap-filters{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
+  .ap-search{display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:9px 12px;flex:1;min-width:200px;}
+  .ap-search i{color:var(--text-light);font-size:12px;}
+  .ap-search input{border:none;background:transparent;outline:none;font-size:12.5px;color:var(--text-dark);width:100%;font-family:inherit;}
+  .ap-search input::placeholder{color:var(--text-light);}
+  .ap-select{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:9px 12px;font-size:12.5px;font-weight:600;color:var(--text-dark);cursor:pointer;font-family:inherit;}
+
+  /* expandable appointment list */
+  .ap-item{border:1px solid var(--border);border-radius:12px;margin-bottom:10px;overflow:hidden;}
+  .ap-item:last-child{margin-bottom:0;}
+  .ap-item-head{display:flex;align-items:center;gap:12px;padding:13px 14px;cursor:pointer;}
+  .ap-item-ic{width:36px;height:36px;border-radius:9px;background:var(--blue-bg);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+  .ap-item-body{flex:1;min-width:0;}
+  .ap-item-name{font-size:12.5px;font-weight:800;color:var(--text-dark);}
+  .ap-item-meta{font-size:11px;color:var(--text-light);font-weight:600;margin-top:1px;}
+  .ap-item-right{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+  .ap-flag{font-size:10.5px;font-weight:700;padding:4px 10px;border-radius:20px;white-space:nowrap;}
+  .ap-flag-upcoming{background:var(--blue-bg);color:#1d54c9;}
+  .ap-flag-completed{background:var(--green-bg);color:#0a8a52;}
+  .ap-flag-cancelled{background:var(--red-bg);color:#c1362b;}
+  .ap-flag-noshow{background:var(--orange-bg);color:#c56c05;}
+  .ap-chevron{color:var(--text-light);font-size:11px;transition:transform .2s;}
+  .ap-item.open .ap-chevron{transform:rotate(180deg);}
+
+  .ap-item-detail{display:none;border-top:1px solid var(--border);padding:14px;}
+  .ap-item.open .ap-item-detail{display:block;}
+
+  .ap-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 16px;margin-bottom:10px;}
+  .ap-detail-item{font-size:11.5px;}
+  .ap-detail-item span{display:block;font-size:9.5px;color:var(--text-light);text-transform:uppercase;font-weight:800;letter-spacing:.03em;margin-bottom:2px;}
+  .ap-detail-item b{font-size:12.5px;color:var(--text-dark);font-weight:700;}
+
+  .ap-notes{background:var(--bg);border-radius:9px;padding:10px 12px;font-size:11.5px;color:var(--text-mid);font-weight:600;margin-top:6px;margin-bottom:10px;line-height:1.5;}
+  .ap-notes b{color:var(--text-dark);}
+
+  .ap-detail-actions{display:flex;gap:8px;margin-top:4px;flex-wrap:wrap;}
+  .ap-detail-btn{display:flex;align-items:center;gap:7px;border:1px solid var(--border);background:#fff;border-radius:9px;padding:8px 13px;font-size:11.5px;font-weight:700;color:var(--text-dark);cursor:pointer;}
+  .ap-detail-btn:hover{border-color:var(--blue-bg);color:var(--blue);}
+  .ap-detail-btn.action{border-color:var(--blue-bg);background:var(--blue-bg);color:var(--blue);}
+  .ap-detail-btn.danger{border-color:#f9d4d1;color:var(--red);}
+  .ap-detail-btn.danger:hover{background:var(--red-bg);}
+
+  .empty-state{padding:40px 10px;text-align:center;color:var(--text-light);}
+  .empty-state i{font-size:26px;margin-bottom:10px;display:block;color:var(--text-light);}
+  .empty-state div{font-size:12.5px;font-weight:600;}
+
+  /* pagination */
+  .ap-pagination{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:16px;padding-top:16px;border-top:1px solid var(--border);flex-wrap:wrap;}
+  .ap-page-info{font-size:11.5px;color:var(--text-light);font-weight:600;}
+  .ap-page-controls{display:flex;align-items:center;gap:6px;}
+  .ap-page-btn{
+    width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:#fff;color:var(--text-mid);
+    font-size:11.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  }
+  .ap-page-btn:hover:not(:disabled){border-color:var(--blue-accent);color:var(--blue-accent);}
+  .ap-page-btn:disabled{opacity:.4;cursor:not-allowed;}
+  .ap-page-btn.active{background:var(--blue-accent);border-color:var(--blue-accent);color:#fff;}
+
+  /* modal shared */
+  .modal-overlay{
+    position:fixed;inset:0;background:rgba(15,20,40,0.45);display:none;align-items:center;justify-content:center;
+    z-index:200;padding:20px;
+  }
+  .modal-overlay.open{display:flex;}
+  .modal-box{background:#fff;border-radius:16px;max-width:480px;width:100%;padding:22px;box-shadow:0 20px 60px rgba(10,15,40,0.25);max-height:90vh;overflow-y:auto;}
+  .modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+  .modal-title{font-size:15px;font-weight:800;color:var(--text-dark);}
+  .modal-close{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text-mid);cursor:pointer;font-size:13px;flex-shrink:0;}
+  .modal-close:hover{background:var(--bg);}
+  .modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px;}
+
+  .form-group{margin-bottom:14px;}
+  .form-label{font-size:11px;font-weight:800;color:var(--text-mid);text-transform:uppercase;letter-spacing:.03em;margin-bottom:6px;display:block;}
+  .form-input, .form-select, .form-textarea{
+    width:100%;border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-family:inherit;
+    font-size:12.5px;color:var(--text-dark);outline:none;background:#fff;
+  }
+  .form-textarea{resize:vertical;min-height:60px;}
+  .form-input:focus, .form-select:focus, .form-textarea:focus{border-color:var(--blue-accent);}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .form-err{font-size:10.5px;color:var(--red);font-weight:700;margin-top:4px;display:none;}
+  .form-group.invalid .form-input,.form-group.invalid .form-select{border-color:var(--red);}
+  .form-group.invalid .form-err{display:block;}
+
+  /* printable confirmation slip */
+  .ap-doc{border:1px solid var(--border);border-radius:12px;padding:20px;}
+  .ap-doc-head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid var(--navy);padding-bottom:14px;margin-bottom:14px;}
+  .ap-doc-clinic{font-size:15px;font-weight:800;color:var(--navy);}
+  .ap-doc-clinic-sub{font-size:10.5px;color:var(--text-light);font-weight:600;margin-top:2px;}
+  .ap-doc-no{text-align:right;font-size:11px;color:var(--text-mid);font-weight:700;}
+  .ap-doc-no b{color:var(--text-dark);font-size:13px;}
+  .ap-doc-meta{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+  .ap-doc-meta-item{font-size:11.5px;}
+  .ap-doc-meta-item span{display:block;font-size:9.5px;color:var(--text-light);text-transform:uppercase;font-weight:800;letter-spacing:.03em;margin-bottom:2px;}
+  .ap-doc-note{font-size:12px;color:var(--text-mid);line-height:1.6;background:var(--bg);border-radius:9px;padding:12px;}
+
+  #printArea{display:none;}
+  body.print-mode > *:not(#printArea){display:none !important;}
+  body.print-mode{display:block;}
+  body.print-mode #printArea{display:block !important; padding:30px;}
+
+  .toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;
+    padding:11px 20px;border-radius:10px;font-size:12.5px;font-weight:700;box-shadow:0 10px 30px rgba(10,15,40,0.3);
+    opacity:0;pointer-events:none;transition:.22s; z-index:300; display:flex; align-items:center; gap:9px;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .toast i{color:var(--green);}
+
+  @media (max-width:720px){
+    body{padding:14px;}
+    .ap-stats{flex-direction:column;}
+    .ap-item-meta{display:none;}
+    .form-row, .ap-detail-grid, .ap-doc-meta{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <div class="back-btn" id="backBtn"><i class="fa-solid fa-arrow-left"></i> Back to Profile</div>
+
+  <div class="panel">
+
+    <div class="ap-head">
+      <div>
+        <div class="ap-title">Appointments</div>
+        <div class="ap-sub">Scheduled and past visits for this patient</div>
+      </div>
+      <div class="btn-primary" id="bookBtn"><i class="fa-solid fa-calendar-plus"></i> Book Appointment</div>
+    </div>
+
+    <!-- stat chips -->
+    <div class="ap-stats" id="statsRow"></div>
+
+    <!-- filters -->
+    <div class="ap-filters">
+      <div class="ap-search"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="searchInput" placeholder="Search by doctor or type…"></div>
+      <select class="ap-select" id="statusFilter">
+        <option value="all">All Statuses</option>
+        <option value="upcoming">Upcoming</option>
+        <option value="completed">Completed</option>
+        <option value="cancelled">Cancelled</option>
+        <option value="noshow">No-show</option>
+      </select>
+      <select class="ap-select" id="typeFilter">
+        <option value="all">All Types</option>
+        <option value="Consultation">Consultation</option>
+        <option value="Follow-up">Follow-up</option>
+        <option value="Antenatal">Antenatal</option>
+        <option value="Vaccination">Vaccination</option>
+        <option value="Lab Review">Lab Review</option>
+      </select>
+    </div>
+
+    <!-- expandable appointment list -->
+    <div id="apList"></div>
+
+    <div class="empty-state" id="emptyState" style="display:none;">
+      <i class="fa-regular fa-calendar-xmark"></i>
+      <div>No appointments match your filters</div>
+    </div>
+
+    <!-- pagination -->
+    <div class="ap-pagination" id="paginationBar">
+      <div class="ap-page-info" id="pageInfo"></div>
+      <div class="ap-page-controls" id="pageControls"></div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- book appointment modal -->
+<div class="modal-overlay" id="bookModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title">Book an appointment</div>
+      <div class="modal-close" id="bookClose"><i class="fa-solid fa-xmark"></i></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group" id="fDateGroup">
+        <label class="form-label">Date</label>
+        <input type="date" class="form-input" id="fDate">
+        <div class="form-err">Please choose a date</div>
+      </div>
+      <div class="form-group" id="fTimeGroup">
+        <label class="form-label">Time</label>
+        <input type="time" class="form-input" id="fTime">
+        <div class="form-err">Please choose a time</div>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Doctor</label>
+        <select class="form-select" id="fDoctor">
+          <option>Dr. Samuel O.</option>
+          <option>Dr. Amaka N.</option>
+          <option>Dr. Chidera E.</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Appointment type</label>
+        <select class="form-select" id="fType">
+          <option>Consultation</option>
+          <option>Follow-up</option>
+          <option>Antenatal</option>
+          <option>Vaccination</option>
+          <option>Lab Review</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Room / Location</label>
+      <input class="form-input" id="fLocation" placeholder="e.g. Consulting Room 2">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Reason / notes (optional)</label>
+      <textarea class="form-textarea" id="fReason" placeholder="Reason for visit…"></textarea>
+    </div>
+    <div class="modal-actions">
+      <div class="btn-secondary" id="bookCancel">Cancel</div>
+      <div class="btn-primary" id="bookSubmit"><i class="fa-solid fa-check"></i> Book Appointment</div>
+    </div>
+  </div>
+</div>
+
+<!-- reschedule modal -->
+<div class="modal-overlay" id="rescheduleModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title" id="rescheduleTitle">Reschedule appointment</div>
+      <div class="modal-close" id="rescheduleClose"><i class="fa-solid fa-xmark"></i></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group" id="rDateGroup">
+        <label class="form-label">New date</label>
+        <input type="date" class="form-input" id="rDate">
+        <div class="form-err">Please choose a date</div>
+      </div>
+      <div class="form-group" id="rTimeGroup">
+        <label class="form-label">New time</label>
+        <input type="time" class="form-input" id="rTime">
+        <div class="form-err">Please choose a time</div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <div class="btn-secondary" id="rescheduleCancel">Cancel</div>
+      <div class="btn-primary" id="rescheduleSubmit"><i class="fa-solid fa-check"></i> Save New Time</div>
+    </div>
+  </div>
+</div>
+
+<!-- printable confirmation preview modal -->
+<div class="modal-overlay" id="viewSlipModal">
+  <div class="modal-box" style="max-width:560px;">
+    <div class="modal-head">
+      <div class="modal-title">Appointment Confirmation</div>
+      <div class="modal-close" id="viewSlipClose"><i class="fa-solid fa-xmark"></i></div>
+    </div>
+    <div class="ap-doc" id="apDocPreview"></div>
+    <div class="modal-actions">
+      <div class="btn-secondary" id="viewSlipPrint"><i class="fa-solid fa-print"></i> Print</div>
+    </div>
+  </div>
+</div>
+
+<!-- hidden printable area -->
+<div id="printArea"></div>
+
+<div class="toast" id="toast"><i class="fa-solid fa-circle-check"></i><span id="toastText">Saved</span></div>
+
+<script>
+(function(){
+  const STATUS_META = {
+    upcoming:  { label:'Upcoming',  cls:'ap-flag-upcoming' },
+    completed: { label:'Completed', cls:'ap-flag-completed' },
+    cancelled: { label:'Cancelled', cls:'ap-flag-cancelled' },
+    noshow:    { label:'No-show',   cls:'ap-flag-noshow' }
+  };
+  const TYPE_ICON = {
+    'Consultation':'fa-stethoscope',
+    'Follow-up':'fa-rotate',
+    'Antenatal':'fa-person-pregnant',
+    'Vaccination':'fa-syringe',
+    'Lab Review':'fa-vial'
+  };
+  const PAGE_SIZE = 4;
+  const el = id => document.getElementById(id);
+  const PATIENT_NAME = 'Emeka Johnson';
+
+  function fmtDate(iso){
+    return new Date(iso+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  }
+  function fmtTime(hhmm){
+    const [h,m] = hhmm.split(':').map(Number);
+    const d = new Date(); d.setHours(h,m,0,0);
+    return d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  }
+
+  let appointments = [
+    { id:1, apptNo:'APT-000231', date:'2025-05-20', time:'10:30', doctor:'Dr. Samuel O.', type:'Follow-up', status:'upcoming', location:'Consulting Room 2', reason:'Blood pressure recheck after starting Amlodipine.', open:true },
+    { id:2, apptNo:'APT-000229', date:'2025-05-24', time:'09:00', doctor:'Dr. Amaka N.', type:'Antenatal', status:'upcoming', location:'Maternity Suite 1', reason:'Routine antenatal check-up, 28 weeks.', open:false },
+    { id:3, apptNo:'APT-000210', date:'2025-05-16', time:'09:45', doctor:'Dr. Samuel O.', type:'Consultation', status:'completed', location:'Consulting Room 2', reason:'General consultation and lab test review.', open:false },
+    { id:4, apptNo:'APT-000198', date:'2025-04-28', time:'11:15', doctor:'Dr. Samuel O.', type:'Lab Review', status:'completed', location:'Consulting Room 1', reason:'Review malaria test results.', open:false },
+    { id:5, apptNo:'APT-000180', date:'2025-04-14', time:'14:00', doctor:'Dr. Chidera E.', type:'Vaccination', status:'cancelled', location:'Immunization Room', reason:'Routine vaccination — rescheduled by patient.', open:false },
+    { id:6, apptNo:'APT-000165', date:'2025-04-02', time:'10:00', doctor:'Dr. Amaka N.', type:'Consultation', status:'noshow', location:'Consulting Room 2', reason:'Initial consultation.', open:false }
+  ];
+  let nextId = 7;
+  let nextNum = 232;
+
+  let state = { search:'', status:'all', type:'all', page:1 };
+  let bookingId = null;
+
+  function showToast(msg){
+    el('toastText').textContent = msg;
+    const t = el('toast');
+    t.classList.add('show');
+    clearTimeout(showToast._tm);
+    showToast._tm = setTimeout(()=>t.classList.remove('show'), 1800);
+  }
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function getFiltered(){
+    const q = state.search.trim().toLowerCase();
+    return appointments.filter(a=>{
+      if(state.status !== 'all' && a.status !== state.status) return false;
+      if(state.type !== 'all' && a.type !== state.type) return false;
+      if(q && !(a.doctor.toLowerCase().includes(q) || a.type.toLowerCase().includes(q) || a.apptNo.toLowerCase().includes(q))) return false;
+      return true;
+    }).sort((a,b)=> (b.date+b.time).localeCompare(a.date+a.time));
+  }
+
+  function renderStats(){
+    const total = appointments.length;
+    const upcoming = appointments.filter(a=>a.status==='upcoming').length;
+    const completed = appointments.filter(a=>a.status==='completed').length;
+    const cancelled = appointments.filter(a=>a.status==='cancelled' || a.status==='noshow').length;
+    el('statsRow').innerHTML = `
+      <div class="ap-stat"><div class="ap-stat-ic" style="background:var(--blue-bg);color:var(--blue);"><i class="fa-solid fa-calendar-days"></i></div><div><div class="ap-stat-label">Total Appointments</div><div class="ap-stat-value">${total}</div></div></div>
+      <div class="ap-stat"><div class="ap-stat-ic" style="background:var(--blue-bg);color:var(--blue);"><i class="fa-solid fa-hourglass-half"></i></div><div><div class="ap-stat-label">Upcoming</div><div class="ap-stat-value">${upcoming}</div></div></div>
+      <div class="ap-stat"><div class="ap-stat-ic" style="background:var(--green-bg);color:var(--green);"><i class="fa-solid fa-circle-check"></i></div><div><div class="ap-stat-label">Completed</div><div class="ap-stat-value">${completed}</div></div></div>
+      <div class="ap-stat"><div class="ap-stat-ic" style="background:var(--red-bg);color:var(--red);"><i class="fa-solid fa-calendar-xmark"></i></div><div><div class="ap-stat-label">Cancelled / No-show</div><div class="ap-stat-value">${cancelled}</div></div></div>
+    `;
+  }
+
+  function renderItem(a){
+    const meta = STATUS_META[a.status];
+    const icon = TYPE_ICON[a.type] || 'fa-calendar-day';
+
+    let actions = `<div class="ap-detail-btn" data-action="view-slip" data-id="${a.id}"><i class="fa-regular fa-file-lines"></i> View Confirmation</div>
+                    <div class="ap-detail-btn" data-action="print" data-id="${a.id}"><i class="fa-solid fa-print"></i> Print</div>`;
+    if(a.status === 'upcoming'){
+      actions = `<div class="ap-detail-btn action" data-action="reschedule" data-id="${a.id}"><i class="fa-solid fa-clock-rotate-left"></i> Reschedule</div>
+                 <div class="ap-detail-btn action" data-action="complete" data-id="${a.id}"><i class="fa-solid fa-check-double"></i> Mark as Completed</div>
+                 ${actions}
+                 <div class="ap-detail-btn danger" data-action="cancel" data-id="${a.id}"><i class="fa-solid fa-ban"></i> Cancel Appointment</div>`;
+    } else if(a.status === 'cancelled' || a.status === 'noshow'){
+      actions = `<div class="ap-detail-btn action" data-action="rebook" data-id="${a.id}"><i class="fa-solid fa-calendar-plus"></i> Book Again</div>` + actions;
+    }
+
+    const body = `
+      <div class="ap-detail-grid">
+        <div class="ap-detail-item"><span>Location</span><b>${escapeHtml(a.location)}</b></div>
+        <div class="ap-detail-item"><span>Appointment No.</span><b>${a.apptNo}</b></div>
+        <div class="ap-detail-item"><span>Doctor</span><b>${escapeHtml(a.doctor)}</b></div>
+        <div class="ap-detail-item"><span>Type</span><b>${escapeHtml(a.type)}</b></div>
+      </div>
+      ${a.reason ? `<div class="ap-notes"><b>Reason:</b> ${escapeHtml(a.reason)}</div>` : ''}
+      <div class="ap-detail-actions">${actions}</div>
+    `;
+
+    return `
+      <div class="ap-item ${a.open?'open':''}" data-id="${a.id}">
+        <div class="ap-item-head" data-toggle="${a.id}">
+          <div class="ap-item-ic"><i class="fa-solid ${icon}"></i></div>
+          <div class="ap-item-body">
+            <div class="ap-item-name">${escapeHtml(a.type)} with ${escapeHtml(a.doctor)}</div>
+            <div class="ap-item-meta">${a.apptNo} · ${fmtDate(a.date)} · ${fmtTime(a.time)}</div>
+          </div>
+          <div class="ap-item-right">
+            <span class="ap-flag ${meta.cls}">${meta.label}</span>
+            <i class="fa-solid fa-chevron-down ap-chevron"></i>
+          </div>
+        </div>
+        <div class="ap-item-detail">${body}</div>
+      </div>`;
+  }
+
+  function render(){
+    renderStats();
+    const all = getFiltered();
+    const totalPages = Math.max(1, Math.ceil(all.length / PAGE_SIZE));
+    if(state.page > totalPages) state.page = totalPages;
+    if(state.page < 1) state.page = 1;
+    const start = (state.page-1)*PAGE_SIZE;
+    const pageItems = all.slice(start, start+PAGE_SIZE);
+
+    el('apList').innerHTML = pageItems.map(renderItem).join('');
+    el('emptyState').style.display = all.length ? 'none' : 'block';
+
+    if(all.length === 0){
+      el('paginationBar').style.display = 'none';
+    } else {
+      el('paginationBar').style.display = 'flex';
+      const from = start+1, to = Math.min(start+PAGE_SIZE, all.length);
+      el('pageInfo').textContent = `Showing ${from}–${to} of ${all.length} appointment${all.length===1?'':'s'}`;
+      let btns = `<div class="ap-page-btn" id="prevPage" ${state.page===1?'disabled':''}><i class="fa-solid fa-chevron-left"></i></div>`;
+      for(let p=1;p<=totalPages;p++) btns += `<div class="ap-page-btn ${p===state.page?'active':''}" data-page="${p}">${p}</div>`;
+      btns += `<div class="ap-page-btn" id="nextPage" ${state.page===totalPages?'disabled':''}><i class="fa-solid fa-chevron-right"></i></div>`;
+      el('pageControls').innerHTML = btns;
+    }
+
+    attachListeners();
+  }
+
+  function attachListeners(){
+    document.querySelectorAll('[data-toggle]').forEach(head=>{
+      head.addEventListener('click', ()=>{
+        const id = Number(head.dataset.toggle);
+        const a = appointments.find(x=>x.id===id);
+        a.open = !a.open;
+        render();
+      });
+    });
+    document.querySelectorAll('[data-action="view-slip"]').forEach(b=>{
+      b.addEventListener('click', e=>{ e.stopPropagation(); openViewSlip(Number(b.dataset.id)); });
+    });
+    document.querySelectorAll('[data-action="print"]').forEach(b=>{
+      b.addEventListener('click', e=>{ e.stopPropagation(); printSlip(Number(b.dataset.id)); });
+    });
+    document.querySelectorAll('[data-action="reschedule"]').forEach(b=>{
+      b.addEventListener('click', e=>{ e.stopPropagation(); openRescheduleModal(Number(b.dataset.id)); });
+    });
+    document.querySelectorAll('[data-action="complete"]').forEach(b=>{
+      b.addEventListener('click', e=>{
+        e.stopPropagation();
+        const a = appointments.find(x=>x.id===Number(b.dataset.id));
+        a.status = 'completed';
+        showToast(`${a.apptNo} marked as completed`);
+        render();
+      });
+    });
+    document.querySelectorAll('[data-action="cancel"]').forEach(b=>{
+      b.addEventListener('click', e=>{
+        e.stopPropagation();
+        const a = appointments.find(x=>x.id===Number(b.dataset.id));
+        if(!confirm(`Cancel the ${a.type} appointment with ${a.doctor} on ${fmtDate(a.date)}?`)) return;
+        a.status = 'cancelled';
+        showToast('Appointment cancelled');
+        render();
+      });
+    });
+    document.querySelectorAll('[data-action="rebook"]').forEach(b=>{
+      b.addEventListener('click', e=>{
+        e.stopPropagation();
+        const a = appointments.find(x=>x.id===Number(b.dataset.id));
+        openBookModal(a);
+      });
+    });
+    document.querySelectorAll('#pageControls [data-page]').forEach(b=>{
+      b.addEventListener('click', ()=>{ state.page = Number(b.dataset.page); render(); window.scrollTo({top:0, behavior:'smooth'}); });
+    });
+    const prev = el('prevPage'), next = el('nextPage');
+    if(prev) prev.addEventListener('click', ()=>{ if(state.page>1){ state.page--; render(); } });
+    if(next) next.addEventListener('click', ()=>{ state.page++; render(); });
+  }
+
+  // ---- filters ----
+  el('searchInput').addEventListener('input', e=>{ state.search = e.target.value; state.page=1; render(); });
+  el('statusFilter').addEventListener('change', e=>{ state.status = e.target.value; state.page=1; render(); });
+  el('typeFilter').addEventListener('change', e=>{ state.type = e.target.value; state.page=1; render(); });
+
+  // ---- book appointment modal ----
+  function clearBookErrors(){
+    el('fDateGroup').classList.remove('invalid');
+    el('fTimeGroup').classList.remove('invalid');
+  }
+  function openBookModal(prefill){
+    el('fDate').value = prefill ? prefill.date : '';
+    el('fTime').value = prefill ? prefill.time : '';
+    el('fDoctor').value = prefill ? prefill.doctor : 'Dr. Samuel O.';
+    el('fType').value = prefill ? prefill.type : 'Consultation';
+    el('fLocation').value = prefill ? prefill.location : '';
+    el('fReason').value = prefill ? prefill.reason : '';
+    clearBookErrors();
+    el('bookModal').classList.add('open');
+  }
+  function closeBookModal(){ el('bookModal').classList.remove('open'); }
+  el('bookBtn').addEventListener('click', ()=>openBookModal(null));
+  el('bookClose').addEventListener('click', closeBookModal);
+  el('bookCancel').addEventListener('click', closeBookModal);
+  el('bookModal').addEventListener('click', e=>{ if(e.target.id==='bookModal') closeBookModal(); });
+
+  el('bookSubmit').addEventListener('click', ()=>{
+    clearBookErrors();
+    let ok = true;
+    if(!el('fDate').value){ el('fDateGroup').classList.add('invalid'); ok = false; }
+    if(!el('fTime').value){ el('fTimeGroup').classList.add('invalid'); ok = false; }
+    if(!ok){ showToast('Please fill in date and time'); return; }
+
+    nextNum++;
+    appointments.unshift({
+      id: nextId++,
+      apptNo: 'APT-' + String(nextNum).padStart(6,'0'),
+      date: el('fDate').value,
+      time: el('fTime').value,
+      doctor: el('fDoctor').value,
+      type: el('fType').value,
+      status: 'upcoming',
+      location: el('fLocation').value.trim() || 'To be assigned',
+      reason: el('fReason').value.trim(),
+      open: true
+    });
+    closeBookModal();
+    state.page = 1;
+    showToast('Appointment booked');
+    render();
+  });
+
+  // ---- reschedule modal ----
+  let rescheduleTargetId = null;
+  function clearRescheduleErrors(){
+    el('rDateGroup').classList.remove('invalid');
+    el('rTimeGroup').classList.remove('invalid');
+  }
+  function openRescheduleModal(id){
+    const a = appointments.find(x=>x.id===id);
+    if(!a) return;
+    rescheduleTargetId = id;
+    el('rescheduleTitle').textContent = 'Reschedule — ' + a.type + ' with ' + a.doctor;
+    el('rDate').value = a.date;
+    el('rTime').value = a.time;
+    clearRescheduleErrors();
+    el('rescheduleModal').classList.add('open');
+  }
+  function closeRescheduleModal(){ el('rescheduleModal').classList.remove('open'); rescheduleTargetId = null; }
+  el('rescheduleClose').addEventListener('click', closeRescheduleModal);
+  el('rescheduleCancel').addEventListener('click', closeRescheduleModal);
+  el('rescheduleModal').addEventListener('click', e=>{ if(e.target.id==='rescheduleModal') closeRescheduleModal(); });
+
+  el('rescheduleSubmit').addEventListener('click', ()=>{
+    clearRescheduleErrors();
+    let ok = true;
+    if(!el('rDate').value){ el('rDateGroup').classList.add('invalid'); ok = false; }
+    if(!el('rTime').value){ el('rTimeGroup').classList.add('invalid'); ok = false; }
+    if(!ok){ showToast('Please fill in date and time'); return; }
+
+    const a = appointments.find(x=>x.id===rescheduleTargetId);
+    a.date = el('rDate').value;
+    a.time = el('rTime').value;
+    a.open = true;
+    closeRescheduleModal();
+    showToast('Appointment rescheduled');
+    render();
+  });
+
+  // ---- confirmation slip preview / print ----
+  function apDocHtml(a){
+    const meta = STATUS_META[a.status];
+    return `
+      <div class="ap-doc-head">
+        <div>
+          <div class="ap-doc-clinic">Shiloh Clinic &amp; Maternity</div>
+          <div class="ap-doc-clinic-sub">12 Aba Road, Port Harcourt, Rivers State · +234 800 000 0000</div>
+        </div>
+        <div class="ap-doc-no">Appointment No.<br><b>${a.apptNo}</b></div>
+      </div>
+      <div class="ap-doc-meta">
+        <div class="ap-doc-meta-item"><span>Patient</span>${PATIENT_NAME}</div>
+        <div class="ap-doc-meta-item"><span>Status</span><span class="ap-flag ${meta.cls}">${meta.label}</span></div>
+        <div class="ap-doc-meta-item"><span>Date</span>${fmtDate(a.date)}</div>
+        <div class="ap-doc-meta-item"><span>Time</span>${fmtTime(a.time)}</div>
+        <div class="ap-doc-meta-item"><span>Doctor</span>${escapeHtml(a.doctor)}</div>
+        <div class="ap-doc-meta-item"><span>Type</span>${escapeHtml(a.type)}</div>
+        <div class="ap-doc-meta-item"><span>Location</span>${escapeHtml(a.location)}</div>
+      </div>
+      ${a.reason ? `<div class="ap-doc-note"><b>Reason for visit:</b> ${escapeHtml(a.reason)}</div>` : ''}
+    `;
+  }
+
+  let currentViewId = null;
+  function openViewSlip(id){
+    const a = appointments.find(x=>x.id===id);
+    if(!a) return;
+    currentViewId = id;
+    el('apDocPreview').innerHTML = apDocHtml(a);
+    el('viewSlipModal').classList.add('open');
+  }
+  function closeViewSlip(){ el('viewSlipModal').classList.remove('open'); }
+  el('viewSlipClose').addEventListener('click', closeViewSlip);
+  el('viewSlipModal').addEventListener('click', e=>{ if(e.target.id==='viewSlipModal') closeViewSlip(); });
+  el('viewSlipPrint').addEventListener('click', ()=> printSlip(currentViewId));
+
+  function printSlip(id){
+    const a = appointments.find(x=>x.id===id);
+    if(!a) return;
+    el('printArea').innerHTML = `<div class="ap-doc" style="border:none;">${apDocHtml(a)}</div>`;
+    document.body.classList.add('print-mode');
+    window.print();
+  }
+  window.addEventListener('afterprint', ()=>{
+    document.body.classList.remove('print-mode');
+    el('printArea').innerHTML = '';
+  });
+
+  el('backBtn').addEventListener('click', ()=> showToast('Back to profile (demo)'));
+
+  render();
+})();
+</script>
+</body>
+</html>

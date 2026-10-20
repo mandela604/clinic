@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shiloh Clinic &amp; Maternity — Book Appointment</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root{
+    --navy:#0b1a4d;
+    --navy-2:#101f5c;
+    --blue-accent:#2f6fed;
+    --bg:#f4f6fb;
+    --card:#ffffff;
+    --border:#eef0f6;
+    --text-dark:#1c2440;
+    --text-mid:#6b7280;
+    --text-light:#9aa1b3;
+
+    --green:#12b76a; --green-bg:#e9f9f0;
+    --blue:#2f6fed; --blue-bg:#eaf1ff;
+    --purple:#8b5cf6; --purple-bg:#f4efff;
+    --orange:#f79009; --orange-bg:#fff4e5;
+    --pink:#ee46bc; --pink-bg:#fdeefa;
+    --red:#f04438; --red-bg:#feecec;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif;
+    background:var(--bg);
+    color:var(--text-dark);
+    min-height:100vh;
+    font-size:13px;
+  }
+
+  .main{max-width:1320px; margin:0 auto; padding:24px 26px 60px;}
+
+  /* ---------- TOPBAR ---------- */
+  .topbar{display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:20px; flex-wrap:wrap;}
+  .topbar-left{display:flex; align-items:center; gap:14px;}
+  .back-btn{
+    width:40px; height:40px; border-radius:10px; background:#fff; border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; color:var(--text-mid); cursor:pointer; flex-shrink:0;
+  }
+  .back-btn:hover{background:var(--bg);}
+  .topbar-title h1{font-size:19px; font-weight:800; color:var(--text-dark); margin-bottom:2px;}
+  .topbar-title p{font-size:12px; color:var(--text-light); font-weight:500;}
+  .topbar-actions{display:flex; align-items:center; gap:10px; flex-shrink:0; flex-wrap:wrap;}
+
+  .btn{
+    display:flex; align-items:center; gap:8px; border-radius:11px; padding:11px 18px;
+    font-weight:700; font-size:13px; cursor:pointer; border:1px solid transparent; white-space:nowrap;
+  }
+  .btn-outline{background:#fff; border-color:var(--border); color:var(--text-dark);}
+  .btn-outline:hover{background:var(--bg);}
+  .btn-primary{background:var(--blue); color:#fff;}
+  .btn-primary:hover{background:#2560d9;}
+  .btn-primary:disabled{opacity:.5; cursor:not-allowed;}
+  .btn-dark{background:var(--navy); color:#fff;}
+  .btn-dark:hover{background:var(--navy-2);}
+  .btn-dark:disabled{opacity:.5; cursor:not-allowed;}
+
+  /* ---------- FORM LAYOUT ---------- */
+  .form-grid{display:grid; grid-template-columns:1fr 300px; gap:16px; align-items:start;}
+  .col-left{display:flex; flex-direction:column; gap:16px;}
+  .col-right{display:flex; flex-direction:column; gap:16px;}
+
+  .panel{background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px;}
+  .panel-title{display:flex; align-items:center; justify-content:space-between; gap:9px; margin-bottom:18px;}
+  .panel-title-text{display:flex; align-items:center; gap:9px; font-size:14.5px; font-weight:800; color:var(--text-dark);}
+  .panel-title-text i{color:var(--blue); font-size:14px;}
+  .panel-title-text.pt-pink i{color:var(--pink);}
+  .panel-title-text.pt-purple i{color:var(--purple);}
+
+  .mode-toggle{display:flex; gap:4px; background:var(--bg); border:1px solid var(--border); border-radius:9px; padding:3px;}
+  .mode-toggle-btn{padding:6px 12px; border-radius:6px; font-size:11.5px; font-weight:700; color:var(--text-mid); cursor:pointer;}
+  .mode-toggle-btn.active{background:#fff; color:var(--blue); box-shadow:0 1px 4px rgba(0,0,0,.08);}
+
+  .field-grid{display:grid; gap:14px 16px;}
+  .cols-4{grid-template-columns:repeat(4,1fr);}
+  .cols-3{grid-template-columns:repeat(3,1fr);}
+  .cols-2{grid-template-columns:repeat(2,1fr);}
+  .cols-1{grid-template-columns:1fr;}
+
+  .field{display:flex; flex-direction:column; gap:6px;}
+  .field label{font-size:11.5px; font-weight:700; color:var(--text-mid);}
+  .field label .req{color:var(--red); margin-left:2px;}
+  .field .input-wrap{position:relative; display:flex; align-items:center;}
+  .field .input-wrap i{position:absolute; left:12px; color:var(--text-light); font-size:12px;}
+  .field input, .field select, .field textarea{
+    border:1px solid var(--border); border-radius:10px; padding:10px 12px; font-size:12.5px;
+    color:var(--text-dark); background:#fff; outline:none; font-family:inherit; width:100%;
+  }
+  .field .input-wrap input, .field .input-wrap select{padding-left:32px;}
+  .field input:focus, .field select:focus, .field textarea:focus{border-color:var(--blue); box-shadow:0 0 0 3px var(--blue-bg);}
+  .field select{appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M0 0l5 6 5-6z' fill='%239aa1b3'/></svg>"); background-repeat:no-repeat; background-position:right 12px center;}
+  .field textarea{resize:none; min-height:76px;}
+  .field input:disabled{background:var(--bg); color:var(--text-mid);}
+  .char-count{font-size:10.5px; color:var(--text-light); text-align:right; margin-top:-4px;}
+  .field-err{font-size:10.5px; color:var(--red); font-weight:700; display:none;}
+  .field.invalid input, .field.invalid select{border-color:var(--red);}
+  .field.invalid .field-err{display:block;}
+
+  /* patient search */
+  .patient-search-wrap{position:relative;}
+  .patient-dropdown{
+    position:absolute; top:calc(100% + 6px); left:0; right:0; background:#fff; border:1px solid var(--border);
+    border-radius:10px; box-shadow:0 14px 32px rgba(16,20,40,.14); max-height:230px; overflow-y:auto; z-index:50; display:none;
+  }
+  .patient-dropdown.open{display:block;}
+  .pd-item{display:flex; align-items:center; gap:10px; padding:9px 12px; cursor:pointer;}
+  .pd-item:hover{background:var(--bg);}
+  .pd-avatar{width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:11px; font-weight:800; flex-shrink:0;}
+  .pd-name{font-size:12.5px; font-weight:700; color:var(--text-dark);}
+  .pd-meta{font-size:10.5px; color:var(--text-light); font-weight:600;}
+  .pd-empty{padding:14px; text-align:center; font-size:12px; color:var(--text-light); font-weight:600;}
+
+  .selected-patient-card{
+    display:flex; align-items:center; gap:12px; background:var(--blue-bg); border-radius:12px; padding:12px 14px; margin-bottom:14px;
+  }
+  .selected-patient-card .pd-avatar{width:40px; height:40px; font-size:13px;}
+  .sp-name{font-size:13px; font-weight:800; color:var(--text-dark);}
+  .sp-meta{font-size:11px; color:var(--text-mid); font-weight:600; margin-top:1px;}
+  .sp-clear{margin-left:auto; width:26px; height:26px; border-radius:7px; background:#fff; border:1px solid var(--border); display:flex; align-items:center; justify-content:center; color:var(--text-mid); cursor:pointer; flex-shrink:0;}
+  .sp-clear:hover{color:var(--red); border-color:#f9d4d1;}
+
+  /* checkbox row */
+  .checkbox-row{display:flex; align-items:center; gap:8px; font-size:12px; color:var(--text-mid); font-weight:600;}
+  .checkbox-row input{width:15px; height:15px; accent-color:var(--blue);}
+  .checkbox-group{display:flex; gap:18px; flex-wrap:wrap;}
+
+  /* ---------- RIGHT COLUMN ---------- */
+  .doctor-box{
+    display:flex; align-items:center; gap:12px; background:var(--blue-bg); border-radius:12px; padding:14px; margin-bottom:14px;
+  }
+  .doctor-avatar{width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:16px; font-weight:800; flex-shrink:0;}
+  .doctor-name{font-size:13.5px; font-weight:800; color:var(--text-dark);}
+  .doctor-specialty{font-size:11px; color:var(--text-mid); font-weight:600; margin-top:1px;}
+
+  .info-row{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;}
+  .info-label{font-size:11px; color:var(--text-light); font-weight:600;}
+  .info-value{font-size:14px; font-weight:800; color:var(--blue);}
+  .avail-chip{display:inline-block; background:var(--green-bg); color:#0a8a52; font-size:10.5px; font-weight:700; padding:3px 10px; border-radius:20px; margin-top:2px;}
+
+  .slots-box{display:flex; flex-direction:column; gap:10px; padding-top:14px; margin-top:4px; border-top:1px solid var(--border);}
+  .slots-label{font-size:11px; color:var(--text-light); font-weight:700;}
+  .slots-grid{display:flex; flex-wrap:wrap; gap:7px;}
+  .slot-chip{padding:7px 12px; border-radius:8px; border:1px solid var(--border); font-size:11.5px; font-weight:700; color:var(--text-mid); cursor:pointer; background:#fff;}
+  .slot-chip:hover{border-color:var(--blue-accent); color:var(--blue-accent);}
+  .slot-chip.selected{background:var(--blue); border-color:var(--blue); color:#fff;}
+
+  .summary-row{display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border); gap:10px;}
+  .summary-row:last-child{border-bottom:none;}
+  .summary-label{font-size:11.5px; color:var(--text-mid); font-weight:600;}
+  .summary-value{font-size:12px; font-weight:700; color:var(--text-dark); text-align:right;}
+  .status-chip-sm{font-size:10.5px; font-weight:700; padding:3px 10px; border-radius:20px; white-space:nowrap;}
+  .status-pending{background:var(--orange-bg); color:#c56c05;}
+  .status-confirmed{background:var(--blue-bg); color:#1d54c9;}
+  .type-chip-sm{font-size:10.5px; font-weight:700; padding:3px 10px; border-radius:20px; white-space:nowrap;}
+  .type-consultation{background:var(--blue-bg); color:var(--blue);}
+  .type-antenatal{background:var(--pink-bg); color:var(--pink);}
+  .type-familyplanning{background:var(--purple-bg); color:var(--purple);}
+  .type-followup{background:var(--green-bg); color:var(--green);}
+  .type-labtest{background:var(--orange-bg); color:#c56c05;}
+
+  .notice-box{display:flex; gap:10px; background:var(--blue-bg); border-radius:10px; padding:12px; margin-top:14px; font-size:11.5px; color:#1d54c9; font-weight:600; line-height:1.4;}
+  .notice-box i{margin-top:1px; flex-shrink:0;}
+
+  .consent-title{font-size:12.5px; font-weight:800; color:var(--blue); margin-bottom:10px;}
+  .consent-box{display:flex; gap:10px; font-size:11.5px; color:var(--text-mid); line-height:1.45; font-weight:500;}
+  .consent-box input{width:16px; height:16px; accent-color:var(--blue); flex-shrink:0; margin-top:1px;}
+
+  /* ---------- BOTTOM ACTIONS ---------- */
+  .bottom-actions{display:flex; align-items:center; justify-content:flex-end; gap:10px; margin-top:20px; flex-wrap:wrap;}
+
+  .toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;
+    padding:11px 20px;border-radius:10px;font-size:12.5px;font-weight:700;box-shadow:0 10px 30px rgba(10,15,40,0.3);
+    opacity:0;pointer-events:none;transition:.22s; z-index:300; display:flex; align-items:center; gap:9px;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .toast i{color:var(--green);}
+  .toast.error i{color:var(--red);}
+
+  @media (max-width:1100px){
+    .form-grid{grid-template-columns:1fr;}
+    .cols-4{grid-template-columns:repeat(2,1fr);}
+    .cols-3{grid-template-columns:repeat(2,1fr);}
+  }
+  @media (max-width:640px){
+    .cols-4, .cols-3, .cols-2{grid-template-columns:1fr;}
+    .topbar{flex-direction:column; align-items:flex-start;}
+    .topbar-actions{width:100%; flex-wrap:wrap;}
+    .bottom-actions{flex-wrap:wrap;}
+  }
+</style>
+</head>
+<body>
+
+<main class="main">
+
+  <!-- topbar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="back-btn" id="backBtn"><i class="fa-solid fa-arrow-left"></i></div>
+      <div class="topbar-title">
+        <h1>Book Appointment</h1>
+        <p>Schedule a new appointment for a patient</p>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <div class="btn btn-outline" id="clearFormBtn"><i class="fa-solid fa-rotate-left"></i> Clear Form</div>
+      <div class="btn btn-primary" id="bookTopBtn" disabled><i class="fa-regular fa-calendar-check"></i> Book Appointment</div>
+    </div>
+  </div>
+
+  <div class="form-grid">
+
+    <!-- LEFT COLUMN -->
+    <div class="col-left">
+
+      <!-- Patient Information -->
+      <div class="panel">
+        <div class="panel-title">
+          <div class="panel-title-text"><i class="fa-regular fa-user"></i> Patient Information</div>
+          <div class="mode-toggle" id="patientModeToggle">
+            <div class="mode-toggle-btn active" data-mode="existing">Existing Patient</div>
+            <div class="mode-toggle-btn" data-mode="new">New / Walk-in</div>
+          </div>
+        </div>
+
+        <!-- existing patient search -->
+        <div id="existingPatientBlock">
+          <div class="selected-patient-card" id="selectedPatientCard" style="display:none;"></div>
+          <div class="field patient-search-wrap" id="patientSearchField">
+            <label>Search Patient<span class="req">*</span></label>
+            <div class="input-wrap"><i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="patientSearch" placeholder="Search by name, hospital no. or phone…" autocomplete="off">
+            </div>
+            <div class="field-err">Please select a patient</div>
+            <div class="patient-dropdown" id="patientDropdown"></div>
+          </div>
+          <div class="field-grid cols-3" style="margin-top:14px;">
+            <div class="field"><label>Hospital No.</label><input type="text" id="pHospNo" disabled placeholder="—"></div>
+            <div class="field"><label>Age / Gender</label><input type="text" id="pAgeGender" disabled placeholder="—"></div>
+            <div class="field"><label>Phone</label><input type="text" id="pPhone" disabled placeholder="—"></div>
+          </div>
+        </div>
+
+        <!-- new / walk-in patient -->
+        <div id="newPatientBlock" style="display:none;">
+          <div class="field-grid cols-3">
+            <div class="field" data-field="newFirst"><label>First Name<span class="req">*</span></label><input type="text" id="newFirst" placeholder="e.g. Grace"><div class="field-err">Required</div></div>
+            <div class="field" data-field="newLast"><label>Last Name<span class="req">*</span></label><input type="text" id="newLast" placeholder="e.g. Emu"><div class="field-err">Required</div></div>
+            <div class="field"><label>Gender</label>
+              <select id="newGender"><option>Female</option><option>Male</option></select>
+            </div>
+            <div class="field" data-field="newPhone"><label>Phone<span class="req">*</span></label>
+              <div class="input-wrap"><i class="fa-solid fa-phone"></i><input type="text" id="newPhone" placeholder="0803 123 4567"></div>
+              <div class="field-err">Required</div>
+            </div>
+            <div class="field" style="grid-column:span 2;">
+              <label class="checkbox-row"><input type="checkbox" id="newFullReg"> Complete full registration at check-in</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Appointment Details -->
+      <div class="panel">
+        <div class="panel-title"><div class="panel-title-text"><i class="fa-regular fa-calendar-check"></i> Appointment Details</div></div>
+        <div class="field-grid cols-3">
+          <div class="field" data-field="doctor">
+            <label>Doctor<span class="req">*</span></label>
+            <select id="fDoctor">
+              <option value="">Select a doctor</option>
+            </select>
+            <div class="field-err">Please select a doctor</div>
+          </div>
+          <div class="field"><label>Department / Specialty</label><input type="text" id="fSpecialty" disabled placeholder="—"></div>
+          <div class="field" data-field="type">
+            <label>Appointment Type<span class="req">*</span></label>
+            <select id="fType">
+              <option value="">Select type</option>
+              <option value="consultation">Consultation</option>
+              <option value="antenatal">Antenatal Checkup</option>
+              <option value="familyplanning">Family Planning</option>
+              <option value="followup">Follow-up</option>
+              <option value="labtest">Lab Test</option>
+            </select>
+            <div class="field-err">Please select a type</div>
+          </div>
+        </div>
+        <div class="field-grid cols-4" style="margin-top:14px;">
+          <div class="field" data-field="date">
+            <label>Date<span class="req">*</span></label>
+            <div class="input-wrap"><i class="fa-regular fa-calendar"></i><input type="date" id="fDate"></div>
+            <div class="field-err">Please choose a date</div>
+          </div>
+          <div class="field" data-field="time">
+            <label>Time<span class="req">*</span></label>
+            <div class="input-wrap"><i class="fa-regular fa-clock"></i><input type="time" id="fTime"></div>
+            <div class="field-err">Please choose a time</div>
+          </div>
+          <div class="field"><label>Duration</label>
+            <select id="fDuration">
+              <option value="15">15 mins</option>
+              <option value="20">20 mins</option>
+              <option value="30" selected>30 mins</option>
+              <option value="45">45 mins</option>
+              <option value="60">60 mins</option>
+            </select>
+          </div>
+          <div class="field"><label>Priority</label>
+            <select id="fPriority"><option>Normal</option><option>Urgent</option></select>
+          </div>
+        </div>
+        <div class="field-grid cols-1" style="margin-top:14px;">
+          <div class="field">
+            <label>Reason for Visit / Notes (Optional)</label>
+            <textarea id="fReason" placeholder="Briefly describe the reason for this appointment…" maxlength="500"></textarea>
+            <div class="char-count"><span id="reasonCount">0</span> / 500</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scheduling & Notifications -->
+      <div class="panel">
+        <div class="panel-title"><div class="panel-title-text pt-purple"><i class="fa-solid fa-bell"></i> Scheduling &amp; Notifications</div></div>
+        <div class="field-grid cols-2">
+          <div class="field"><label>Booked Via</label>
+            <select id="fVia"><option>Walk-in</option><option>Phone</option><option>Online</option><option>Referral</option></select>
+          </div>
+          <div class="field">
+            <label>Reminder Method(s)</label>
+            <div class="checkbox-group" style="margin-top:4px;">
+              <label class="checkbox-row"><input type="checkbox" id="remSms" checked> SMS</label>
+              <label class="checkbox-row"><input type="checkbox" id="remEmail"> Email</label>
+              <label class="checkbox-row"><input type="checkbox" id="remCall"> Call</label>
+            </div>
+          </div>
+          <div class="field" style="grid-column:span 2;">
+            <label class="checkbox-row"><input type="checkbox" id="fConfirmNow"> Confirm this appointment immediately (skip pending status)</label>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="col-right">
+
+      <div class="panel">
+        <div class="panel-title"><div class="panel-title-text"><i class="fa-solid fa-user-doctor"></i> Doctor Availability</div></div>
+        <div id="doctorBox"></div>
+        <div class="info-row">
+          <div>
+            <div class="info-label">Next Available Slot</div>
+            <div class="info-value" id="nextSlotValue">—</div>
+          </div>
+          <span class="avail-chip" id="availChip">Select a doctor</span>
+        </div>
+        <div class="slots-box">
+          <div class="slots-label">Quick pick a time slot</div>
+          <div class="slots-grid" id="slotsGrid"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title"><div class="panel-title-text"><i class="fa-regular fa-file-lines"></i> Appointment Summary</div></div>
+        <div class="summary-row"><div class="summary-label">Appointment ID</div><div class="summary-value" id="sumId">—</div></div>
+        <div class="summary-row"><div class="summary-label">Patient</div><div class="summary-value" id="sumPatient">Not selected</div></div>
+        <div class="summary-row"><div class="summary-label">Date &amp; Time</div><div class="summary-value" id="sumDateTime">—</div></div>
+        <div class="summary-row"><div class="summary-label">Duration</div><div class="summary-value" id="sumDuration">30 mins</div></div>
+        <div class="summary-row"><div class="summary-label">Type</div><div id="sumType"><span class="type-chip-sm" style="background:#f1f2f6;color:#9aa1b3;">Not set</span></div></div>
+        <div class="summary-row"><div class="summary-label">Status</div><div id="sumStatus"><span class="status-chip-sm status-pending">Pending Confirmation</span></div></div>
+
+        <div class="notice-box">
+          <i class="fa-regular fa-circle-check"></i>
+          <div>The patient will receive a confirmation message via the selected reminder method(s) once this appointment is booked.</div>
+        </div>
+
+        <div style="margin-top:18px;">
+          <div class="consent-title">Confirmation</div>
+          <div class="consent-box">
+            <input type="checkbox" id="fConsent">
+            <div>I confirm the appointment details above are correct and the patient (or their representative) has been informed of the scheduled date and time.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="bottom-actions">
+    <div class="btn btn-outline" id="cancelBtn">Cancel</div>
+    <div class="btn btn-outline" id="bookAnotherBtn" disabled><i class="fa-regular fa-square-plus"></i> Book &amp; Add Another</div>
+    <div class="btn btn-dark" id="bookBtn" disabled><i class="fa-regular fa-calendar-check"></i> Book Appointment</div>
+  </div>
+
+</main>
+
+<div class="toast" id="toast"><i class="fa-solid fa-circle-check"></i><span id="toastText">Saved</span></div>
+
+<script src="../services/api.js"></script>
+<script src="../services/patient-service.js"></script>
+<script src="../services/appointment-service.js"></script>
+<script>
+(async function(){
+  const el = id => document.getElementById(id);
+
+  // Backend-only: load via services (no demo fallback).
+  try { await PatientService.init(); } catch (e) { window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error'); }
+  try { await AppointmentService.init(); } catch (e) { window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error'); }
+  const PATIENTS = PatientService.getAllPatients().map(p=>({ name:p.name, hospNo:p.hospitalNo, phone:p.phonePrimary, gender:p.gender, age:parseInt(p.age)||0, color:'#2f6fed' }));
+  let _doctorsRaw = [];
+  try { _doctorsRaw = await AppointmentService.getDoctors(); } catch (e) { window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error'); _doctorsRaw = []; }
+  const DOCTORS = _doctorsRaw.map((d,i)=>{
+    const name = (d && d.name) || String(d);
+    const specialty = (d && (d.specialty || d.department)) || ['General Medicine','Obstetrics & Gynaecology','Pediatrics'][i%3];
+    return { name, specialty, initials:name.replace('Dr. ','').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(), color:['#2f6fed','#8b5cf6','#ec4899'][i%3], slots:['09:00','09:30','10:30','11:00','02:00'], nextSlot:'09:00 AM' };
+  });
+
+  const TYPE_META = {
+    consultation:{ label:'Consultation', cls:'type-consultation' },
+    antenatal:{ label:'Antenatal Checkup', cls:'type-antenatal' },
+    familyplanning:{ label:'Family Planning', cls:'type-familyplanning' },
+    followup:{ label:'Follow-up', cls:'type-followup' },
+    labtest:{ label:'Lab Test', cls:'type-labtest' }
+  };
+
+  let nextApptNum = 220; // continues from APT-000219
+  let selectedPatient = null;
+  let selectedDoctorIdx = null;
+  let patientMode = 'existing';
+
+  function showToast(msg, isError){
+    el('toastText').textContent = msg;
+    const t = el('toast');
+    t.classList.toggle('error', !!isError);
+    t.querySelector('i').className = isError ? 'fa-solid fa-triangle-exclamation' : 'fa-solid fa-circle-check';
+    t.classList.add('show');
+    clearTimeout(showToast._tm);
+    showToast._tm = setTimeout(()=>t.classList.remove('show'), 2200);
+  }
+
+  function initials(name){
+    return name.replace('Dr. ','').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+  }
+
+  /* ============ PATIENT MODE TOGGLE ============ */
+  document.querySelectorAll('#patientModeToggle .mode-toggle-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('#patientModeToggle .mode-toggle-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      patientMode = btn.dataset.mode;
+      el('existingPatientBlock').style.display = patientMode==='existing' ? 'block' : 'none';
+      el('newPatientBlock').style.display = patientMode==='new' ? 'block' : 'none';
+      updateSummary();
+      validateForm();
+    });
+  });
+
+  /* ============ PATIENT SEARCH ============ */
+  const dropdown = el('patientDropdown');
+  function renderPatientDropdown(query){
+    const q = query.trim().toLowerCase();
+    const matches = q ? PATIENTS.filter(p=> p.name.toLowerCase().includes(q) || p.hospNo.toLowerCase().includes(q) || p.phone.includes(q)) : PATIENTS;
+    if(matches.length===0){
+      dropdown.innerHTML = `<div class="pd-empty">No patients found</div>`;
+    } else {
+      dropdown.innerHTML = matches.slice(0,8).map((p,i)=>`
+        <div class="pd-item" data-idx="${PATIENTS.indexOf(p)}">
+          <div class="pd-avatar" style="background:${p.color};">${initials(p.name)}</div>
+          <div><div class="pd-name">${p.name}</div><div class="pd-meta">${p.hospNo} · ${p.phone}</div></div>
+        </div>
+      `).join('');
+    }
+    dropdown.classList.add('open');
+  }
+  el('patientSearch').addEventListener('focus', ()=> renderPatientDropdown(el('patientSearch').value));
+  el('patientSearch').addEventListener('input', ()=> renderPatientDropdown(el('patientSearch').value));
+  dropdown.addEventListener('click', (e)=>{
+    const item = e.target.closest('.pd-item');
+    if(!item) return;
+    selectedPatient = PATIENTS[Number(item.dataset.idx)];
+    dropdown.classList.remove('open');
+    el('patientSearch').value = '';
+    renderSelectedPatient();
+    el('patientSearchField').classList.remove('invalid');
+    updateSummary();
+    validateForm();
+  });
+  document.addEventListener('click', (e)=>{
+    if(!e.target.closest('.patient-search-wrap')) dropdown.classList.remove('open');
+  });
+
+  function renderSelectedPatient(){
+    const card = el('selectedPatientCard');
+    if(!selectedPatient){
+      card.style.display='none';
+      el('pHospNo').value=''; el('pAgeGender').value=''; el('pPhone').value='';
+      return;
+    }
+    card.style.display='flex';
+    card.innerHTML = `
+      <div class="pd-avatar" style="background:${selectedPatient.color};">${initials(selectedPatient.name)}</div>
+      <div><div class="sp-name">${selectedPatient.name}</div><div class="sp-meta">${selectedPatient.hospNo} · ${selectedPatient.gender}, ${selectedPatient.age} yrs</div></div>
+      <div class="sp-clear" id="clearPatientBtn" title="Clear"><i class="fa-solid fa-xmark"></i></div>
+    `;
+    el('clearPatientBtn').addEventListener('click', ()=>{
+      selectedPatient = null;
+      renderSelectedPatient();
+      updateSummary();
+      validateForm();
+    });
+    el('pHospNo').value = selectedPatient.hospNo;
+    el('pAgeGender').value = `${selectedPatient.age} yrs, ${selectedPatient.gender}`;
+    el('pPhone').value = selectedPatient.phone;
+  }
+
+  /* ============ DOCTORS ============ */
+  const doctorSelect = el('fDoctor');
+  DOCTORS.forEach((d,i)=>{
+    const opt = document.createElement('option');
+    opt.value = i; opt.textContent = `${d.name} — ${d.specialty}`;
+    doctorSelect.appendChild(opt);
+  });
+  function renderDoctorBox(){
+    const box = el('doctorBox');
+    if(selectedDoctorIdx===null){
+      box.innerHTML = `<div style="text-align:center;padding:16px 0;color:var(--text-light);font-size:12px;font-weight:600;"><i class="fa-solid fa-user-doctor" style="font-size:22px;display:block;margin-bottom:8px;color:#c7d7fb;"></i>Select a doctor to see availability</div>`;
+      el('nextSlotValue').textContent = '—';
+      el('availChip').textContent = 'Select a doctor';
+      el('availChip').style.background = '#f1f2f6'; el('availChip').style.color = '#9aa1b3';
+      el('slotsGrid').innerHTML = '';
+      return;
+    }
+    const d = DOCTORS[selectedDoctorIdx];
+    box.innerHTML = `
+      <div class="doctor-box">
+        <div class="doctor-avatar" style="background:${d.color};">${d.initials}</div>
+        <div><div class="doctor-name">${d.name}</div><div class="doctor-specialty">${d.specialty}</div></div>
+      </div>
+    `;
+    el('nextSlotValue').textContent = d.nextSlot;
+    el('availChip').textContent = 'Available Today';
+    el('availChip').style.background = 'var(--green-bg)'; el('availChip').style.color = '#0a8a52';
+    el('slotsGrid').innerHTML = d.slots.map(s=>{
+      const label = /AM|PM/.test(s) ? s : formatSlot(s);
+      return `<div class="slot-chip" data-slot="${label}">${label}</div>`;
+    }).join('');
+    document.querySelectorAll('.slot-chip').forEach(chip=>{
+      chip.addEventListener('click', ()=>{
+        document.querySelectorAll('.slot-chip').forEach(c=>c.classList.remove('selected'));
+        chip.classList.add('selected');
+        const t24 = to24Hour(chip.dataset.slot);
+        el('fTime').value = t24;
+        updateSummary();
+        validateForm();
+      });
+    });
+  }
+  function formatSlot(hhmm){
+    const [h,m] = hhmm.split(':').map(Number);
+    const d = new Date(); d.setHours(h,m,0,0);
+    return d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  }
+  function to24Hour(label){
+    const d = new Date('1970/01/01 ' + label);
+    return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+  }
+  doctorSelect.addEventListener('change', ()=>{
+    selectedDoctorIdx = doctorSelect.value === '' ? null : Number(doctorSelect.value);
+    el('fSpecialty').value = selectedDoctorIdx!==null ? DOCTORS[selectedDoctorIdx].specialty : '';
+    renderDoctorBox();
+    updateSummary();
+    validateForm();
+  });
+
+  /* ============ TYPE / DATE / TIME / DURATION ============ */
+  ['fType','fDate','fTime','fDuration','fConfirmNow'].forEach(id=>{
+    el(id).addEventListener('change', ()=>{ updateSummary(); validateForm(); });
+  });
+
+  /* ============ REASON CHAR COUNT ============ */
+  el('fReason').addEventListener('input', ()=>{
+    el('reasonCount').textContent = el('fReason').value.length;
+  });
+
+  /* ============ NEW PATIENT FIELDS ============ */
+  ['newFirst','newLast','newPhone'].forEach(id=>{
+    el(id).addEventListener('input', ()=>{ updateSummary(); validateForm(); });
+  });
+
+  /* ============ SUMMARY ============ */
+  function fmtDateNice(iso){
+    if(!iso) return null;
+    return new Date(iso+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  }
+  function fmtTimeNice(hhmm){
+    if(!hhmm) return null;
+    const [h,m] = hhmm.split(':').map(Number);
+    const d = new Date(); d.setHours(h,m,0,0);
+    return d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  }
+  function updateSummary(){
+    el('sumId').textContent = 'APT-' + String(nextApptNum).padStart(6,'0');
+
+    if(patientMode==='existing'){
+      el('sumPatient').textContent = selectedPatient ? selectedPatient.name : 'Not selected';
+    } else {
+      const fn = el('newFirst').value.trim(), ln = el('newLast').value.trim();
+      el('sumPatient').textContent = (fn||ln) ? `${fn} ${ln} (new)`.trim() : 'Not entered';
+    }
+
+    const date = el('fDate').value, time = el('fTime').value;
+    el('sumDateTime').textContent = (date && time) ? `${fmtDateNice(date)}, ${fmtTimeNice(time)}` : '—';
+    el('sumDuration').textContent = el('fDuration').value + ' mins';
+
+    const typeVal = el('fType').value;
+    if(typeVal && TYPE_META[typeVal]){
+      el('sumType').innerHTML = `<span class="type-chip-sm ${TYPE_META[typeVal].cls}">${TYPE_META[typeVal].label}</span>`;
+    } else {
+      el('sumType').innerHTML = `<span class="type-chip-sm" style="background:#f1f2f6;color:#9aa1b3;">Not set</span>`;
+    }
+
+    const confirmNow = el('fConfirmNow').checked;
+    el('sumStatus').innerHTML = confirmNow
+      ? `<span class="status-chip-sm status-confirmed">Confirmed</span>`
+      : `<span class="status-chip-sm status-pending">Pending Confirmation</span>`;
+  }
+
+  /* ============ VALIDATION ============ */
+  function validateForm(){
+    const patientOk = patientMode==='existing'
+      ? !!selectedPatient
+      : (el('newFirst').value.trim() && el('newLast').value.trim() && el('newPhone').value.trim());
+    const doctorOk = doctorSelect.value !== '';
+    const typeOk = el('fType').value !== '';
+    const dateOk = el('fDate').value !== '';
+    const timeOk = el('fTime').value !== '';
+    const consentOk = el('fConsent').checked;
+
+    const allOk = patientOk && doctorOk && typeOk && dateOk && timeOk && consentOk;
+    el('bookBtn').disabled = !allOk;
+    el('bookTopBtn').disabled = !allOk;
+    el('bookAnotherBtn').disabled = !allOk;
+    return { patientOk, doctorOk, typeOk, dateOk, timeOk, consentOk };
+  }
+  el('fConsent').addEventListener('change', validateForm);
+
+  /* ============ SUBMIT ============ */
+  function markFieldStates(v){
+    el('patientSearchField').classList.toggle('invalid', patientMode==='existing' && !v.patientOk);
+    document.querySelectorAll('#newPatientBlock [data-field]').forEach(f=>{
+      const input = f.querySelector('input');
+      f.classList.toggle('invalid', patientMode==='new' && input && !input.value.trim());
+    });
+    document.querySelector('[data-field="doctor"]').classList.toggle('invalid', !v.doctorOk);
+    document.querySelector('[data-field="type"]').classList.toggle('invalid', !v.typeOk);
+    document.querySelector('[data-field="date"]').classList.toggle('invalid', !v.dateOk);
+    document.querySelector('[data-field="time"]').classList.toggle('invalid', !v.timeOk);
+  }
+
+  async function submitBooking(bookAnother){
+    const v = validateForm();
+    markFieldStates(v);
+    if(!(v.patientOk && v.doctorOk && v.typeOk && v.dateOk && v.timeOk && v.consentOk)){
+      showToast('Please complete all required fields', true);
+      return;
+    }
+    let appt = null;
+    try {
+      appt = await AppointmentService.createAppointment({
+        patientName: selectedPatient ? selectedPatient.name : (el('newFirst').value.trim()+' '+el('newLast').value.trim()).trim(),
+        doctor: selectedDoctorIdx!==null ? DOCTORS[selectedDoctorIdx].name : '',
+        type: el('fType').value,
+        date: el('fDate').value,
+        time: el('fTime').value
+      });
+    } catch (e) { window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error'); }
+    if(!appt){ window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error'); return; }
+    const apptId = appt ? appt.id : ('APT-' + String(nextApptNum).padStart(6,'0'));
+    if(appt) nextApptNum = parseInt(appt.id.split('-')[1])+1;
+    showToast(`${apptId} booked successfully`);
+    resetForm();
+    if(bookAnother){
+      el('patientSearch').focus();
+    }
+  }
+  el('bookBtn').addEventListener('click', ()=> submitBooking(false));
+  el('bookTopBtn').addEventListener('click', ()=> submitBooking(false));
+  el('bookAnotherBtn').addEventListener('click', ()=> submitBooking(true));
+
+  el('cancelBtn').addEventListener('click', ()=>{ resetForm(); showToast('Booking cancelled'); });
+  el('backBtn').addEventListener('click', ()=> showToast('Back to appointments (demo)'));
+  el('clearFormBtn').addEventListener('click', ()=>{ resetForm(); showToast('Form cleared'); });
+
+  function resetForm(){
+    selectedPatient = null; renderSelectedPatient();
+    el('patientSearch').value = '';
+    el('newFirst').value=''; el('newLast').value=''; el('newPhone').value=''; el('newGender').value='Female'; el('newFullReg').checked=false;
+    document.querySelectorAll('#patientModeToggle .mode-toggle-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelector('#patientModeToggle [data-mode="existing"]').classList.add('active');
+    patientMode='existing';
+    el('existingPatientBlock').style.display='block'; el('newPatientBlock').style.display='none';
+
+    selectedDoctorIdx = null; doctorSelect.value=''; el('fSpecialty').value=''; renderDoctorBox();
+    el('fType').value=''; el('fDate').value=''; el('fTime').value=''; el('fDuration').value='30'; el('fPriority').value='Normal';
+    el('fReason').value=''; el('reasonCount').textContent='0';
+    el('fVia').value='Walk-in'; el('remSms').checked=true; el('remEmail').checked=false; el('remCall').checked=false;
+    el('fConfirmNow').checked=false; el('fConsent').checked=false;
+
+    document.querySelectorAll('.field.invalid').forEach(f=>f.classList.remove('invalid'));
+    updateSummary();
+    validateForm();
+  }
+
+  /* ============ INIT ============ */
+  el('fDate').value = '2025-05-17';
+  renderDoctorBox();
+  updateSummary();
+  validateForm();
+})();
+</script>
+</body>
+</html>

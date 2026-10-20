@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shiloh Clinic &amp; Maternity — Print Patient Card</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root{
+    --navy:#0b1a4d; --navy-2:#101f5c; --blue-accent:#2f6fed; --bg:#f4f6fb; --card:#ffffff; --border:#eef0f6;
+    --text-dark:#1c2440; --text-mid:#6b7280; --text-light:#9aa1b3;
+    --green:#12b76a; --green-bg:#e9f9f0;
+    --blue:#2f6fed; --blue-bg:#eaf1ff;
+    --purple:#8b5cf6; --purple-bg:#f4efff;
+    --orange:#f79009; --orange-bg:#fff4e5;
+    --pink:#ee46bc; --pink-bg:#fdeefa;
+    --red:#f04438; --red-bg:#feecec;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif;
+    background:var(--bg); color:var(--text-dark); font-size:13px; padding:26px;
+    display:flex; justify-content:center;
+  }
+  .page-wrap{width:100%; max-width:1100px; display:flex; flex-direction:column; gap:16px;}
+
+  .back-btn{
+    display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border);border-radius:10px;
+    padding:9px 14px;font-size:12.5px;font-weight:700;color:var(--text-dark);white-space:nowrap;cursor:pointer;
+    max-width:fit-content;
+  }
+  .back-btn:hover{background:var(--bg);}
+  .back-btn i{color:var(--text-mid);font-size:11px;}
+
+  .pc-head{display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap;}
+  .pc-title{font-size:18px;font-weight:800;color:var(--text-dark);}
+  .pc-sub{font-size:11.5px;color:var(--text-light);font-weight:600;margin-top:2px;}
+
+  .btn-primary{
+    display:flex;align-items:center;gap:8px;background:var(--blue-accent);border:1px solid var(--blue-accent);
+    border-radius:10px;padding:10px 16px;font-size:12.5px;font-weight:700;color:#fff;white-space:nowrap;cursor:pointer;
+    box-shadow:0 4px 10px rgba(47,111,237,0.28);
+  }
+  .btn-primary:hover{background:#2660d6;}
+  .btn-primary:disabled{opacity:.5;cursor:not-allowed;box-shadow:none;}
+  .btn-outline{
+    display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border);border-radius:10px;
+    padding:10px 16px;font-size:12.5px;font-weight:700;color:var(--text-dark);white-space:nowrap;cursor:pointer;
+  }
+  .btn-outline:hover{background:var(--bg);}
+
+  .panel{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px;}
+  .panel-title{font-size:14px;font-weight:800;color:var(--text-dark);margin-bottom:14px;}
+
+  /* patient search */
+  .patient-search-wrap{position:relative; max-width:420px;}
+  .search-input-wrap{position:relative;display:flex;align-items:center;}
+  .search-input-wrap i{position:absolute;left:12px;color:var(--text-light);font-size:12px;}
+  .search-input-wrap input{
+    width:100%;padding:10px 12px 10px 34px;border:1px solid var(--border);border-radius:10px;
+    font-size:12.5px;color:var(--text-dark);outline:none;background:#fff;font-family:inherit;
+  }
+  .search-input-wrap input:focus{border-color:var(--blue-accent);box-shadow:0 0 0 3px var(--blue-bg);}
+  .patient-dropdown{
+    position:absolute; top:calc(100% + 6px); left:0; right:0; background:#fff; border:1px solid var(--border);
+    border-radius:10px; box-shadow:0 14px 32px rgba(16,20,40,.14); max-height:230px; overflow-y:auto; z-index:50; display:none;
+  }
+  .patient-dropdown.open{display:block;}
+  .pd-item{display:flex; align-items:center; gap:10px; padding:9px 12px; cursor:pointer;}
+  .pd-item:hover{background:var(--bg);}
+  .pd-avatar{width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:11px; font-weight:800; flex-shrink:0;}
+  .pd-name{font-size:12.5px; font-weight:700; color:var(--text-dark);}
+  .pd-meta{font-size:10.5px; color:var(--text-light); font-weight:600;}
+
+  .options-row{display:flex; align-items:center; gap:18px; margin-top:14px; flex-wrap:wrap;}
+  .checkbox-row{display:flex; align-items:center; gap:8px; font-size:12px; color:var(--text-mid); font-weight:600; cursor:pointer;}
+  .checkbox-row input{width:15px; height:15px; accent-color:var(--blue-accent);}
+
+  .template-chips{display:flex;gap:7px;}
+  .tpl-chip{width:26px;height:26px;border-radius:50%;cursor:pointer;border:2px solid transparent;}
+  .tpl-chip.active{border-color:var(--text-dark);}
+
+  /* preview stage */
+  .preview-stage{display:flex; gap:26px; flex-wrap:wrap; justify-content:center; padding:10px 0;}
+  .card-col{display:flex; flex-direction:column; align-items:center; gap:8px;}
+  .card-col-label{font-size:11px; font-weight:700; color:var(--text-light); text-transform:uppercase; letter-spacing:.04em;}
+
+  .card-face{
+    width:3.375in; height:2.125in; border-radius:12px; overflow:hidden; position:relative;
+    background:#fff; border:1px solid var(--border); box-shadow:0 14px 30px -10px rgba(16,20,40,.25);
+  }
+
+  /* FRONT */
+  .cf-header{
+    height:0.56in; display:flex; align-items:center; gap:8px; padding:0 12px; color:#fff;
+  }
+  .cf-logo{width:22px;height:22px;border-radius:6px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px;}
+  .cf-clinic-name{font-size:9.5px;font-weight:800;line-height:1.15;}
+  .cf-clinic-sub{font-size:6.8px;opacity:.85;font-weight:600;}
+  .cf-id-label{margin-left:auto;font-size:7px;font-weight:800;letter-spacing:.05em;background:rgba(255,255,255,.18);padding:3px 6px;border-radius:5px;white-space:nowrap;}
+
+  .cf-body{display:flex; gap:10px; padding:9px 12px 0;}
+  .cf-photo{
+    width:0.62in;height:0.78in;border-radius:7px;background:var(--blue-bg);display:flex;align-items:center;justify-content:center;
+    font-size:17px;font-weight:800;color:var(--blue);flex-shrink:0;
+  }
+  .cf-info{flex:1;min-width:0;}
+  .cf-name{font-size:10.5px;font-weight:800;color:var(--text-dark);line-height:1.2;}
+  .cf-hospno{font-size:9.5px;font-weight:800;color:var(--blue);margin-top:1px;}
+  .cf-meta{margin-top:5px;display:grid;grid-template-columns:1fr 1fr;gap:3px 8px;}
+  .cf-meta-item{font-size:6.6px;color:var(--text-light);font-weight:700;text-transform:uppercase;letter-spacing:.03em;}
+  .cf-meta-item b{display:block;font-size:8px;color:var(--text-dark);font-weight:800;text-transform:none;letter-spacing:0;margin-top:1px;}
+
+  .cf-qr{width:0.5in;height:0.5in;flex-shrink:0;align-self:flex-start;}
+
+  .cf-footer{
+    position:absolute; left:0; right:0; bottom:0; height:0.34in; border-top:1px dashed var(--border);
+    display:flex; align-items:center; justify-content:space-between; padding:0 12px; gap:8px;
+  }
+  .cf-barcode{height:0.2in;}
+  .cf-footer-text{font-size:6px; color:var(--text-light); font-weight:700; letter-spacing:.03em; text-align:right;}
+
+  /* BACK */
+  .cb-header{
+    height:0.4in; display:flex; align-items:center; gap:8px; padding:0 12px; color:#fff;
+  }
+  .cb-header-title{font-size:8.5px; font-weight:800;}
+  .cb-body{padding:9px 12px;}
+  .cb-section-title{font-size:6.8px;font-weight:800;color:var(--text-light);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px;}
+  .cb-row{display:flex; justify-content:space-between; gap:8px; font-size:8px; color:var(--text-dark); font-weight:700; padding:2px 0;}
+  .cb-row span:first-child{color:var(--text-mid); font-weight:600;}
+  .cb-terms{font-size:6.2px; color:var(--text-light); line-height:1.45; margin-top:8px; font-weight:500;}
+  .cb-bottom{
+    position:absolute; left:0; right:0; bottom:0; height:0.4in; border-top:1px dashed var(--border);
+    display:flex; align-items:center; justify-content:space-between; padding:0 12px;
+  }
+  .cb-sig-line{border-top:1px solid var(--text-light); width:1in; text-align:center; font-size:6px; color:var(--text-light); font-weight:700; padding-top:2px;}
+  .cb-barcode{height:0.2in;}
+
+  .empty-preview{
+    width:3.375in;height:2.125in;border:2px dashed var(--border);border-radius:12px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--text-light);
+  }
+  .empty-preview i{font-size:24px;}
+  .empty-preview span{font-size:11.5px;font-weight:700;}
+
+  .cut-note{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text-light);font-weight:600;justify-content:center;margin-top:4px;}
+
+  #printArea{display:none;}
+  body.print-mode > *:not(#printArea){display:none !important;}
+  body.print-mode{display:block; padding:0;}
+  body.print-mode #printArea{display:flex !important; flex-direction:column; align-items:center; gap:0.25in; padding:0.4in;}
+  @media print{
+    @page{ margin:0.3in; }
+    .card-face{ box-shadow:none !important; border:1px solid #ddd; }
+  }
+
+  .toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;
+    padding:11px 20px;border-radius:10px;font-size:12.5px;font-weight:700;box-shadow:0 10px 30px rgba(10,15,40,0.3);
+    opacity:0;pointer-events:none;transition:.22s; z-index:300; display:flex; align-items:center; gap:9px;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .toast i{color:var(--green);}
+
+  @media (max-width:760px){
+    body{padding:14px;}
+    .preview-stage{gap:18px;}
+  }
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <div class="back-btn" id="backBtn"><i class="fa-solid fa-arrow-left"></i> Back</div>
+
+  <div class="pc-head">
+    <div>
+      <div class="pc-title">Print Patient Card</div>
+      <div class="pc-sub">Preview and print a patient's ID card (front &amp; back, standard CR80 card size)</div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <div class="btn-outline" id="downloadHintBtn"><i class="fa-solid fa-circle-info"></i> Card size: 3.375&quot; × 2.125&quot;</div>
+      <div class="btn-primary" id="printBtn" disabled><i class="fa-solid fa-print"></i> Print Card</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title">Select Patient</div>
+    <div class="patient-search-wrap" id="patientSearchWrap">
+      <div class="search-input-wrap">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="patientSearch" placeholder="Search by name, hospital no. or phone…" autocomplete="off">
+      </div>
+      <div class="patient-dropdown" id="patientDropdown"></div>
+    </div>
+
+    <div class="options-row">
+      <label class="checkbox-row"><input type="checkbox" id="includeBack" checked> Include back side</label>
+      <label class="checkbox-row"><input type="checkbox" id="includeQr" checked> Show QR code</label>
+      <label class="checkbox-row"><input type="checkbox" id="includeBarcode" checked> Show barcode</label>
+      <div class="checkbox-row" style="cursor:default;">
+        Card color:
+        <div class="template-chips" id="templateChips">
+          <div class="tpl-chip active" data-color="#0b1a4d,#101f5c" style="background:linear-gradient(135deg,#0b1a4d,#101f5c);"></div>
+          <div class="tpl-chip" data-color="#2f6fed,#1d54c9" style="background:linear-gradient(135deg,#2f6fed,#1d54c9);"></div>
+          <div class="tpl-chip" data-color="#8b5cf6,#6b3fd6" style="background:linear-gradient(135deg,#8b5cf6,#6b3fd6);"></div>
+          <div class="tpl-chip" data-color="#12b76a,#0a8a52" style="background:linear-gradient(135deg,#12b76a,#0a8a52);"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title">Preview</div>
+    <div class="preview-stage" id="previewStage"></div>
+    <div class="cut-note" id="cutNote" style="display:none;"><i class="fa-solid fa-scissors"></i> Cut along the card edge after printing</div>
+  </div>
+
+</div>
+
+<div id="printArea"></div>
+
+<div class="toast" id="toast"><i class="fa-solid fa-circle-check"></i><span id="toastText">Saved</span></div>
+
+<script src="../services/api.js"></script>
+<script src="../services/patient-service.js"></script>
+<script>
+(function(){
+  const el = id => document.getElementById(id);
+
+  /* Backend-only: patients via PatientService (GET /patients),
+     single fetch via GET /patients/hospital/:hospitalNo. */
+  let PATIENTS = [];
+
+  function toCardPatient(p, i){
+    const colors = ['#2f6fed','#ec4899','#12b76a','#8b5cf6','#f79009','#ee46bc'];
+    return {
+      id: p.id,
+      name: p.name || '',
+      hospNo: p.hospitalNo || '',
+      phone: p.phonePrimary || p.phone || '',
+      gender: p.gender || '—',
+      age: p.age || '—',
+      dob: p.dob || p.dateOfBirth || '—',
+      bloodGroup: p.bloodGroup || p.bloodType || '—',
+      patientType: p.patientType || p.category || 'Outpatient',
+      color: colors[(i || 0) % colors.length],
+      emName: (p.emergencyContact && p.emergencyContact.name) || p.emName || '—',
+      emRel: (p.emergencyContact && p.emergencyContact.relationship) || p.emRel || '—',
+      emPhone: (p.emergencyContact && p.emergencyContact.phone) || p.emPhone || '—',
+    };
+  }
+
+  async function fetchPatientByHospitalNo(hospitalNo){
+    try {
+      const res = await PatientService.loadPatientByHospital(hospitalNo);
+      if(res && res.success && res.patient){
+        const idx = Math.max(0, PATIENTS.findIndex(x=>x.hospNo === hospitalNo));
+        return toCardPatient(res.patient, idx);
+      }
+      throw new Error((res && res.error) || 'Patient not found');
+    } catch (e) {
+      window.ShilohAPI.toast('Could not load patient. Check connection / login.', 'error');
+      return null;
+    }
+  }
+
+  let selected = null;
+  let opts = { includeBack:true, includeQr:true, includeBarcode:true, colorFrom:'#0b1a4d', colorTo:'#101f5c' };
+
+  function showToast(msg){
+    el('toastText').textContent = msg;
+    const t = el('toast');
+    t.classList.add('show');
+    clearTimeout(showToast._tm);
+    showToast._tm = setTimeout(()=>t.classList.remove('show'), 2000);
+  }
+  function initials(name){ return name.split(' ').map(w=>w[0]).filter((c,i,arr)=> i===0||i===arr.length-1).join('').toUpperCase().slice(0,2); }
+
+  /* ============ SEARCH ============ */
+  const dropdown = el('patientDropdown');
+  function renderDropdown(q){
+    const query = q.trim().toLowerCase();
+    const matches = query ? PATIENTS.filter(p=> p.name.toLowerCase().includes(query) || p.hospNo.toLowerCase().includes(query) || p.phone.includes(query)) : PATIENTS;
+    dropdown.innerHTML = matches.length ? matches.map(p=>`
+      <div class="pd-item" data-hosp="${p.hospNo}">
+        <div class="pd-avatar" style="background:${p.color};">${initials(p.name)}</div>
+        <div><div class="pd-name">${p.name}</div><div class="pd-meta">${p.hospNo} · ${p.phone}</div></div>
+      </div>
+    `).join('') : `<div style="padding:14px;text-align:center;font-size:12px;color:var(--text-light);font-weight:600;">No patients found</div>`;
+    dropdown.classList.add('open');
+  }
+  el('patientSearch').addEventListener('focus', ()=> renderDropdown(el('patientSearch').value));
+  el('patientSearch').addEventListener('input', ()=> renderDropdown(el('patientSearch').value));
+  dropdown.addEventListener('click', async e=>{
+    const item = e.target.closest('.pd-item');
+    if(!item) return;
+    const hospNo = item.dataset.hosp;
+    dropdown.classList.remove('open');
+    const fresh = await fetchPatientByHospitalNo(hospNo);
+    selected = fresh || PATIENTS.find(p=>p.hospNo===hospNo) || null;
+    if(!selected){
+      window.ShilohAPI.toast('Could not load patient. Check connection / login.', 'error');
+      return;
+    }
+    el('patientSearch').value = selected.name;
+    render();
+  });
+  document.addEventListener('click', e=>{ if(!e.target.closest('.patient-search-wrap')) dropdown.classList.remove('open'); });
+
+  /* ============ OPTIONS ============ */
+  el('includeBack').addEventListener('change', ()=>{ opts.includeBack = el('includeBack').checked; render(); });
+  el('includeQr').addEventListener('change', ()=>{ opts.includeQr = el('includeQr').checked; render(); });
+  el('includeBarcode').addEventListener('change', ()=>{ opts.includeBarcode = el('includeBarcode').checked; render(); });
+  document.querySelectorAll('.tpl-chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      document.querySelectorAll('.tpl-chip').forEach(c=>c.classList.remove('active'));
+      chip.classList.add('active');
+      const [from,to] = chip.dataset.color.split(',');
+      opts.colorFrom = from; opts.colorTo = to;
+      render();
+    });
+  });
+
+  /* ============ PSEUDO QR (deterministic, visual only) ============ */
+  function seededRandom(seedStr){
+    let h = 1779033703 ^ seedStr.length;
+    for(let i=0;i<seedStr.length;i++){
+      h = Math.imul(h ^ seedStr.charCodeAt(i), 3432918353);
+      h = (h << 13) | (h >>> 19);
+    }
+    return function(){
+      h = Math.imul(h ^ (h >>> 16), 2246822507);
+      h = Math.imul(h ^ (h >>> 13), 3266489909);
+      h ^= h >>> 16;
+      return (h >>> 0) / 4294967296;
+    };
+  }
+  function buildQrSvg(text, size){
+    const n = 17; // grid modules
+    const rand = seededRandom(text);
+    const cell = size / n;
+    let cells = [];
+    for(let r=0;r<n;r++){ cells.push(new Array(n).fill(0)); }
+    for(let r=0;r<n;r++) for(let c=0;c<n;c++) cells[r][c] = rand() > 0.55 ? 1 : 0;
+    // finder patterns (corners) for QR authenticity
+    function finder(r0,c0){
+      for(let r=0;r<7;r++) for(let c=0;c<7;c++){
+        const border = (r===0||r===6||c===0||c===6);
+        const inner = (r>=2&&r<=4&&c>=2&&c<=4);
+        cells[r0+r][c0+c] = (border||inner) ? 1 : 0;
+      }
+    }
+    finder(0,0); finder(0,n-7); finder(n-7,0);
+    let rects = '';
+    for(let r=0;r<n;r++) for(let c=0;c<n;c++){
+      if(cells[r][c]) rects += `<rect x="${(c*cell).toFixed(2)}" y="${(r*cell).toFixed(2)}" width="${cell.toFixed(2)}" height="${cell.toFixed(2)}" fill="#1c2440"/>`;
+    }
+    return `<svg viewBox="0 0 ${size} ${size}" width="100%" height="100%"><rect width="${size}" height="${size}" fill="#fff"/>${rects}</svg>`;
+  }
+
+  /* ============ PSEUDO BARCODE (deterministic, visual only) ============ */
+  function buildBarcodeSvg(text, w, h){
+    const rand = seededRandom(text+'|bar');
+    let x = 0, bars = '';
+    const codeStr = text.replace(/[^A-Za-z0-9]/g,'');
+    const n = 34;
+    for(let i=0;i<n;i++){
+      const wid = 1 + Math.floor(rand()*3);
+      const isBar = i%2===0 ? true : rand()>0.35;
+      if(isBar) bars += `<rect x="${x}" y="0" width="${wid}" height="${h}" fill="#1c2440"/>`;
+      x += wid + 1;
+    }
+    const scale = w / x;
+    return `<svg viewBox="0 0 ${x} ${h}" width="100%" height="100%" preserveAspectRatio="none">${bars}</svg>`;
+  }
+
+  /* ============ CARD RENDER ============ */
+  function cardFrontHtml(p){
+    const qr = opts.includeQr ? `<div class="cf-qr">${buildQrSvg(p.hospNo, 100)}</div>` : '';
+    const barcode = opts.includeBarcode ? `<div class="cf-barcode" style="width:1.5in;">${buildBarcodeSvg(p.hospNo, 140, 26)}</div>` : `<div></div>`;
+    return `
+      <div class="card-face">
+        <div class="cf-header" style="background:linear-gradient(135deg,${opts.colorFrom},${opts.colorTo});">
+          <div class="cf-logo"><i class="fa-solid fa-heart-pulse"></i></div>
+          <div>
+            <div class="cf-clinic-name">Shiloh Clinic &amp; Maternity</div>
+            <div class="cf-clinic-sub">Patient Identification Card</div>
+          </div>
+          <div class="cf-id-label">PATIENT</div>
+        </div>
+        <div class="cf-body">
+          <div class="cf-photo">${initials(p.name)}</div>
+          <div class="cf-info">
+            <div class="cf-name">${p.name}</div>
+            <div class="cf-hospno">${p.hospNo}</div>
+            <div class="cf-meta">
+              <div class="cf-meta-item">DOB<b>${p.dob}</b></div>
+              <div class="cf-meta-item">Gender<b>${p.gender}</b></div>
+              <div class="cf-meta-item">Blood Group<b>${p.bloodGroup}</b></div>
+              <div class="cf-meta-item">Type<b>${p.patientType}</b></div>
+            </div>
+          </div>
+          ${qr}
+        </div>
+        <div class="cf-footer">
+          ${barcode}
+          <div class="cf-footer-text">Issued: May 17, 2025<br>Valid while patient is active</div>
+        </div>
+      </div>
+    `;
+  }
+  function cardBackHtml(p){
+    const barcode = opts.includeBarcode ? `<div class="cb-barcode" style="width:1.4in;">${buildBarcodeSvg(p.hospNo+'-B', 130, 24)}</div>` : `<div></div>`;
+    return `
+      <div class="card-face">
+        <div class="cb-header" style="background:linear-gradient(135deg,${opts.colorFrom},${opts.colorTo});">
+          <div class="cb-header-title">Emergency &amp; Clinic Information</div>
+        </div>
+        <div class="cb-body">
+          <div class="cb-section-title">Emergency Contact</div>
+          <div class="cb-row"><span>Name</span><span>${p.emName}</span></div>
+          <div class="cb-row"><span>Relationship</span><span>${p.emRel}</span></div>
+          <div class="cb-row"><span>Phone</span><span>${p.emPhone}</span></div>
+          <div class="cb-terms">
+            This card is the property of Shiloh Clinic &amp; Maternity and must be presented at every visit. If found, please return to the nearest branch or call +234 800 000 0000.
+            <br>12 Aba Road, Port Harcourt, Rivers State · www.shilohclinic.example
+          </div>
+        </div>
+        <div class="cb-bottom">
+          ${barcode}
+          <div class="cb-sig-line">Authorized signature</div>
+        </div>
+      </div>
+    `;
+  }
+
+  function render(){
+    const stage = el('previewStage');
+    const cutNote = el('cutNote');
+    if(!selected){
+      stage.innerHTML = `
+        <div class="empty-preview">
+          <i class="fa-regular fa-id-card"></i>
+          <span>Search and select a patient above</span>
+        </div>`;
+      cutNote.style.display = 'none';
+      el('printBtn').disabled = true;
+      return;
+    }
+    let html = `
+      <div class="card-col">
+        <div class="card-col-label">Front</div>
+        ${cardFrontHtml(selected)}
+      </div>`;
+    if(opts.includeBack){
+      html += `
+      <div class="card-col">
+        <div class="card-col-label">Back</div>
+        ${cardBackHtml(selected)}
+      </div>`;
+    }
+    stage.innerHTML = html;
+    cutNote.style.display = opts.includeBack ? 'flex' : 'none';
+    el('printBtn').disabled = false;
+  }
+
+  /* ============ PRINT ============ */
+  el('printBtn').addEventListener('click', ()=>{
+    if(!selected) return;
+    let html = cardFrontHtml(selected);
+    if(opts.includeBack) html += cardBackHtml(selected);
+    el('printArea').innerHTML = html;
+    document.body.classList.add('print-mode');
+    window.print();
+  });
+  window.addEventListener('afterprint', ()=>{
+    document.body.classList.remove('print-mode');
+    el('printArea').innerHTML = '';
+    showToast('Card sent to printer');
+  });
+
+  el('backBtn').addEventListener('click', ()=>{
+    if(window.history.length > 1) window.history.back();
+    else window.location.href = 'patients.html';
+  });
+
+  /* ============ INIT (async, backend-only) ============ */
+  async function init(){
+    try { await PatientService.init(); } catch (e) { window.ShilohAPI.toast('Could not load patients. Check connection / login.', 'error'); }
+    try {
+      const list = PatientService.getAllPatients() || [];
+      PATIENTS = list.map(toCardPatient);
+    } catch (e) { window.ShilohAPI.toast('Could not load patients. Check connection / login.', 'error'); PATIENTS = []; }
+    const params = new URLSearchParams(location.search);
+    const hospParam = params.get('hosp') || params.get('hospitalNo') || '';
+    if(hospParam){
+      const fresh = await fetchPatientByHospitalNo(hospParam);
+      if(fresh){
+        selected = fresh;
+        el('patientSearch').value = fresh.name;
+      } else {
+        selected = PATIENTS.find(p=>p.hospNo === hospParam) || null;
+        if(selected) el('patientSearch').value = selected.name;
+      }
+    }
+    render();
+  }
+  init();
+})();
+</script>
+</body>
+</html>

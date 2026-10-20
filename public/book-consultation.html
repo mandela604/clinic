@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shiloh Clinic &amp; Maternity — Consultation Registration</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root{
+    --navy:#0d1b4c;
+    --navy-2:#13245e;
+    --blue-accent:#2563eb;
+    --bg:#f4f6fb;
+    --card:#ffffff;
+    --border:#eef0f6;
+    --text-dark:#1c2440;
+    --text-mid:#6b7280;
+    --text-light:#9aa1b3;
+
+    --green:#12b76a; --green-bg:#e9f9f0;
+    --blue:#2563eb; --blue-bg:#eaf1ff;
+    --purple:#8b5cf6; --purple-bg:#f4efff;
+    --orange:#f79009; --orange-bg:#fff4e5;
+    --pink:#ec4899; --pink-bg:#fde8f2;
+    --red:#ef4444; --red-bg:#fee2e2;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif;
+    background:var(--bg);
+    color:var(--text-dark);
+    min-height:100vh;
+    font-size:13px;
+  }
+
+  .main{max-width:1320px; margin:0 auto; padding:24px 26px 60px;}
+
+  /* ---------- TOPBAR ---------- */
+  .topbar{display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:20px; flex-wrap:wrap;}
+  .topbar-left{display:flex; align-items:center; gap:14px;}
+  .back-btn{
+    width:40px; height:40px; border-radius:10px; background:#fff; border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; color:var(--text-mid); cursor:pointer; flex-shrink:0;
+  }
+  .back-btn:hover{background:var(--bg);}
+  .topbar-title h1{font-size:19px; font-weight:800; color:var(--text-dark); margin-bottom:2px;}
+  .topbar-title p{font-size:12px; color:var(--text-light); font-weight:500;}
+  .topbar-actions{display:flex; align-items:center; gap:10px; flex-shrink:0; flex-wrap:wrap;}
+
+  .btn{
+    display:flex; align-items:center; gap:8px; border-radius:11px; padding:11px 18px;
+    font-weight:700; font-size:13px; cursor:pointer; border:1px solid transparent; white-space:nowrap;
+    font-family:inherit; transition:background .15s ease, opacity .15s ease;
+  }
+  .btn-outline{background:#fff; border-color:var(--border); color:var(--text-dark);}
+  .btn-outline:hover{background:var(--bg);}
+  .btn-primary{background:var(--blue-accent); color:#fff;}
+  .btn-primary:hover{background:#1d4ed8;}
+  .btn-primary:disabled{opacity:.5; cursor:not-allowed;}
+  .btn-dark{background:var(--navy); color:#fff;}
+  .btn-dark:hover{background:var(--navy-2);}
+  .btn-dark:disabled{opacity:.5; cursor:not-allowed;}
+  .btn.btn-loading{opacity:.75; cursor:not-allowed;}
+
+  /* ---------- FORM LAYOUT ---------- */
+  .form-grid{display:grid; grid-template-columns:1fr 300px; gap:16px; align-items:start;}
+  .col-left{display:flex; flex-direction:column; gap:16px;}
+  .col-right{display:flex; flex-direction:column; gap:16px;}
+
+  .panel{background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px;}
+  .panel-title{display:flex; align-items:center; justify-content:space-between; gap:9px; margin-bottom:18px;}
+  .panel-title-text{display:flex; align-items:center; gap:9px; font-size:14.5px; font-weight:800; color:var(--text-dark);}
+  .panel-title-text i{color:var(--blue-accent); font-size:14px;}
+  .panel-title-text.pt-pink i{color:var(--pink);}
+  .panel-title-text.pt-orange i{color:var(--orange);}
+
+  .mode-toggle{display:flex; gap:4px; background:var(--bg); border:1px solid var(--border); border-radius:9px; padding:3px;}
+  .mode-toggle-btn{padding:6px 12px; border-radius:6px; font-size:11.5px; font-weight:700; color:var(--text-mid); cursor:pointer;}
+  .mode-toggle-btn.active{background:#fff; color:var(--blue-accent); box-shadow:0 1px 4px rgba(0,0,0,.08);}
+
+  .field-grid{display:grid; gap:14px 16px;}
+  .cols-4{grid-template-columns:repeat(4,1fr);}
+  .cols-3{grid-template-columns:repeat(3,1fr);}
+  .cols-2{grid-template-columns:repeat(2,1fr);}
+  .cols-1{grid-template-columns:1fr;}
+
+  .field{display:flex; flex-direction:column; gap:6px;}
+  .field label{font-size:11.5px; font-weight:700; color:var(--text-mid);}
+  .field label .req{color:var(--red); margin-left:2px;}
+  .field .input-wrap{position:relative; display:flex; align-items:center;}
+  .field .input-wrap i{position:absolute; left:12px; color:var(--text-light); font-size:12px;}
+  .field input, .field select, .field textarea{
+    border:1px solid var(--border); border-radius:10px; padding:10px 12px; font-size:12.5px;
+    color:var(--text-dark); background:#fff; outline:none; font-family:inherit; width:100%;
+  }
+  .field .input-wrap input, .field .input-wrap select{padding-left:32px;}
+  .field input:focus, .field select:focus, .field textarea:focus{border-color:var(--blue-accent); box-shadow:0 0 0 3px var(--blue-bg);}
+  .field select{appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M0 0l5 6 5-6z' fill='%239aa1b3'/></svg>"); background-repeat:no-repeat; background-position:right 12px center;}
+  .field textarea{resize:none; min-height:76px;}
+  .field input:disabled{background:var(--bg); color:var(--text-mid);}
+  .field input.flagged{border-color:var(--red); background:var(--red-bg); color:#b91c1c; font-weight:700;}
+  .char-count{font-size:10.5px; color:var(--text-light); text-align:right; margin-top:-4px;}
+  .field-err{font-size:10.5px; color:var(--red); font-weight:700; display:none;}
+  .field.invalid input, .field.invalid select{border-color:var(--red);}
+  .field.invalid .field-err{display:block;}
+
+  /* patient search */
+  .patient-search-wrap{position:relative;}
+  .patient-dropdown{
+    position:absolute; top:calc(100% + 6px); left:0; right:0; background:#fff; border:1px solid var(--border);
+    border-radius:10px; box-shadow:0 14px 32px rgba(16,20,40,.14); max-height:230px; overflow-y:auto; z-index:50; display:none;
+  }
+  .patient-dropdown.open{display:block;}
+  .pd-item{display:flex; align-items:center; gap:10px; padding:9px 12px; cursor:pointer;}
+  .pd-item:hover{background:var(--bg);}
+  .pd-avatar{width:30px; height:30px; border-radius:50%; background-size:cover; background-position:center; background-color:#cbd5e1; flex-shrink:0;}
+  .pd-name{font-size:12.5px; font-weight:700; color:var(--text-dark);}
+  .pd-meta{font-size:10.5px; color:var(--text-light); font-weight:600;}
+  .pd-empty{padding:14px; text-align:center; font-size:12px; color:var(--text-light); font-weight:600;}
+
+  .selected-patient-card{
+    display:flex; align-items:center; gap:12px; background:var(--blue-bg); border-radius:12px; padding:12px 14px; margin-bottom:14px;
+  }
+  .selected-patient-card .pd-avatar{width:40px; height:40px;}
+  .sp-name{font-size:13px; font-weight:800; color:var(--text-dark);}
+  .sp-meta{font-size:11px; color:var(--text-mid); font-weight:600; margin-top:1px;}
+  .sp-clear{margin-left:auto; width:26px; height:26px; border-radius:7px; background:#fff; border:1px solid var(--border); display:flex; align-items:center; justify-content:center; color:var(--text-mid); cursor:pointer; flex-shrink:0;}
+  .sp-clear:hover{color:var(--red); border-color:#f9d4d1;}
+
+  .checkbox-row{display:flex; align-items:center; gap:8px; font-size:12px; color:var(--text-mid); font-weight:600;}
+  .checkbox-row input{width:15px; height:15px; accent-color:var(--blue-accent);}
+
+  /* priority chips */
+  .priority-picker{display:flex; gap:8px;}
+  .priority-option{
+    flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:10px 8px; border:1px solid var(--border);
+    border-radius:10px; font-size:12.5px; font-weight:700; cursor:pointer; color:var(--text-mid);
+  }
+  .priority-option input{accent-color:var(--blue-accent);}
+  .priority-option.p-routine.checked{border-color:#cbd5e1; background:#f1f5f9; color:#475569;}
+  .priority-option.p-urgent.checked{border-color:var(--orange); background:var(--orange-bg); color:#c56c05;}
+  .priority-option.p-emergency.checked{border-color:var(--red); background:var(--red-bg); color:#c1362b;}
+
+  /* vitals alert */
+  .vitals-alert{
+    display:none; align-items:flex-start; gap:10px; background:var(--red-bg); border:1px solid #fecaca; border-radius:10px;
+    padding:12px; margin-top:14px; font-size:11.5px; color:#b91c1c; font-weight:600; line-height:1.4;
+  }
+  .vitals-alert.show{display:flex;}
+  .vitals-alert i{margin-top:1px; flex-shrink:0;}
+
+  /* ---------- RIGHT COLUMN ---------- */
+  .doctor-box{display:flex; align-items:center; gap:12px; background:var(--blue-bg); border-radius:12px; padding:14px; margin-bottom:14px;}
+  .doctor-avatar{width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:16px; font-weight:800; flex-shrink:0;}
+  .doctor-name{font-size:13.5px; font-weight:800; color:var(--text-dark);}
+  .doctor-specialty{font-size:11px; color:var(--text-mid); font-weight:600; margin-top:1px;}
+
+  .info-row{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;}
+  .info-label{font-size:11px; color:var(--text-light); font-weight:600;}
+  .info-value{font-size:14px; font-weight:800; color:var(--blue-accent);}
+  .avail-chip{display:inline-block; background:var(--green-bg); color:#0a8a52; font-size:10.5px; font-weight:700; padding:3px 10px; border-radius:20px; margin-top:2px;}
+
+  .queue-box{display:flex; flex-direction:column; gap:8px; padding-top:14px; margin-top:4px; border-top:1px solid var(--border);}
+  .queue-row{display:flex; justify-content:space-between; align-items:center; font-size:11.5px; color:var(--text-mid); font-weight:600;}
+  .queue-row strong{color:var(--text-dark); font-weight:800;}
+
+  .summary-row{display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border); gap:10px;}
+  .summary-row:last-child{border-bottom:none;}
+  .summary-label{font-size:11.5px; color:var(--text-mid); font-weight:600;}
+  .summary-value{font-size:12px; font-weight:700; color:var(--text-dark); text-align:right;}
+  .status-chip-sm{font-size:10.5px; font-weight:700; padding:3px 10px; border-radius:20px; white-space:nowrap;}
+  .status-waiting{background:var(--orange-bg); color:#c56c05;}
+  .priority-chip-sm{font-size:10.5px; font-weight:700; padding:3px 10px; border-radius:20px; white-space:nowrap;}
+  .pc-routine{background:#f1f5f9; color:#64748b;}
+  .pc-urgent{background:var(--orange-bg); color:#c56c05;}
+  .pc-emergency{background:var(--red-bg); color:#c1362b;}
+
+  .notice-box{display:flex; gap:10px; background:var(--blue-bg); border-radius:10px; padding:12px; margin-top:14px; font-size:11.5px; color:#1d4ed8; font-weight:600; line-height:1.4;}
+  .notice-box i{margin-top:1px; flex-shrink:0;}
+
+  .consent-title{font-size:12.5px; font-weight:800; color:var(--blue-accent); margin-bottom:10px;}
+  .consent-box{display:flex; gap:10px; font-size:11.5px; color:var(--text-mid); line-height:1.45; font-weight:500;}
+  .consent-box input{width:16px; height:16px; accent-color:var(--blue-accent); flex-shrink:0; margin-top:1px;}
+
+  .bottom-actions{display:flex; align-items:center; justify-content:flex-end; gap:10px; margin-top:20px; flex-wrap:wrap;}
+
+  /* ---------- TOAST ---------- */
+  .toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;
+    padding:11px 20px;border-radius:10px;font-size:12.5px;font-weight:700;box-shadow:0 10px 30px rgba(10,15,40,0.3);
+    opacity:0;pointer-events:none;transition:.22s; z-index:300; display:flex; align-items:center; gap:9px; max-width:90vw;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .toast i{color:var(--green);}
+  .toast.error i{color:var(--red);}
+
+  @media (max-width:1100px){
+    .form-grid{grid-template-columns:1fr;}
+    .cols-4{grid-template-columns:repeat(2,1fr);}
+    .cols-3{grid-template-columns:repeat(2,1fr);}
+  }
+  @media (max-width:640px){
+    .cols-4, .cols-3, .cols-2{grid-template-columns:1fr;}
+    .topbar{flex-direction:column; align-items:flex-start;}
+    .topbar-actions{width:100%; flex-wrap:wrap;}
+    .topbar-actions .btn{flex:1; justify-content:center;}
+    .bottom-actions{flex-wrap:wrap;}
+    .bottom-actions .btn{width:100%; justify-content:center;}
+    .priority-picker{flex-direction:column;}
+  }
+</style>
+</head>
+<body>
+
+<main class="main">
+
+  <!-- topbar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <button type="button" class="back-btn" id="backBtn" aria-label="Go back"><i class="fa-solid fa-arrow-left"></i></button>
+      <div class="topbar-title">
+        <h1>Consultation Registration</h1>
+        <p>Register a patient for doctor consultation and add them to the queue</p>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <button type="button" class="btn btn-outline" id="clearFormBtn"><i class="fa-solid fa-rotate-left"></i> Clear Form</button>
+      <button type="button" class="btn btn-primary" id="queueTopBtn" disabled><i class="fa-solid fa-user-doctor"></i> Add to Queue</button>
+    </div>
+  </div>
+
+  <form id="consultForm" novalidate onsubmit="return false;">
+  <div class="form-grid">
+
+    <!-- LEFT COLUMN -->
+    <div class="col-left">
+
+      <!-- Patient Information -->
+      <div class="panel">
+        <div class="panel-title">
+          <div class="panel-title-text"><i class="fa-regular fa-user"></i> Patient Information</div>
+          <div class="mode-toggle" id="patientModeToggle">
+            <div class="mode-toggle-btn active" data-mode="existing">Existing Patient</div>
+            <div class="mode-toggle-btn" data-mode="new">New / Walk-in</div>
+          </div>
+        </div>
+
+        <div id="existingPatientBlock">
+          <div class="selected-patient-card" id="selectedPatientCard" style="display:none;"></div>
+          <div class="field patient-search-wrap" id="patientSearchField">
+            <label>Search Patient<span class="req">*</span></label>
+            <div class="input-wrap"><i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="patientSearch" placeholder="Search by name or hospital no…" autocomplete="off">
+            </div>
+            <div class="field-err">Please select a patient</div>
+            <div class="patient-dropdown" id="patientDropdown"></div>
+          </div>
+          <div class="field-grid cols-3" style="margin-top:14px;">
+            <div class="field"><label>Hospital No.</label><input type="text" id="pHospNo" disabled placeholder="—"></div>
+            <div class="field"><label>Age / Gender</label><input type="text" id="pAgeGender" disabled placeholder="—"></div>
+            <div class="field"><label>Phone</label><input type="text" id="pPhone" disabled placeholder="—"></div>
+          </div>
+        </div>
+
+        <div id="newPatientBlock" style="display:none;">
+          <div class="field-grid cols-3">
+            <div class="field" data-field="newFirst"><label>First Name<span class="req">*</span></label><input type="text" id="newFirst" placeholder="e.g. Grace"><div class="field-err">Required</div></div>
+            <div class="field" data-field="newLast"><label>Last Name<span class="req">*</span></label><input type="text" id="newLast" placeholder="e.g. Emu"><div class="field-err">Required</div></div>
+            <div class="field"><label>Gender</label><select id="newGender"><option>Female</option><option>Male</option></select></div>
+            <div class="field" data-field="newAge"><label>Age<span class="req">*</span></label><input type="number" id="newAge" min="0" max="120" placeholder="e.g. 31"><div class="field-err">Required</div></div>
+            <div class="field" data-field="newPhone"><label>Phone<span class="req">*</span></label>
+              <div class="input-wrap"><i class="fa-solid fa-phone"></i><input type="text" id="newPhone" placeholder="0803 123 4567"></div>
+              <div class="field-err">Required</div>
+            </div>
+            <div class="field" style="align-self:flex-end;">
+              <label class="checkbox-row"><input type="checkbox" id="newFullReg"> Complete full registration after consultation</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vitals & Chief Complaint -->
+      <div class="panel">
+        <div class="panel-title"><div class="panel-title-text pt-pink"><i class="fa-solid fa-heart-pulse"></i> Vitals &amp; Chief Complaint</div></div>
+        <div class="field-grid cols-4">
+          <div class="field"><label>Blood Pressure</label><input type="text" id="vBp" placeholder="e.g. 120/80"></div>
+          <div class="field"><label>Temperature (°C)</label><input type="text" id="vTemp" placeholder="e.g. 36.8"></div>
+          <div class="field"><label>Pulse (bpm)</label><input type="text" id="vPulse" placeholder="e.g. 78"></div>
+          <div class="field"><label>SpO2 (%)</label><input type="text" id="vSpo2" placeholder="e.g. 98"></div>
+          <div class="field"><label>Weight (kg)</label><input type="text" id="vWeight" placeholder="e.g. 68"></div>
+          <div class="field"><label>Height (cm)</label><input type="text" id="vHeight" placeholder="e.g. 165"></div>
+          <div class="field"><label>Resp. Rate (br/min)</label><input type="text" id="vRr" placeholder="e.g. 16"></div>
+          <div class="field"><label>Known Allergies</label><input type="text" id="vAllergies" placeholder="e.g. Penicillin, None"></div>
+        </div>
+        <div class="vitals-alert" id="vitalsAlert">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <div id="vitalsAlertText">One or more vitals are outside the normal range. Consider flagging this patient as Urgent or Emergency.</div>
+        </div>
+
+        <div class="field-grid cols-2" style="margin-top:14px;">
+          <div class="field" data-field="complaint" style="grid-column:span 2;">
+            <label>Chief Complaint<span class="req">*</span></label>
+            <textarea id="vComplaint" placeholder="What is the patient presenting with today?" maxlength="500"></textarea>
+            <div class="char-count"><span id="complaintCount">0</span> / 500</div>
+            <div class="field-err">Please describe the chief complaint</div>
+          </div>
+          <div class="field"><label>Duration of Symptoms</label><input type="text" id="vDuration" placeholder="e.g. 3 days"></div>
+          <div class="field"><label>Referred By (Optional)</label><input type="text" id="vReferredBy" placeholder="e.g. Self, Nursing, Another facility"></div>
+        </div>
+      </div>
+
+      <!-- Queue Assignment -->
+      <div class="panel">
+        <div class="panel-title"><div class="panel-title-text pt-orange"><i class="fa-solid fa-list-ol"></i> Queue Assignment</div></div>
+        <div class="field-grid cols-3">
+          <div class="field" data-field="type">
+            <label>Consultation Type<span class="req">*</span></label>
+            <select id="fType">
+              <option value="">Select type</option>
+              <option value="New Complaint">New Complaint</option>
+              <option value="Follow-up">Follow-up</option>
+              <option value="Antenatal Review">Antenatal Review</option>
+              <option value="Postnatal Review">Postnatal Review</option>
+              <option value="Family Planning">Family Planning</option>
+              <option value="Referral">Referral</option>
+            </select>
+            <div class="field-err">Please select a type</div>
+          </div>
+          <div class="field" data-field="doctor">
+            <label>Assign to Doctor<span class="req">*</span></label>
+            <select id="fDoctor"><option value="">Select a doctor</option></select>
+            <div class="field-err">Please select a doctor</div>
+          </div>
+          <div class="field"><label>Department / Specialty</label><input type="text" id="fSpecialty" disabled placeholder="—"></div>
+        </div>
+        <div class="field" style="margin-top:14px;">
+          <label>Priority<span class="req">*</span></label>
+          <div class="priority-picker" id="priorityPicker">
+            <label class="priority-option p-routine checked"><input type="radio" name="priority" value="Routine" checked> Routine</label>
+            <label class="priority-option p-urgent"><input type="radio" name="priority" value="Urgent"> Urgent</label>
+            <label class="priority-option p-emergency"><input type="radio" name="priority" value="Emergency"> Emergency</label>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="col-right">
+
+      <div class="panel">
+        <div class="panel-title"><div class="panel-title-text"><i class="fa-solid fa-user-doctor"></i> Doctor Availability</div></div>
+        <div id="doctorBox"></div>
+        <div class="info-row">
+          <div>
+            <div class="info-label">Current Queue</div>
+            <div class="info-value" id="queueCountValue">—</div>
+          </div>
+          <span class="avail-chip" id="availChip">Select a doctor</span>
+        </div>
+        <div class="queue-box" id="queueBox" style="display:none;">
+          <div class="queue-row">This patient will be <strong id="queuePositionLabel">#—</strong> in line</div>
+          <div class="queue-row">Estimated wait <strong id="queueWaitLabel">—</strong></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title"><div class="panel-title-text"><i class="fa-regular fa-file-lines"></i> Queue Summary</div></div>
+        <div class="summary-row"><div class="summary-label">Consultation ID</div><div class="summary-value" id="sumId">—</div></div>
+        <div class="summary-row"><div class="summary-label">Patient</div><div class="summary-value" id="sumPatient">Not selected</div></div>
+        <div class="summary-row"><div class="summary-label">Doctor</div><div class="summary-value" id="sumDoctor">Not selected</div></div>
+        <div class="summary-row"><div class="summary-label">Priority</div><div id="sumPriority"><span class="priority-chip-sm pc-routine">Routine</span></div></div>
+        <div class="summary-row"><div class="summary-label">Status</div><div id="sumStatus"><span class="status-chip-sm status-waiting">Waiting</span></div></div>
+
+        <div class="notice-box">
+          <i class="fa-regular fa-circle-check"></i>
+          <div>Once added, this patient appears immediately in the doctor's Consultation Queue.</div>
+        </div>
+
+        <div style="margin-top:18px;">
+          <div class="consent-title">Confirmation</div>
+          <div class="consent-box">
+            <input type="checkbox" id="fConsent">
+            <div>I confirm the vitals and information recorded above are accurate and the patient is ready to be added to the doctor's queue.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="bottom-actions">
+    <button type="button" class="btn btn-outline" id="cancelBtn">Cancel</button>
+    <button type="button" class="btn btn-outline" id="queueAnotherBtn" disabled><i class="fa-regular fa-square-plus"></i> Register &amp; Add Another</button>
+    <button type="button" class="btn btn-dark" id="queueBtn" disabled><i class="fa-solid fa-user-doctor"></i> Add to Consultation Queue</button>
+  </div>
+  </form>
+
+</main>
+
+<div class="toast" id="toast"><i class="fa-solid fa-circle-check"></i><span id="toastText">Saved</span></div>
+
+<script src="../services/api.js"></script>
+<script src="../services/patient-service.js"></script>
+<script src="../services/visit-service.js"></script>
+<script>
+(function(){
+  'use strict';
+  const el = id => document.getElementById(id);
+
+  /* Backend-only: patients via PatientService (GET /patients),
+     visits via VisitService.createVisit (POST /visits). */
+  let ALL_PATIENTS = [];
+  let DOCTORS = [];
+
+  const PRIORITY_CLASS = { Routine: 'pc-routine', Urgent: 'pc-urgent', Emergency: 'pc-emergency' };
+
+  /* ---------------- STATE ---------------- */
+  let selectedPatient = null;
+  let selectedDoctorIdx = null;
+  let patientMode = 'existing';
+  let nextConsultNum = 1;
+
+  function showToast(msg, isError) {
+    el('toastText').textContent = msg;
+    const t = el('toast');
+    t.classList.toggle('error', !!isError);
+    t.querySelector('i').className = isError ? 'fa-solid fa-triangle-exclamation' : 'fa-solid fa-circle-check';
+    t.classList.add('show');
+    clearTimeout(showToast._tm);
+    showToast._tm = setTimeout(function () { t.classList.remove('show'); }, 2400);
+  }
+
+  function initials(name) { return name.replace('Dr. ', '').split(' ').map(function (w) { return w[0]; }).slice(0, 2).join('').toUpperCase(); }
+
+  /* ---------------- PATIENT MODE TOGGLE ---------------- */
+  document.querySelectorAll('#patientModeToggle .mode-toggle-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('#patientModeToggle .mode-toggle-btn').forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      patientMode = btn.dataset.mode;
+      el('existingPatientBlock').style.display = patientMode === 'existing' ? 'block' : 'none';
+      el('newPatientBlock').style.display = patientMode === 'new' ? 'block' : 'none';
+      updateSummary(); validateForm();
+    });
+  });
+
+  /* ---------------- PATIENT SEARCH (via PatientService) ---------------- */
+  const dropdown = el('patientDropdown');
+  let searchDebounce;
+  async function doSearch(query) {
+    const q = (query || '').trim().toLowerCase();
+    const matches = q
+      ? ALL_PATIENTS.filter(function (p) {
+          return (p.name || '').toLowerCase().indexOf(q) !== -1
+            || (p.hosp || '').toLowerCase().indexOf(q) !== -1
+            || (p.phone || '').toLowerCase().indexOf(q) !== -1;
+        })
+      : ALL_PATIENTS;
+    if (!matches.length) {
+      dropdown.innerHTML = '<div class="pd-empty">No patients found</div>';
+    } else {
+      dropdown.innerHTML = matches.slice(0, 8).map(function (p) {
+        const idx = ALL_PATIENTS.indexOf(p);
+        return '<div class="pd-item" data-idx="' + idx + '"><div class="pd-avatar" style="background-image:url(\'https://i.pravatar.cc/80?img=' + p.img + '\')"></div><div><div class="pd-name">' + p.name + '</div><div class="pd-meta">' + p.hosp + ' · ' + p.phone + '</div></div></div>';
+      }).join('');
+    }
+    dropdown.classList.add('open');
+  }
+  el('patientSearch').addEventListener('focus', function () { doSearch(el('patientSearch').value); });
+  el('patientSearch').addEventListener('input', function () {
+    clearTimeout(searchDebounce);
+    const v = this.value;
+    searchDebounce = setTimeout(function () { doSearch(v); }, 150);
+  });
+  dropdown.addEventListener('click', function (e) {
+    const item = e.target.closest('.pd-item');
+    if (!item) return;
+    selectedPatient = ALL_PATIENTS[Number(item.dataset.idx)];
+    dropdown.classList.remove('open');
+    el('patientSearch').value = '';
+    renderSelectedPatient();
+    el('patientSearchField').classList.remove('invalid');
+    updateSummary(); validateForm();
+  });
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('.patient-search-wrap')) dropdown.classList.remove('open');
+  });
+
+  function renderSelectedPatient() {
+    const card = el('selectedPatientCard');
+    if (!selectedPatient) {
+      card.style.display = 'none';
+      el('pHospNo').value = ''; el('pAgeGender').value = ''; el('pPhone').value = '';
+      return;
+    }
+    card.style.display = 'flex';
+    card.innerHTML =
+      '<div class="pd-avatar" style="background-image:url(\'https://i.pravatar.cc/80?img=' + selectedPatient.img + '\')"></div>' +
+      '<div><div class="sp-name">' + selectedPatient.name + '</div><div class="sp-meta">' + selectedPatient.hosp + ' · ' + selectedPatient.gender + ', ' + selectedPatient.age + ' yrs</div></div>' +
+      '<div class="sp-clear" id="clearPatientBtn" title="Clear"><i class="fa-solid fa-xmark"></i></div>';
+    el('clearPatientBtn').addEventListener('click', function () {
+      selectedPatient = null; renderSelectedPatient(); updateSummary(); validateForm();
+    });
+    el('pHospNo').value = selectedPatient.hosp;
+    el('pAgeGender').value = selectedPatient.age + ' yrs, ' + selectedPatient.gender;
+    el('pPhone').value = selectedPatient.phone;
+  }
+
+  /* ---------------- DOCTORS (backend-only) ---------------- */
+  const doctorSelect = el('fDoctor');
+  function populateDoctors(){
+    doctorSelect.innerHTML = '<option value="">Select a doctor</option>';
+    DOCTORS.forEach(function (d, i) {
+      const opt = document.createElement('option');
+      opt.value = i; opt.textContent = d.name + ' — ' + d.specialty;
+      doctorSelect.appendChild(opt);
+    });
+  }
+
+  function queueCountForDoctor(name) {
+    try {
+      const list = (VisitService.state && VisitService.state.allVisits) || [];
+      return list.filter(function (c) { return c.doctor === name && (c.status === 'Waiting' || c.status === 'waiting'); }).length;
+    } catch (e) { return 0; }
+  }
+
+  function renderDoctorBox() {
+    const box = el('doctorBox');
+    if (selectedDoctorIdx === null) {
+      box.innerHTML = '<div style="text-align:center;padding:16px 0;color:var(--text-light);font-size:12px;font-weight:600;"><i class="fa-solid fa-user-doctor" style="font-size:22px;display:block;margin-bottom:8px;color:#c7d7fb;"></i>Select a doctor to see their queue</div>';
+      el('queueCountValue').textContent = '—';
+      el('availChip').textContent = 'Select a doctor';
+      el('availChip').style.background = '#f1f2f6'; el('availChip').style.color = '#9aa1b3';
+      el('queueBox').style.display = 'none';
+      return;
+    }
+    const d = DOCTORS[selectedDoctorIdx];
+    box.innerHTML =
+      '<div class="doctor-box"><div class="doctor-avatar" style="background:' + d.color + ';">' + d.initials + '</div>' +
+      '<div><div class="doctor-name">' + d.name + '</div><div class="doctor-specialty">' + d.specialty + '</div></div></div>';
+    const count = queueCountForDoctor(d.name);
+    el('queueCountValue').textContent = count + ' waiting';
+    el('availChip').textContent = count === 0 ? 'No wait' : count < 4 ? 'Short wait' : 'Busy';
+    el('availChip').style.background = count === 0 ? 'var(--green-bg)' : count < 4 ? 'var(--orange-bg)' : 'var(--red-bg)';
+    el('availChip').style.color = count === 0 ? '#0a8a52' : count < 4 ? '#c56c05' : '#c1362b';
+    el('queueBox').style.display = 'flex';
+    el('queuePositionLabel').textContent = '#' + (count + 1);
+    el('queueWaitLabel').textContent = (count * 12) + '–' + (count * 12 + 10) + ' mins';
+  }
+  doctorSelect.addEventListener('change', function () {
+    selectedDoctorIdx = doctorSelect.value === '' ? null : Number(doctorSelect.value);
+    el('fSpecialty').value = selectedDoctorIdx !== null ? DOCTORS[selectedDoctorIdx].specialty : '';
+    renderDoctorBox(); updateSummary(); validateForm();
+  });
+
+  /* ---------------- PRIORITY PICKER ---------------- */
+  document.querySelectorAll('input[name="priority"]').forEach(function (radio) {
+    radio.addEventListener('change', function () {
+      document.querySelectorAll('.priority-option').forEach(function (opt) { opt.classList.remove('checked'); });
+      this.closest('.priority-option').classList.add('checked');
+      updateSummary();
+    });
+  });
+
+  /* ---------------- VITALS FLAGGING ---------------- */
+  function checkVitals() {
+    let flagged = false;
+    const bp = el('vBp').value.trim();
+    const bpMatch = bp.match(/^(\d{2,3})\s*\/\s*(\d{2,3})$/);
+    if (bpMatch) {
+      const sys = parseInt(bpMatch[1], 10), dia = parseInt(bpMatch[2], 10);
+      const bad = sys >= 140 || sys < 90 || dia >= 90 || dia < 60;
+      el('vBp').classList.toggle('flagged', bad); if (bad) flagged = true;
+    } else { el('vBp').classList.remove('flagged'); }
+
+    const temp = parseFloat(el('vTemp').value);
+    if (!isNaN(temp)) { const bad = temp >= 38 || temp <= 35; el('vTemp').classList.toggle('flagged', bad); if (bad) flagged = true; }
+    else el('vTemp').classList.remove('flagged');
+
+    const pulse = parseInt(el('vPulse').value, 10);
+    if (!isNaN(pulse)) { const bad = pulse > 100 || pulse < 60; el('vPulse').classList.toggle('flagged', bad); if (bad) flagged = true; }
+    else el('vPulse').classList.remove('flagged');
+
+    const spo2 = parseInt(el('vSpo2').value, 10);
+    if (!isNaN(spo2)) { const bad = spo2 < 94; el('vSpo2').classList.toggle('flagged', bad); if (bad) flagged = true; }
+    else el('vSpo2').classList.remove('flagged');
+
+    const rr = parseInt(el('vRr').value, 10);
+    if (!isNaN(rr)) { const bad = rr > 20 || rr < 12; el('vRr').classList.toggle('flagged', bad); if (bad) flagged = true; }
+    else el('vRr').classList.remove('flagged');
+
+    el('vitalsAlert').classList.toggle('show', flagged);
+    return flagged;
+  }
+  ['vBp', 'vTemp', 'vPulse', 'vSpo2', 'vRr'].forEach(function (id) {
+    el(id).addEventListener('input', function () { checkVitals(); });
+  });
+
+  /* ---------------- CHIEF COMPLAINT CHAR COUNT ---------------- */
+  el('vComplaint').addEventListener('input', function () {
+    el('complaintCount').textContent = this.value.length;
+    updateSummary(); validateForm();
+  });
+
+  /* ---------------- TYPE / NEW PATIENT FIELDS ---------------- */
+  el('fType').addEventListener('change', function () { updateSummary(); validateForm(); });
+  ['newFirst', 'newLast', 'newAge', 'newPhone'].forEach(function (id) {
+    el(id).addEventListener('input', function () { updateSummary(); validateForm(); });
+  });
+  el('fConsent').addEventListener('change', validateForm);
+
+  /* ---------------- SUMMARY ---------------- */
+  function updateSummary() {
+    el('sumId').textContent = 'CN-' + String(nextConsultNum).padStart(6, '0');
+
+    if (patientMode === 'existing') {
+      el('sumPatient').textContent = selectedPatient ? selectedPatient.name : 'Not selected';
+    } else {
+      const fn = el('newFirst').value.trim(), ln = el('newLast').value.trim();
+      el('sumPatient').textContent = (fn || ln) ? (fn + ' ' + ln + ' (new)').trim() : 'Not entered';
+    }
+
+    el('sumDoctor').textContent = selectedDoctorIdx !== null ? DOCTORS[selectedDoctorIdx].name : 'Not selected';
+
+    const pr = document.querySelector('input[name="priority"]:checked').value;
+    el('sumPriority').innerHTML = '<span class="priority-chip-sm ' + PRIORITY_CLASS[pr] + '">' + pr + '</span>';
+  }
+
+  /* ---------------- VALIDATION ---------------- */
+  function validateForm() {
+    const patientOk = patientMode === 'existing'
+      ? !!selectedPatient
+      : (el('newFirst').value.trim() && el('newLast').value.trim() && el('newAge').value.trim() && el('newPhone').value.trim());
+    const doctorOk = doctorSelect.value !== '';
+    const typeOk = el('fType').value !== '';
+    const complaintOk = el('vComplaint').value.trim() !== '';
+    const consentOk = el('fConsent').checked;
+
+    const allOk = patientOk && doctorOk && typeOk && complaintOk && consentOk;
+    el('queueBtn').disabled = !allOk;
+    el('queueTopBtn').disabled = !allOk;
+    el('queueAnotherBtn').disabled = !allOk;
+    return { patientOk: patientOk, doctorOk: doctorOk, typeOk: typeOk, complaintOk: complaintOk, consentOk: consentOk };
+  }
+
+  function markFieldStates(v) {
+    el('patientSearchField').classList.toggle('invalid', patientMode === 'existing' && !v.patientOk);
+    document.querySelectorAll('#newPatientBlock [data-field]').forEach(function (f) {
+      const input = f.querySelector('input');
+      f.classList.toggle('invalid', patientMode === 'new' && input && !input.value.trim());
+    });
+    document.querySelector('[data-field="doctor"]').classList.toggle('invalid', !v.doctorOk);
+    document.querySelector('[data-field="type"]').classList.toggle('invalid', !v.typeOk);
+    document.querySelector('[data-field="complaint"]').classList.toggle('invalid', !v.complaintOk);
+  }
+
+  /* ---------------- SUBMIT (POST /visits via VisitService) ---------------- */
+  async function submitRegistration(btn, addAnother) {
+    const v = validateForm();
+    markFieldStates(v);
+    if (!(v.patientOk && v.doctorOk && v.typeOk && v.complaintOk && v.consentOk)) {
+      showToast('Please complete all required fields', true);
+      return;
+    }
+
+    const flagged = checkVitals();
+    const priority = document.querySelector('input[name="priority"]:checked').value;
+    if (flagged && priority === 'Routine') {
+      if (!confirm('Some vitals are outside the normal range but priority is set to Routine. Continue anyway?')) return;
+    }
+
+    const doctor = DOCTORS[selectedDoctorIdx];
+    if(patientMode !== 'existing' || !selectedPatient || !selectedPatient.id){
+      window.ShilohAPI.toast('Walk-in consultations require an existing patient. Please select a patient.', 'error');
+      return;
+    }
+
+    const payload = {
+      patientId: selectedPatient.id,
+      patientName: selectedPatient.name,
+      hospitalNo: selectedPatient.hosp,
+      type: 'consultation',
+      department: doctor.specialty || 'General Medicine',
+      dept: doctor.specialty || 'General Medicine',
+      doctor: doctor.name,
+      status: 'waiting',
+      priority: String(priority).toLowerCase(),
+      reason: el('vComplaint').value.trim(),
+      referredBy: el('vReferredBy').value.trim() || undefined,
+      date: new Date().toISOString().slice(0,10),
+      vitalSigns: {
+        bp: el('vBp').value.trim() || undefined,
+        temp: el('vTemp').value.trim() || undefined,
+        pulse: el('vPulse').value.trim() || undefined,
+        spo2: el('vSpo2').value.trim() || undefined,
+        weight: el('vWeight').value.trim() || undefined,
+        height: el('vHeight').value.trim() || undefined,
+        rr: el('vRr').value.trim() || undefined,
+        allergies: el('vAllergies').value.trim() || undefined,
+      }
+    };
+
+    const original = btn.innerHTML;
+    btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Adding to queue...';
+    btn.disabled = true; btn.classList.add('btn-loading');
+
+    try {
+      const created = await VisitService.createVisit(payload);
+      if(!created){
+        window.ShilohAPI.toast('Could not register consultation. Check connection / login.', 'error');
+        return;
+      }
+      showToast((created.id || 'Patient') + ' added to ' + doctor.name + '\'s queue');
+      nextConsultNum++;
+      resetForm();
+      if (addAnother) el('patientSearch').focus();
+    } catch (err) {
+      window.ShilohAPI.toast('Could not register consultation. Check connection / login.', 'error');
+    } finally {
+      btn.innerHTML = original; btn.disabled = false; btn.classList.remove('btn-loading');
+      validateForm();
+    }
+  }
+
+  el('queueBtn').addEventListener('click', function (e) { submitRegistration(e.currentTarget, false); });
+  el('queueTopBtn').addEventListener('click', function (e) { submitRegistration(e.currentTarget, false); });
+  el('queueAnotherBtn').addEventListener('click', function (e) { submitRegistration(e.currentTarget, true); });
+
+  el('cancelBtn').addEventListener('click', function () {
+    if (confirm('Discard this registration?')) { resetForm(); showToast('Registration cancelled'); }
+  });
+  el('backBtn').addEventListener('click', function () {
+    if (window.history.length > 1) window.history.back(); else window.location.href = 'consultation.html';
+  });
+  el('clearFormBtn').addEventListener('click', function () {
+    if (confirm('Clear all fields?')) { resetForm(); showToast('Form cleared'); }
+  });
+
+  function resetForm() {
+    selectedPatient = null; renderSelectedPatient();
+    el('patientSearch').value = '';
+    el('newFirst').value = ''; el('newLast').value = ''; el('newAge').value = ''; el('newPhone').value = '';
+    el('newGender').value = 'Female'; el('newFullReg').checked = false;
+    document.querySelectorAll('#patientModeToggle .mode-toggle-btn').forEach(function (b) { b.classList.remove('active'); });
+    document.querySelector('#patientModeToggle [data-mode="existing"]').classList.add('active');
+    patientMode = 'existing';
+    el('existingPatientBlock').style.display = 'block'; el('newPatientBlock').style.display = 'none';
+
+    selectedDoctorIdx = null; doctorSelect.value = ''; el('fSpecialty').value = ''; renderDoctorBox();
+
+    ['vBp', 'vTemp', 'vPulse', 'vSpo2', 'vWeight', 'vHeight', 'vRr', 'vAllergies', 'vDuration', 'vReferredBy'].forEach(function (id) {
+      el(id).value = ''; el(id).classList.remove('flagged');
+    });
+    el('vitalsAlert').classList.remove('show');
+    el('vComplaint').value = ''; el('complaintCount').textContent = '0';
+    el('fType').value = '';
+    document.querySelector('input[name="priority"][value="Routine"]').checked = true;
+    document.querySelectorAll('.priority-option').forEach(function (opt) { opt.classList.remove('checked'); });
+    document.querySelector('.priority-option.p-routine').classList.add('checked');
+    el('fConsent').checked = false;
+
+    document.querySelectorAll('.field.invalid').forEach(function (f) { f.classList.remove('invalid'); });
+    updateSummary(); validateForm();
+  }
+
+  /* ---------------- INIT (async, backend-only) ---------------- */
+  async function init(){
+    try { await PatientService.init(); } catch (e) { window.ShilohAPI.toast('Could not load patients. Check connection / login.', 'error'); }
+    try { await VisitService.init(); } catch (e) { window.ShilohAPI.toast('Could not load visits. Check connection / login.', 'error'); }
+    try {
+      const list = PatientService.getAllPatients() || [];
+      ALL_PATIENTS = list.map(function(p, i){
+        return { id: p.id, name: p.name, hosp: p.hospitalNo || '', age: p.age || '', gender: p.gender || '', phone: p.phonePrimary || p.phone || '', img: 12 };
+      });
+    } catch (e) { window.ShilohAPI.toast('Could not load patients. Check connection / login.', 'error'); ALL_PATIENTS = []; }
+    try {
+      const docs = await VisitService.getDoctors();
+      const colors = ['#2563eb','#8b5cf6','#ec4899','#12b76a'];
+      DOCTORS = (docs || []).map(function(d, i){
+        const name = (d && d.name) || String(d);
+        const specialty = (d && (d.specialty || d.department)) || 'General Medicine';
+        return { name: name, specialty: specialty, initials: String(name).replace('Dr. ','').split(' ').map(function(w){return w[0];}).slice(0,2).join('').toUpperCase(), color: colors[i % colors.length] };
+      });
+      if(!DOCTORS.length) throw new Error('empty');
+    } catch (e) {
+      window.ShilohAPI.toast('Could not load doctors. Check connection / login.', 'error');
+      DOCTORS = [];
+    }
+    populateDoctors();
+    renderDoctorBox();
+    updateSummary();
+    validateForm();
+  }
+  init();
+})();
+</script>
+</body>
+</html>

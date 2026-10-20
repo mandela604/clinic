@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Shiloh Clinic &amp; Maternity - Audit Logs</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root{
+    --navy:#0d1b4c; --blue:#2563eb; --blue-light:#eef2ff;
+    --text-dark:#1e293b; --text-gray:#64748b; --border:#e5e7eb; --bg:#f5f6f8;
+    --green:#16a34a; --green-bg:#dcfce7;
+    --orange:#f97316; --orange-bg:#fff1e6;
+    --purple:#8b5cf6; --purple-bg:#f1eaff;
+    --pink:#ec4899; --pink-bg:#fde8f2;
+    --red:#ef4444; --red-bg:#fee2e2;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text-dark);display:flex;min-height:100vh;}
+  .main{flex:1;min-width:0;padding:22px 28px;overflow-x:auto;}
+
+  .topbar{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px;gap:14px;flex-wrap:wrap;}
+  .page-title{font-size:22px;font-weight:700;color:#0f172a;}
+  .breadcrumb{font-size:12.5px;color:var(--text-gray);margin-top:4px;}
+  .topbar-actions{display:flex;gap:10px;}
+  .btn{display:flex;align-items:center;gap:7px;padding:9px 16px;border-radius:8px;font-size:13.5px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:#fff;color:#334155;white-space:nowrap;}
+  .btn i{font-size:13px;}
+  .btn:hover{background:#fafbfc;}
+  .btn-primary{background:var(--blue);color:#fff;border:1px solid var(--blue);}
+  .btn-primary:hover{background:#1d4fd1;}
+  .btn-danger{background:#fff;color:var(--red);border:1px solid var(--red-bg);}
+  .btn-danger:hover{background:var(--red-bg);}
+
+  .stats-row{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-bottom:20px;align-items:stretch;}
+  .stat-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;}
+  .stat-top{display:flex;align-items:flex-start;gap:10px;}
+  .stat-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;}
+  .stat-label{font-size:12px;color:var(--text-gray);font-weight:500;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:31px;}
+  .stat-value{font-size:20px;font-weight:700;color:#0f172a;line-height:1;}
+  .stat-sub{font-size:10.5px;color:#94a3b8;margin-top:auto;padding-top:2px;}
+  .icon-blue{background:var(--blue-light);color:var(--blue);}
+  .icon-green{background:var(--green-bg);color:var(--green);}
+  .icon-orange{background:var(--orange-bg);color:var(--orange);}
+  .icon-purple{background:var(--purple-bg);color:var(--purple);}
+  .icon-pink{background:var(--pink-bg);color:var(--pink);}
+  .icon-red{background:var(--red-bg);color:var(--red);}
+
+  .filter-bar{display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap;}
+  .search-box{flex:1;min-width:260px;position:relative;}
+  .search-box input{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:#fff;font-family:inherit;}
+  .search-box i{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#94a3b8;font-size:13px;}
+  .filter-group{display:flex;flex-direction:column;gap:3px;}
+  .filter-group label{font-size:11.5px;color:var(--text-gray);font-weight:500;}
+  .filter-select{padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:#fff;min-width:120px;color:#334155;font-family:inherit;cursor:pointer;}
+  .filter-reset{align-self:flex-end;font-size:11.5px;font-weight:700;color:var(--blue);cursor:pointer;padding:9px 4px;white-space:nowrap;}
+  .filter-reset:hover{text-decoration:underline;}
+
+  .table-card{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+  .table-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;flex-wrap:wrap;gap:8px;}
+  .table-title{font-size:15px;font-weight:700;color:#0f172a;}
+  .live-note{display:flex;align-items:center;gap:6px;font-size:11px;color:#94a3b8;font-weight:600;}
+  .live-dot{width:7px;height:7px;background:var(--green);border-radius:50%;display:inline-block;}
+
+  table{width:100%;border-collapse:collapse;}
+  thead tr{border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:#fafbfc;}
+  th{text-align:left;padding:11px 12px;font-size:11.5px;color:#64748b;font-weight:600;white-space:nowrap;}
+  td{padding:11px 12px;font-size:13px;border-bottom:1px solid var(--border);white-space:nowrap;color:#334155;vertical-align:middle;}
+  tbody tr:hover{background:#fafbfc;}
+
+  .ts-cell{display:flex;flex-direction:column;gap:1px;}
+  .ts-date{font-weight:600;color:#0f172a;font-size:12.5px;}
+  .ts-time{font-size:10.5px;color:#94a3b8;}
+
+  .user-cell{display:flex;align-items:center;gap:9px;}
+  .avatar{width:30px;height:30px;border-radius:50%;background:#cbd5e1;background-size:cover;background-position:center;flex-shrink:0;}
+  .avatar.system{background:#1e293b;display:flex;align-items:center;justify-content:center;}
+  .avatar.system i{font-size:12px;color:#fff;}
+  .user-fullname{font-weight:600;color:#0f172a;font-size:12.5px;}
+  .user-role-sub{font-size:10.5px;color:#94a3b8;}
+
+  .action-cell{display:flex;align-items:center;gap:8px;}
+  .action-ic{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;}
+  .action-text{font-weight:600;color:#0f172a;font-size:12.5px;}
+
+  .target-cell{display:flex;flex-direction:column;gap:1px;}
+  .target-type{font-size:10px;color:#94a3b8;font-weight:700;text-transform:uppercase;letter-spacing:.02em;}
+  .target-name{font-weight:600;color:var(--blue);font-size:12.5px;cursor:pointer;}
+  .target-name:hover{text-decoration:underline;}
+  .target-dash{color:#cbd5e1;}
+
+  .ip-cell{font-family:'Courier New',monospace;font-size:12px;color:#64748b;}
+
+  .badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11.5px;font-weight:600;white-space:nowrap;}
+  .badge .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+  .badge-info{background:var(--blue-light);color:var(--blue);}
+  .badge-info .dot{background:var(--blue);}
+  .badge-success{background:var(--green-bg);color:var(--green);}
+  .badge-success .dot{background:var(--green);}
+  .badge-warning{background:var(--orange-bg);color:#c56c05;}
+  .badge-warning .dot{background:var(--orange);}
+  .badge-critical{background:var(--red-bg);color:var(--red);}
+  .badge-critical .dot{background:var(--red);}
+
+  .row-actions{display:flex;gap:6px;align-items:center;}
+  .icon-btn{width:30px;height:30px;border:1px solid var(--border);border-radius:8px;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#64748b;}
+  .icon-btn:hover{background:var(--blue-light);border-color:var(--blue-light);color:var(--blue);}
+  .icon-btn i{font-size:12px;}
+
+  .table-footer{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;flex-wrap:wrap;gap:10px;}
+  .footer-text{font-size:12.5px;color:var(--text-gray);}
+  .pagination{display:flex;gap:6px;align-items:center;}
+  .page-btn{width:32px;height:32px;border:1px solid var(--border);border-radius:7px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;color:#334155;cursor:pointer;}
+  .page-btn:hover:not(.active):not(:disabled){border-color:var(--blue);color:var(--blue);}
+  .page-btn.active{background:var(--blue);color:#fff;border-color:var(--blue);cursor:default;}
+  .page-btn:disabled{opacity:.4;cursor:default;}
+  .page-ellipsis{width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-weight:700;}
+  .empty-row td{text-align:center;padding:44px 10px;color:#94a3b8;font-size:13px;}
+
+  .modal-overlay{position:fixed;inset:0;background:rgba(13,27,76,0.45);display:none;align-items:flex-start;justify-content:center;z-index:300;padding:40px 20px;overflow-y:auto;}
+  .modal-overlay.open{display:flex;}
+  .modal-box{background:#fff;border-radius:16px;max-width:560px;width:100%;padding:22px;box-shadow:0 20px 60px rgba(10,15,40,0.25);}
+  .modal-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;gap:10px;}
+  .modal-title{font-size:15px;font-weight:800;color:#0f172a;}
+  .modal-subtitle{font-size:11.5px;color:var(--text-gray);margin-top:3px;font-weight:500;}
+  .modal-close{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text-gray);cursor:pointer;flex-shrink:0;}
+  .modal-close:hover{background:var(--bg);}
+  .modal-close i{font-size:13px;}
+  .modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border);}
+  .btn-secondary{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border);border-radius:8px;padding:9px 16px;font-size:13px;font-weight:600;color:#64748b;cursor:pointer;}
+  .btn-secondary:hover{background:var(--bg);color:var(--text-dark);}
+
+  .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 20px;margin-bottom:8px;}
+  .detail-row{display:flex;flex-direction:column;gap:2px;padding:9px 0;border-bottom:1px solid var(--border);}
+  .detail-row.full{grid-column:1/-1;}
+  .detail-label{font-size:10px;color:#94a3b8;font-weight:700;text-transform:uppercase;letter-spacing:.03em;}
+  .detail-value{font-size:12.5px;color:#0f172a;font-weight:600;}
+  .detail-value.mono{font-family:'Courier New',monospace;}
+
+  .diff-box{background:var(--bg);border-radius:9px;padding:10px 12px;margin-top:6px;}
+  .diff-row{display:flex;align-items:center;gap:8px;font-size:12px;padding:4px 0;}
+  .diff-field{font-weight:700;color:#0f172a;min-width:110px;flex-shrink:0;}
+  .diff-old{color:#94a3b8;text-decoration:line-through;}
+  .diff-arrow{color:#94a3b8;}
+  .diff-new{color:var(--green);font-weight:600;}
+
+  .confirm-icon{width:48px;height:48px;border-radius:50%;background:var(--red-bg);color:var(--red);display:flex;align-items:center;justify-content:center;margin-bottom:12px;font-size:18px;}
+  .confirm-text{font-size:13px;color:#334155;line-height:1.5;}
+  .confirm-text b{color:#0f172a;}
+  .confirm-warn{margin-top:10px;padding:10px 12px;background:var(--orange-bg);border-radius:8px;font-size:11.5px;color:#c56c05;font-weight:600;display:flex;align-items:flex-start;gap:8px;}
+  .confirm-warn i{flex-shrink:0;margin-top:1px;}
+
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;padding:11px 20px;border-radius:10px;font-size:12.5px;font-weight:700;box-shadow:0 10px 30px rgba(10,15,40,0.3);opacity:0;pointer-events:none;transition:.22s;z-index:400;display:flex;align-items:center;gap:9px;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .toast i{color:var(--green);}
+
+  @media(max-width:1200px){.stats-row{grid-template-columns:repeat(3,1fr);}}
+  @media(max-width:720px){.stats-row{grid-template-columns:repeat(2,1fr);}table{display:block;overflow-x:auto;}.detail-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<div id="sidebarPlaceholder"></div>
+<script src="shiloh-sidebar.js"></script>
+
+<main class="main">
+  <div class="topbar">
+    <div>
+      <div class="page-title">Audit Logs</div>
+      <div class="breadcrumb">Dashboard / Administration / Audit Logs</div>
+    </div>
+    <div class="topbar-actions">
+      <div class="btn" id="exportBtn"><i class="fa-solid fa-download"></i> Export CSV</div>
+      <div class="btn btn-danger" id="clearOldBtn"><i class="fa-solid fa-trash"></i> Purge Logs &gt; 90 Days</div>
+    </div>
+  </div>
+
+  <div class="stats-row" id="statsRow"></div>
+
+  <div class="filter-bar">
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Search by user, action or target...">
+      <i class="fa-solid fa-magnifying-glass"></i>
+    </div>
+    <div class="filter-group">
+      <label>User</label>
+      <select class="filter-select" id="userFilter"><option value="all">All Users</option></select>
+    </div>
+    <div class="filter-group">
+      <label>Action Type</label>
+      <select class="filter-select" id="actionFilter"><option value="all">All Actions</option></select>
+    </div>
+    <div class="filter-group">
+      <label>Target Type</label>
+      <select class="filter-select" id="targetFilter"><option value="all">All Targets</option></select>
+    </div>
+    <div class="filter-group">
+      <label>Severity</label>
+      <select class="filter-select" id="severityFilter">
+        <option value="all">All</option>
+        <option value="info">Info</option>
+        <option value="success">Success</option>
+        <option value="warning">Warning</option>
+        <option value="critical">Critical</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Date Range</label>
+      <select class="filter-select" id="dateFilter">
+        <option value="all">All Time</option>
+        <option value="today">Today</option>
+        <option value="7">Last 7 Days</option>
+        <option value="30">Last 30 Days</option>
+      </select>
+    </div>
+    <div class="filter-reset" id="resetFilters">Reset filters</div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-header">
+      <div class="table-title" id="tableTitle">All Events (0)</div>
+      <div class="live-note"><span class="live-dot"></span> Logging live</div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Timestamp</th>
+          <th>User</th>
+          <th>Action</th>
+          <th>Target</th>
+          <th>IP Address</th>
+          <th>Severity</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="logsTable"></tbody>
+    </table>
+    <div class="table-footer">
+      <div class="footer-text" id="footerText">Showing 0 of 0 events</div>
+      <div class="pagination" id="pagination"></div>
+    </div>
+  </div>
+</main>
+
+<!-- VIEW EVENT MODAL -->
+<div class="modal-overlay" id="viewModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title" id="viewModalTitle">Event Details</div>
+        <div class="modal-subtitle" id="viewModalSubtitle"></div>
+      </div>
+      <div class="modal-close" data-close="viewModal"><i class="fa-solid fa-xmark"></i></div>
+    </div>
+    <div class="detail-grid" id="detailGrid"></div>
+    <div id="diffWrap" style="display:none;">
+      <label class="detail-label" style="display:block;margin:10px 0 4px;">Changes</label>
+      <div class="diff-box" id="diffBox"></div>
+    </div>
+    <div class="modal-actions">
+      <div class="btn-secondary" data-close="viewModal">Close</div>
+    </div>
+  </div>
+</div>
+
+<!-- PURGE CONFIRM MODAL -->
+<div class="modal-overlay" id="purgeModal">
+  <div class="modal-box" style="max-width:460px;">
+    <div class="modal-head">
+      <div></div>
+      <div class="modal-close" data-close="purgeModal"><i class="fa-solid fa-xmark"></i></div>
+    </div>
+    <div class="confirm-icon"><i class="fa-solid fa-trash"></i></div>
+    <div class="modal-title" style="margin-bottom:8px;">Purge logs older than 90 days?</div>
+    <div class="confirm-text" id="purgeConfirmText"></div>
+    <div class="confirm-warn">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      <span>This action is permanent and cannot be undone. Purged entries cannot be recovered or included in future exports.</span>
+    </div>
+    <div class="modal-actions">
+      <div class="btn-secondary" data-close="purgeModal">Cancel</div>
+      <div class="btn-danger" id="confirmPurgeBtn"><i class="fa-solid fa-trash"></i> Purge Logs</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><i class="fa-solid fa-circle-check"></i><span id="toastText">Saved</span></div>
+
+<script>
+(function(){
+  const el = id => document.getElementById(id);
+  const PAGE_SIZE = 10;
+
+  const ACTION_TYPES = {
+    login:        {label:'Login',           bg:'var(--green-bg)',  color:'var(--green)',  severity:'success', icon:'fa-right-to-bracket'},
+    login_failed: {label:'Failed Login',    bg:'var(--red-bg)',    color:'var(--red)',    severity:'critical', icon:'fa-circle-xmark'},
+    logout:       {label:'Logout',          bg:'#f1f5f9',          color:'#64748b',       severity:'info', icon:'fa-right-from-bracket'},
+    create:       {label:'Created',         bg:'var(--blue-light)',color:'var(--blue)',   severity:'info', icon:'fa-plus'},
+    update:       {label:'Updated',         bg:'var(--orange-bg)', color:'#c56c05',       severity:'info', icon:'fa-pen'},
+    delete:       {label:'Deleted',         bg:'var(--red-bg)',    color:'var(--red)',    severity:'warning', icon:'fa-trash'},
+    view:         {label:'Viewed',          bg:'#f1f5f9',          color:'#64748b',       severity:'info', icon:'fa-eye'},
+    role_change:  {label:'Role Changed',    bg:'var(--purple-bg)', color:'var(--purple)', severity:'warning', icon:'fa-shield-halved'},
+    permission:   {label:'Permission Updated',bg:'var(--purple-bg)',color:'var(--purple)',severity:'warning', icon:'fa-lock'},
+    settings:     {label:'Settings Changed',bg:'var(--orange-bg)', color:'#c56c05',       severity:'warning', icon:'fa-gear'},
+    password:     {label:'Password Reset',  bg:'var(--orange-bg)', color:'#c56c05',       severity:'warning', icon:'fa-key'},
+    suspend:      {label:'Account Suspended',bg:'var(--red-bg)',   color:'var(--red)',    severity:'critical', icon:'fa-ban'},
+  };
+
+  const SEVERITY_META = {
+    info:{label:'Info', cls:'badge-info'},
+    success:{label:'Success', cls:'badge-success'},
+    warning:{label:'Warning', cls:'badge-warning'},
+    critical:{label:'Critical', cls:'badge-critical'},
+  };
+
+  const USERS = [
+    {name:'Dr. Samuel Okonkwo', role:'Doctor', img:11},
+    {name:'Dr. Ifeoma Balogun', role:'Doctor', img:44},
+    {name:'Nurse Adaeze Nwosu', role:'Nurse', img:47},
+    {name:'Lab Tech Uche Igwe', role:'Lab Technician', img:14},
+    {name:'Pharm. Ngozi Eze', role:'Pharmacist', img:50},
+    {name:'Chidinma Obi', role:'Receptionist', img:23},
+    {name:'Ada Umeh', role:'Cashier', img:29},
+    {name:'Admin Tolu Bankole', role:'System Admin', img:33},
+    {name:'Unknown User', role:null, img:null},
+  ];
+
+  const PATIENT_NAMES = ['John O. Adekunle','Mary A. Johnson','Peter I. Okafor','Grace U. Emu','Michael E. Lucky','Esther N. Williams','David O. Philip','Joy I. Monday','Emeka T. Nwankwo','Chioma R. Eze'];
+
+  function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function randInt(n){return Math.floor(Math.random()*n);}
+  function randIp(){return `${100+randInt(60)}.${randInt(255)}.${randInt(255)}.${randInt(255)}`;}
+
+  function buildDescription(actionKey, targetType, targetName, user){
+    const map = {
+      login:`${user.name} logged in successfully.`,
+      login_failed:`Failed login attempt for username "${user.name.toLowerCase().replace(/[^a-z]/g,'.')}" — incorrect password.`,
+      logout:`${user.name} logged out.`,
+      create:`${user.name} created a new ${targetType.toLowerCase()} record for ${targetName}.`,
+      update:`${user.name} updated the ${targetType.toLowerCase()} record for ${targetName}.`,
+      delete:`${user.name} deleted the ${targetType.toLowerCase()} record for ${targetName}.`,
+      view:`${user.name} viewed the ${targetType.toLowerCase()} record for ${targetName}.`,
+      role_change:`${user.name} changed the role assigned to ${targetName}.`,
+      permission:`${user.name} updated permissions for the "${targetName}" role.`,
+      settings:`${user.name} changed a system setting: ${targetName}.`,
+      password:`${user.name} reset the password for ${targetName}.`,
+      suspend:`${user.name} suspended the account for ${targetName}.`,
+    };
+    return map[actionKey]||`${user.name} performed an action.`;
+  }
+
+  function randomTargetFor(actionKey){
+    if(actionKey==='login'||actionKey==='login_failed'||actionKey==='logout') return {type:'—',name:null};
+    if(['role_change','permission','suspend','password'].includes(actionKey)){
+      const pool=['Dr. Samuel Okonkwo','Nurse Blessing Etim','Kelechi Anyanwu','Front Desk Supervisor role','Cashier role'];
+      return {type:actionKey==='permission'?'Role':'User Account',name:pool[randInt(pool.length)]};
+    }
+    if(actionKey==='settings'){
+      const pool=['Clinic operating hours','SMS notification templates','Appointment slot duration','Backup schedule','Password policy'];
+      return {type:'System Setting',name:pool[randInt(pool.length)]};
+    }
+    const types=['Patient','Appointment','Prescription','Lab Order','Visit','Invoice'];
+    const type=types[randInt(types.length)];
+    const name=PATIENT_NAMES[randInt(PATIENT_NAMES.length)];
+    const prefixes={Patient:'',Appointment:'APT-',Prescription:'RX-','Lab Order':'LAB-',Visit:'VIS-',Invoice:'INV-'};
+    const label=type==='Patient'?name:`${prefixes[type]}${String(100000+randInt(9000)).slice(-6)} (${name})`;
+    return {type,name:label};
+  }
+
+  function maybeDiff(actionKey, targetType){
+    if(actionKey!=='update'||Math.random()<0.45) return null;
+    const pools={
+      Patient:[['Phone (Primary)','0803 111 2222','0803 123 4567'],['Address','9 Old Road, Uromi','12 Mission Road, Uromi'],['Blood Group','O-','O+']],
+      Appointment:[['Status','Pending','Confirmed'],['Time','09:00 AM','09:30 AM'],['Doctor','Dr. Ifeoma Balogun','Dr. Samuel Okonkwo']],
+      Invoice:[['Status','Unpaid','Paid'],['Amount','₦42,000','₦45,200']],
+      'Lab Order':[['Status','Pending','Sample Collected'],['Priority','Routine','Urgent']],
+      Prescription:[['Status','Pending Pickup','Dispensed']],
+      Visit:[['Status','In Progress','Completed']],
+    };
+    const set=pools[targetType];
+    if(!set) return null;
+    const n=1+randInt(Math.min(2,set.length));
+    return set.slice(0,n).map(([field,oldV,newV])=>({field,oldV,newV}));
+  }
+
+  function seedLogs(){
+    const list=[];
+    let now=new Date();
+    let seq=9000;
+    for(let i=0;i<130;i++){
+      seq++;
+      const daysAgo=Math.floor(i/6.2);
+      const d=new Date(now);
+      d.setDate(d.getDate()-daysAgo);
+      d.setHours(7+randInt(13),randInt(60),randInt(60),0);
+      let actionKey;
+      const roll=Math.random();
+      if(roll<0.14) actionKey='login';
+      else if(roll<0.19) actionKey='login_failed';
+      else if(roll<0.22) actionKey='logout';
+      else if(roll<0.42) actionKey='create';
+      else if(roll<0.66) actionKey='update';
+      else if(roll<0.74) actionKey='view';
+      else if(roll<0.82) actionKey='delete';
+      else if(roll<0.88) actionKey='role_change';
+      else if(roll<0.93) actionKey='permission';
+      else if(roll<0.97) actionKey='settings';
+      else if(roll<0.99) actionKey='password';
+      else actionKey='suspend';
+      const user=USERS[randInt(actionKey==='login_failed'?USERS.length:USERS.length-1)];
+      const target=randomTargetFor(actionKey);
+      const meta=ACTION_TYPES[actionKey];
+      const diff=maybeDiff(actionKey,target.type);
+      list.push({
+        id:seq, ts:d.getTime(),
+        dateStr:d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),
+        timeStr:d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',second:'2-digit'}),
+        user, actionKey, targetType:target.type, targetName:target.name,
+        ip:randIp(), device:['Chrome on Windows','Safari on macOS','Chrome on Android','Edge on Windows','Firefox on Ubuntu'][randInt(5)],
+        severity:meta.severity,
+        description:buildDescription(actionKey,target.type==='—'?'session':target.type,target.name||user.name,user),
+        diff,
+      });
+    }
+    return list.sort((a,b)=>b.ts-a.ts);
+  }
+
+  let logs=seedLogs();
+  let state={search:'',user:'all',action:'all',target:'all',severity:'all',date:'all',page:1};
+
+  function showToast(msg){
+    const t=el('toast');
+    el('toastText').textContent=msg;
+    t.classList.add('show');
+    clearTimeout(showToast._tm);
+    showToast._tm=setTimeout(()=>t.classList.remove('show'),2000);
+  }
+
+  function csvCell(v){return `"${String(v==null?'':v).replace(/"/g,'""')}"`;}
+  function downloadCsv(csv,filename){
+    const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;a.download=filename;
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+  function exportLogsCsv(){
+    const rows=getFiltered();
+    if(rows.length===0){showToast('No events to export for the current filters');return;}
+    const header=['Date','Time','User','Role','Action','Target Type','Target','IP Address','Device','Severity','Description'].map(csvCell).join(',');
+    const body=rows.map(l=>{
+      const meta=ACTION_TYPES[l.actionKey];
+      return [l.dateStr,l.timeStr,l.user.name,l.user.role||'—',meta.label,l.targetType,l.targetName||'—',l.ip,l.device,SEVERITY_META[l.severity].label,l.description].map(csvCell).join(',');
+    }).join('\n');
+    downloadCsv(header+'\n'+body,`audit-logs-export-${new Date().toISOString().slice(0,10)}.csv`);
+    showToast(`Exported ${rows.length} event${rows.length===1?'':'s'} to CSV`);
+  }
+
+  function populateFilters(){
+    const userNames=[...new Set(logs.map(l=>l.user.name))].sort();
+    el('userFilter').innerHTML='<option value="all">All Users</option>'+userNames.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('');
+    el('actionFilter').innerHTML='<option value="all">All Actions</option>'+Object.keys(ACTION_TYPES).map(k=>`<option value="${k}">${esc(ACTION_TYPES[k].label)}</option>`).join('');
+    const targetTypes=[...new Set(logs.map(l=>l.targetType).filter(t=>t!=='—'))].sort();
+    el('targetFilter').innerHTML='<option value="all">All Targets</option>'+targetTypes.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join('');
+  }
+
+  function renderStats(){
+    const todayStr=new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    const todayLogs=logs.filter(l=>l.dateStr===todayStr);
+    const failedToday=todayLogs.filter(l=>l.actionKey==='login_failed').length;
+    const criticalTotal=logs.filter(l=>l.severity==='critical').length;
+    const uniqueUsersToday=new Set(todayLogs.map(l=>l.user.name)).size;
+    const dataChanges=logs.filter(l=>['create','update','delete'].includes(l.actionKey)).length;
+    const permChanges=logs.filter(l=>['role_change','permission','settings'].includes(l.actionKey)).length;
+    el('statsRow').innerHTML=`
+      <div class="stat-card"><div class="stat-top"><div class="stat-icon icon-blue"><i class="fa-solid fa-file-lines"></i></div><div class="stat-label">Events Today</div></div><div class="stat-value">${todayLogs.length}</div><div class="stat-sub">${todayStr}</div></div>
+      <div class="stat-card"><div class="stat-top"><div class="stat-icon icon-red"><i class="fa-solid fa-circle-xmark"></i></div><div class="stat-label">Failed Logins Today</div></div><div class="stat-value">${failedToday}</div><div class="stat-sub">${failedToday>3?'Elevated — review':'Within normal range'}</div></div>
+      <div class="stat-card"><div class="stat-top"><div class="stat-icon icon-orange"><i class="fa-solid fa-triangle-exclamation"></i></div><div class="stat-label">Critical Events</div></div><div class="stat-value">${criticalTotal}</div><div class="stat-sub">All time</div></div>
+      <div class="stat-card"><div class="stat-top"><div class="stat-icon icon-green"><i class="fa-solid fa-users"></i></div><div class="stat-label">Active Users Today</div></div><div class="stat-value">${uniqueUsersToday}</div><div class="stat-sub">Unique accounts</div></div>
+      <div class="stat-card"><div class="stat-top"><div class="stat-icon icon-purple"><i class="fa-solid fa-pen"></i></div><div class="stat-label">Data Changes</div></div><div class="stat-value">${dataChanges}</div><div class="stat-sub">Create / Update / Delete</div></div>
+      <div class="stat-card"><div class="stat-top"><div class="stat-icon icon-pink"><i class="fa-solid fa-gear"></i></div><div class="stat-label">Security &amp; Config Changes</div></div><div class="stat-value">${permChanges}</div><div class="stat-sub">Roles, permissions, settings</div></div>`;
+  }
+
+  function getFiltered(){
+    const q=state.search.trim().toLowerCase();
+    const now=Date.now();
+    const todayStr=new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    return logs.filter(l=>{
+      if(state.user!=='all'&&l.user.name!==state.user) return false;
+      if(state.action!=='all'&&l.actionKey!==state.action) return false;
+      if(state.target!=='all'&&l.targetType!==state.target) return false;
+      if(state.severity!=='all'&&l.severity!==state.severity) return false;
+      if(state.date==='today'&&l.dateStr!==todayStr) return false;
+      if(state.date!=='all'&&state.date!=='today'){
+        const days=Number(state.date);
+        if(now-l.ts>days*24*60*60*1000) return false;
+      }
+      if(q){
+        const hay=`${l.user.name} ${ACTION_TYPES[l.actionKey].label} ${l.targetType} ${l.targetName||''} ${l.description}`.toLowerCase();
+        if(!hay.includes(q)) return false;
+      }
+      return true;
+    });
+  }
+
+  function userCell(l){
+    if(l.user.img===null){
+      return `<div class="user-cell"><div class="avatar system"><i class="fa-solid fa-user-secret"></i></div><div><div class="user-fullname">${esc(l.user.name)}</div><div class="user-role-sub">Unauthenticated</div></div></div>`;
+    }
+    return `<div class="user-cell"><div class="avatar" style="background-image:url('https://i.pravatar.cc/80?img=${l.user.img}')"></div><div><div class="user-fullname">${esc(l.user.name)}</div><div class="user-role-sub">${esc(l.user.role)}</div></div></div>`;
+  }
+
+  function renderRow(l){
+    const meta=ACTION_TYPES[l.actionKey];
+    const sev=SEVERITY_META[l.severity];
+    const targetHtml=l.targetName
+      ?`<div class="target-cell"><span class="target-type">${esc(l.targetType)}</span><span class="target-name" data-action="view" data-id="${l.id}">${esc(l.targetName)}</span></div>`
+      :`<span class="target-dash">—</span>`;
+    return `<tr>
+      <td><div class="ts-cell"><span class="ts-date">${l.dateStr}</span><span class="ts-time">${l.timeStr}</span></div></td>
+      <td>${userCell(l)}</td>
+      <td><div class="action-cell"><div class="action-ic" style="background:${meta.bg};color:${meta.color};"><i class="fa-solid ${meta.icon}"></i></div><span class="action-text">${esc(meta.label)}</span></div></td>
+      <td>${targetHtml}</td>
+      <td><span class="ip-cell">${esc(l.ip)}</span></td>
+      <td><span class="badge ${sev.cls}"><span class="dot"></span>${sev.label}</span></td>
+      <td><div class="row-actions"><div class="icon-btn" data-action="view" data-id="${l.id}" title="View details"><i class="fa-solid fa-eye"></i></div></div></td>
+    </tr>`;
+  }
+
+  function buildPagination(page,totalPages){
+    if(totalPages<=1) return '';
+    let html=`<div class="page-btn" data-page="${page-1}" ${page===1?'disabled':''}>&lt;</div>`;
+    const pages=[];
+    const add=p=>{if(p>=1&&p<=totalPages&&!pages.includes(p)) pages.push(p);};
+    add(1);add(2);add(totalPages-1);add(totalPages);
+    for(let p=page-1;p<=page+1;p++) add(p);
+    pages.sort((a,b)=>a-b);
+    let last=0;
+    pages.forEach(p=>{
+      if(p-last>1) html+=`<div class="page-ellipsis">…</div>`;
+      html+=`<div class="page-btn ${p===page?'active':''}" data-page="${p}">${p}</div>`;
+      last=p;
+    });
+    html+=`<div class="page-btn" data-page="${page+1}" ${page===totalPages?'disabled':''}>&gt;</div>`;
+    return html;
+  }
+
+  function renderTable(){
+    const filtered=getFiltered();
+    const totalPages=Math.max(1,Math.ceil(filtered.length/PAGE_SIZE));
+    if(state.page>totalPages) state.page=totalPages;
+    if(state.page<1) state.page=1;
+    const start=(state.page-1)*PAGE_SIZE;
+    const pageItems=filtered.slice(start,start+PAGE_SIZE);
+    el('tableTitle').textContent=`All Events (${filtered.length})`;
+    if(filtered.length===0){
+      el('logsTable').innerHTML=`<tr class="empty-row"><td colspan="7">No events match your filters</td></tr>`;
+      el('footerText').textContent='Showing 0 of 0 events';
+      el('pagination').innerHTML='';
+      return;
+    }
+    el('logsTable').innerHTML=pageItems.map(renderRow).join('');
+    const from=start+1,to=Math.min(start+PAGE_SIZE,filtered.length);
+    el('footerText').textContent=`Showing ${from}–${to} of ${filtered.length} events`;
+    el('pagination').innerHTML=buildPagination(state.page,totalPages);
+    document.querySelectorAll('[data-action="view"]').forEach(b=>b.addEventListener('click',()=>openViewModal(Number(b.dataset.id))));
+    document.querySelectorAll('#pagination [data-page]').forEach(b=>{
+      if(b.hasAttribute('disabled')) return;
+      b.addEventListener('click',()=>{state.page=Number(b.dataset.page);renderTable();});
+    });
+  }
+
+  function renderAll(){renderStats();renderTable();}
+
+  el('searchInput').addEventListener('input',e=>{state.search=e.target.value;state.page=1;renderTable();});
+  el('userFilter').addEventListener('change',e=>{state.user=e.target.value;state.page=1;renderTable();});
+  el('actionFilter').addEventListener('change',e=>{state.action=e.target.value;state.page=1;renderTable();});
+  el('targetFilter').addEventListener('change',e=>{state.target=e.target.value;state.page=1;renderTable();});
+  el('severityFilter').addEventListener('change',e=>{state.severity=e.target.value;state.page=1;renderTable();});
+  el('dateFilter').addEventListener('change',e=>{state.date=e.target.value;state.page=1;renderTable();});
+  el('resetFilters').addEventListener('click',()=>{
+    state={search:'',user:'all',action:'all',target:'all',severity:'all',date:'all',page:1};
+    el('searchInput').value='';el('userFilter').value='all';el('actionFilter').value='all';
+    el('targetFilter').value='all';el('severityFilter').value='all';el('dateFilter').value='all';
+    renderTable();showToast('Filters reset');
+  });
+
+  el('exportBtn').addEventListener('click',()=>exportLogsCsv());
+  let purgeCutoff=null;
+  el('clearOldBtn').addEventListener('click',()=>{
+    purgeCutoff=Date.now()-90*24*60*60*1000;
+    const toRemove=logs.filter(l=>l.ts<purgeCutoff).length;
+    el('purgeConfirmText').innerHTML=toRemove>0
+      ?`This will permanently delete <b>${toRemove}</b> log entr${toRemove===1?'y':'ies'} dated before <b>${new Date(purgeCutoff).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</b>.`
+      :`There are no log entries older than 90 days right now.`;
+    el('confirmPurgeBtn').style.display=toRemove>0?'flex':'none';
+    el('purgeModal').classList.add('open');
+  });
+  el('confirmPurgeBtn').addEventListener('click',()=>{
+    if(purgeCutoff===null) return;
+    const before=logs.length;
+    logs=logs.filter(l=>l.ts>=purgeCutoff);
+    const removed=before-logs.length;
+    populateFilters();renderAll();
+    el('purgeModal').classList.remove('open');
+    showToast(removed>0?`Purged ${removed} old log entr${removed===1?'y':'ies'}`:'No entries older than 90 days');
+  });
+
+  document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>el(b.dataset.close).classList.remove('open')));
+  document.querySelectorAll('.modal-overlay').forEach(ov=>ov.addEventListener('click',e=>{if(e.target===ov) ov.classList.remove('open');}));
+  document.addEventListener('keydown',e=>{if(e.key==='Escape') document.querySelectorAll('.modal-overlay.open').forEach(ov=>ov.classList.remove('open'));});
+
+  function openViewModal(id){
+    const l=logs.find(x=>x.id===id);
+    if(!l) return;
+    const meta=ACTION_TYPES[l.actionKey];
+    const sev=SEVERITY_META[l.severity];
+    el('viewModalTitle').textContent=meta.label;
+    el('viewModalSubtitle').textContent=`${l.dateStr} at ${l.timeStr}`;
+    el('detailGrid').innerHTML=`
+      <div class="detail-row"><span class="detail-label">User</span><span class="detail-value">${esc(l.user.name)}${l.user.role?' · '+esc(l.user.role):''}</span></div>
+      <div class="detail-row"><span class="detail-label">Severity</span><span class="detail-value"><span class="badge ${sev.cls}"><span class="dot"></span>${sev.label}</span></span></div>
+      <div class="detail-row"><span class="detail-label">Target Type</span><span class="detail-value">${esc(l.targetType)}</span></div>
+      <div class="detail-row"><span class="detail-label">Target</span><span class="detail-value">${l.targetName?esc(l.targetName):'—'}</span></div>
+      <div class="detail-row"><span class="detail-label">IP Address</span><span class="detail-value mono">${esc(l.ip)}</span></div>
+      <div class="detail-row"><span class="detail-label">Device / Browser</span><span class="detail-value">${esc(l.device)}</span></div>
+      <div class="detail-row full"><span class="detail-label">Description</span><span class="detail-value" style="font-weight:600;">${esc(l.description)}</span></div>`;
+    if(l.diff&&l.diff.length){
+      el('diffWrap').style.display='block';
+      el('diffBox').innerHTML=l.diff.map(d=>`<div class="diff-row"><span class="diff-field">${esc(d.field)}</span><span class="diff-old">${esc(d.oldV)}</span><span class="diff-arrow">→</span><span class="diff-new">${esc(d.newV)}</span></div>`).join('');
+    } else {
+      el('diffWrap').style.display='none';el('diffBox').innerHTML='';
+    }
+    el('viewModal').classList.add('open');
+  }
+
+  populateFilters();renderAll();
+
+  if(window.ShilohSidebar){
+    window.ShilohSidebar.attach('#sidebarPlaceholder',{
+      activeFile:'audit-log.html',
+      user:{name:'Admin Tolu',role:'System Admin',avatar:'https://i.pravatar.cc/64?img=47'}
+    });
+  }
+})();
+</script>
+</body>
+</html>

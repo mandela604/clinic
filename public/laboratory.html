@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Shiloh Clinic &amp; Maternity — Laboratory</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  :root{--navy:#0d1b4c;--blue:#2563eb;--bg:#f5f6f8;--card:#fff;--border:#e5e7eb;--text-dark:#1e293b;--text-gray:#64748b;--text-light:#94a3b8;--green:#16a34a;--green-bg:#dcfce7;--orange:#f97316;--orange-bg:#fff1e6;--purple:#8b5cf6;--purple-bg:#f1eaff;--pink:#ec4899;--pink-bg:#fde8f2;--red:#ef4444;--red-bg:#fee2e2;--blue-bg:#eef2ff;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text-dark);display:flex;min-height:100vh;}
+  .main{flex:1;padding:22px 28px;overflow-x:auto;min-width:0;}
+  .topbar{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px;flex-wrap:wrap;gap:14px;}
+  .page-title{font-size:22px;font-weight:700;color:#0f172a;}
+  .breadcrumb{font-size:12.5px;color:var(--text-gray);margin-top:4px;}
+  .breadcrumb a{color:var(--blue);text-decoration:none;}
+  .topbar-actions{display:flex;gap:10px;flex-wrap:wrap;}
+  .btn{display:flex;align-items:center;gap:7px;padding:9px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:#fff;color:#334155;white-space:nowrap;}
+  .btn:hover{background:var(--bg);}
+  .btn-primary{background:var(--blue);color:#fff;border-color:var(--blue);}
+  .btn-primary:hover{background:#1d4ed8;}
+
+  .stats-row{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-bottom:20px;}
+  .stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;}
+  .stat-top{display:flex;align-items:center;gap:10px;}
+  .stat-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .stat-icon svg{width:16px;height:16px;}
+  .stat-label{font-size:12px;color:var(--text-gray);font-weight:500;}
+  .stat-value{font-size:20px;font-weight:700;}
+  .stat-sub{font-size:10.5px;color:var(--text-light);margin-top:-4px;}
+  .ic-orange{background:var(--orange-bg);color:var(--orange);}
+  .ic-purple{background:var(--purple-bg);color:var(--purple);}
+  .ic-blue{background:var(--blue-bg);color:var(--blue);}
+  .ic-green{background:var(--green-bg);color:var(--green);}
+  .ic-red{background:var(--red-bg);color:var(--red);}
+  .ic-pink{background:var(--pink-bg);color:var(--pink);}
+
+  .filter-bar{display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap;}
+  .search-box{flex:1;min-width:260px;position:relative;}
+  .search-box input{width:100%;padding:10px 14px 10px 36px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:#fff;outline:none;}
+  .search-box input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1);}
+  .search-box svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--text-light);}
+  .filter-group{display:flex;flex-direction:column;gap:3px;}
+  .filter-group label{font-size:11.5px;color:var(--text-gray);font-weight:500;}
+  .filter-select{padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:#fff;min-width:120px;color:#334155;}
+
+  .table-card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+  .table-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;flex-wrap:wrap;gap:10px;}
+  .table-title{font-size:15px;font-weight:700;}
+  .table-actions{display:flex;gap:8px;align-items:center;}
+  .view-toggle{display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+  .view-toggle .vbtn{border:none;border-radius:0;width:34px;height:34px;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-gray);}
+  .view-toggle .vbtn.active{background:var(--blue-bg);color:var(--blue);}
+
+  .table-scroll{overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;}
+  thead tr{border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:#fafbfc;}
+  th{text-align:left;padding:11px 12px;font-size:11px;color:var(--text-light);font-weight:700;text-transform:uppercase;letter-spacing:.02em;white-space:nowrap;}
+  td{padding:11px 12px;font-size:13px;border-bottom:1px solid var(--border);white-space:nowrap;color:#334155;}
+  tbody tr{cursor:pointer;transition:background .1s;}
+  tbody tr:hover{background:#fafbfc;}
+
+  .patient-cell{display:flex;align-items:center;gap:10px;}
+  .avatar{width:32px;height:32px;border-radius:50%;overflow:hidden;flex-shrink:0;}
+  .avatar img{width:100%;height:100%;object-fit:cover;}
+  .patient-name{font-weight:700;color:var(--text-dark);font-size:13px;}
+  .patient-email{font-size:11px;color:var(--text-light);}
+  .order-id{font-weight:700;color:var(--blue);font-size:12px;}
+  .test-cell .test-name{font-weight:700;}
+  .test-cell .sample-type{font-size:11px;color:var(--text-light);}
+
+  .priority-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:10.5px;font-weight:700;}
+  .priority-routine{background:var(--blue-bg);color:var(--blue);}
+  .priority-urgent{background:var(--orange-bg);color:var(--orange);}
+  .priority-stat{background:var(--red-bg);color:var(--red);}
+
+  .badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:10.5px;font-weight:700;}
+  .badge .dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
+  .badge-pending{background:var(--orange-bg);color:#c56c05;}
+  .badge-collected{background:var(--purple-bg);color:#7c3aed;}
+  .badge-progress{background:var(--blue-bg);color:var(--blue);}
+  .badge-completed{background:var(--green-bg);color:#0a8a52;}
+  .badge-critical{background:var(--red-bg);color:#c1362b;}
+
+  .result-value{font-weight:700;font-size:12px;}
+  .result-value.normal{color:var(--green);}
+  .result-value.critical{color:var(--red);}
+  .result-dash{color:var(--text-light);}
+
+  .row-actions{display:flex;gap:6px;align-items:center;}
+  .icon-btn{width:28px;height:28px;border-radius:8px;border:1px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;color:var(--text-gray);font-size:12px;cursor:pointer;}
+  .icon-btn:hover{color:var(--blue);border-color:var(--blue-bg);background:var(--blue-bg);}
+
+  .table-footer{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;flex-wrap:wrap;gap:10px;}
+  .footer-text{font-size:12.5px;color:var(--text-gray);}
+  .pagination{display:flex;gap:6px;align-items:center;}
+  .page-btn{min-width:32px;height:32px;padding:0 8px;border:1px solid var(--border);border-radius:7px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;color:#334155;cursor:pointer;}
+  .page-btn:hover{background:var(--bg);}
+  .page-btn.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+  .page-btn.disabled{opacity:.4;cursor:not-allowed;}
+  .per-page{padding:7px 10px;border:1px solid var(--border);border-radius:7px;font-size:12.5px;color:#334155;}
+
+  .orders-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;padding:16px 20px;}
+  .order-card{border:1px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;}
+  .order-card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
+  .order-card-meta{margin:6px 0;}
+  .order-card-meta .test-name{font-weight:700;}
+  .order-card-meta .sample-type{font-size:11px;color:var(--text-light);}
+  .order-card-row{display:flex;justify-content:space-between;align-items:center;margin:8px 0;}
+  .order-card-footer{display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);}
+
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,0.45);align-items:center;justify-content:center;z-index:2000;padding:16px;}
+  .modal-overlay.open{display:flex;}
+  .modal-box{background:#fff;border-radius:12px;width:100%;max-width:400px;box-shadow:0 20px 40px rgba(15,23,42,0.2);overflow:hidden;}
+  .modal-header{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;border-bottom:1px solid var(--border);}
+  .modal-title{font-size:15px;font-weight:700;color:#0f172a;}
+  .modal-close{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-gray);font-size:18px;}
+  .modal-close:hover{background:var(--bg);}
+  .modal-body{padding:18px;display:flex;flex-direction:column;gap:14px;}
+  .modal-footer{display:flex;justify-content:flex-end;gap:10px;padding:14px 18px;border-top:1px solid var(--border);}
+
+  .action-menu{position:fixed;min-width:190px;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:0 10px 28px rgba(15,23,42,0.16);padding:6px;z-index:300;display:none;}
+  .action-menu.open{display:block;}
+  .action-menu-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:7px;font-size:13px;color:#334155;cursor:pointer;white-space:nowrap;}
+  .action-menu-item:hover{background:var(--blue-bg);color:var(--blue);}
+  .action-menu-item.danger{color:var(--red);}
+  .action-menu-item.danger:hover{background:var(--red-bg);}
+  .action-menu-sep{height:1px;background:var(--border);margin:5px 3px;}
+
+  .dropdown-menu{position:absolute;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(15,23,42,0.12);padding:6px;z-index:60;display:none;}
+  .dropdown-menu.open{display:block;}
+  .column-toggle-row{display:flex;align-items:center;gap:8px;padding:7px 10px;font-size:13px;color:#334155;}
+  .column-toggle-row input{cursor:pointer;}
+
+  .toast{position:fixed;bottom:24px;right:24px;background:#0f172a;color:#fff;padding:12px 18px;border-radius:9px;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,0.2);z-index:1200;opacity:0;transform:translateY(10px);transition:all .2s ease;pointer-events:none;}
+  .toast.show{opacity:1;transform:translateY(0);}
+
+  /* ── Hover Micro-interactions ──────────────────────────────────────── */
+  .order-card{transition:transform .2s ease,box-shadow .2s ease;}
+  .order-card:hover{transform:translateY(-4px) scale(1.015);box-shadow:0 8px 24px rgba(37,99,235,0.12);}
+
+  tbody tr{transition:transform .15s ease,background .15s ease,box-shadow .15s ease;}
+  tbody tr:hover{transform:translateY(-2px) scale(1.005);box-shadow:0 4px 12px rgba(37,99,235,0.08);}
+
+  .btn-primary{transition:transform .15s ease,box-shadow .15s ease,background .15s ease;}
+  .btn-primary:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 6px 16px rgba(37,99,235,0.25);}
+  .btn-primary:active{transform:translateY(0) scale(0.98);}
+
+  .btn{transition:transform .15s ease,box-shadow .15s ease,background .15s ease;}
+  .btn:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 4px 12px rgba(0,0,0,0.06);}
+
+  .icon-btn{transition:transform .15s ease,box-shadow .15s ease,color .15s ease,border-color .15s ease,background .15s ease;}
+  .icon-btn:hover{transform:scale(1.12);box-shadow:0 2px 8px rgba(37,99,235,0.15);}
+
+  .page-btn{transition:transform .15s ease,background .15s ease,color .15s ease;}
+  .page-btn:hover:not(.disabled):not(.active){transform:translateY(-2px) scale(1.08);box-shadow:0 3px 8px rgba(0,0,0,0.06);}
+  .page-btn.active{transform:scale(1.05);box-shadow:0 3px 10px rgba(37,99,235,0.25);}
+
+  .stat-card{transition:transform .2s ease,box-shadow .2s ease;}
+  .stat-card:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 6px 18px rgba(0,0,0,0.07);}
+
+  .priority-chip{transition:transform .15s ease,box-shadow .15s ease;}
+  tbody tr:hover .priority-chip{transform:scale(1.06);}
+
+  .badge{transition:transform .15s ease;}
+  tbody tr:hover .badge{transform:scale(1.06);}
+
+  .avatar{transition:transform .2s ease,box-shadow .2s ease;}
+  tbody tr:hover .avatar{transform:scale(1.1);box-shadow:0 3px 10px rgba(0,0,0,0.1);}
+
+  .patient-name{transition:color .15s ease;}
+  tbody tr:hover .patient-name{color:var(--blue);}
+
+  .order-id{transition:transform .15s ease;}
+  tbody tr:hover .order-id{transform:scale(1.04);}
+
+  .modal-close{transition:transform .15s ease,background .15s ease,color .15s ease;}
+  .modal-close:hover{transform:rotate(90deg) scale(1.1);}
+
+  .filter-select{transition:border-color .15s ease,box-shadow .15s ease;}
+  .filter-select:focus{transform:scale(1.01);}
+
+  .search-box input{transition:border-color .15s ease,box-shadow .15s ease;}
+  .search-box input:focus{transform:scale(1.005);}
+
+  .action-menu-item{transition:transform .12s ease,background .12s ease;}
+  .action-menu-item:hover{transform:translateX(3px);}
+
+  a.btn{text-decoration:none !important;}
+  a.btn:hover{text-decoration:none !important;}
+
+  .btn.loading{pointer-events:none;opacity:.7;}
+  .btn.loading::after{content:'';width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:phspin .6s linear infinite;margin-left:6px;display:inline-block;vertical-align:middle;}
+  .btn:not(.btn-primary).loading::after{border-color:rgba(0,0,0,.15);border-top-color:var(--blue);}
+  @keyframes phspin{to{transform:rotate(360deg);}}
+
+  @media(max-width:1200px){.stats-row{grid-template-columns:repeat(3,1fr);}}
+  @media(max-width:720px){.stats-row{grid-template-columns:repeat(2,1fr);}}
+</style>
+</head>
+<body>
+
+<div id="sidebarPlaceholder"></div>
+
+<main class="main">
+  <div class="topbar">
+    <div><div class="page-title">Laboratory</div><div class="breadcrumb"><a href="dashboard.html">Dashboard</a> / Laboratory / Test Orders</div></div>
+    <div class="topbar-actions">
+      <div class="btn" id="topExportBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><path d="M12 3v12M7 8l5-5 5 5M5 21h14"/></svg>Export</div>
+      <a href="lab-test.html" class="btn btn-primary"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:15px;height:15px"><path d="M12 5v14M5 12h14"/></svg>New Test Order</a>
+      <div class="btn" id="printLabelsBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><path d="M6 9V2h12v7M6 18H4a1 1 0 01-1-1v-5a1 1 0 011-1h16a1 1 0 011 1v5a1 1 0 01-1 1h-2M6 14h12v8H6z"/></svg>Print Labels</div>
+    </div>
+  </div>
+
+  <div class="stats-row" id="statsRow"></div>
+
+  <div class="filter-bar">
+    <div class="search-box"><input type="text" id="searchInput" placeholder="Search by order ID, patient name, hospital no. or test type..."><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg></div>
+    <div class="filter-group"><select class="filter-select" id="testTypeFilter"><option value="All">All Test Types</option></select></div>
+    <div class="filter-group"><select class="filter-select" id="priorityFilter"><option value="All">All Priorities</option><option value="routine">Routine</option><option value="urgent">Urgent</option><option value="stat">STAT</option></select></div>
+    <div class="filter-group"><select class="filter-select" id="statusFilter"><option value="All">All Statuses</option><option value="pending">Pending</option><option value="collected">Sample Collected</option><option value="progress">In Progress</option><option value="completed">Completed</option><option value="critical">Critical</option></select></div>
+    <div class="btn" id="moreFiltersBtn" style="align-self:flex-end;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><path d="M22 3H2l8 9.5V19l4 2v-8.5z"/></svg>More Filters</div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-header">
+      <div class="table-title" id="tableTitle">Test Orders (0)</div>
+      <div class="table-actions">
+        <div class="view-toggle">
+          <div class="vbtn active" id="listBtn" onclick="setView('list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M3 6h18M3 12h18M3 18h18"/></svg></div>
+          <div class="vbtn" id="gridBtn" onclick="setView('grid')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></div>
+        </div>
+        <div class="icon-btn" id="columnSettingsBtn" title="Columns" style="position:relative;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.9l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1 1.6V21a2 2 0 11-4 0v-.2a1.7 1.7 0 00-1-1.5 1.7 1.7 0 00-1.9.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.9 1.7 1.7 0 00-1.6-1H3a2 2 0 110-4h.2a1.7 1.7 0 001.5-1 1.7 1.7 0 00-.3-1.9l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.9.3H9a1.7 1.7 0 001-1.6V3a2 2 0 114 0v.2a1.7 1.7 0 001 1.5 1.7 1.7 0 001.9-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.9V9a1.7 1.7 0 001.6 1H21a2 2 0 110 4h-.2a1.7 1.7 0 00-1.6 1z"/></svg></div>
+        <div class="dropdown-menu" id="columnMenu"></div>
+      </div>
+    </div>
+
+    <div class="table-scroll" id="listView">
+      <table><thead><tr><th>#</th><th>Order ID</th><th>Patient</th><th data-col="hosp">Hospital No.</th><th>Test</th><th data-col="priority">Priority</th><th data-col="by">Ordered By</th><th data-col="time">Ordered At</th><th data-col="result">Result</th><th>Status</th><th></th></tr></thead><tbody id="labTable"></tbody></table>
+    </div>
+    <div class="orders-grid" id="gridView" style="display:none"></div>
+
+    <div class="table-footer">
+      <div class="footer-text" id="footerText">Showing 0 of 0</div>
+      <div class="pagination" id="pagination"></div>
+    </div>
+  </div>
+</main>
+
+<!-- DATE RANGE MODAL -->
+<div class="modal-overlay" id="dateModal">
+  <div class="modal-box">
+    <div class="modal-header"><div class="modal-title">Filter by Date Range</div><div class="modal-close" onclick="closeModal('dateModal')">&times;</div></div>
+    <div class="modal-body">
+      <div class="filter-group"><label>From</label><input type="date" id="dateFromInput" class="filter-select"></div>
+      <div class="filter-group"><label>To</label><input type="date" id="dateToInput" class="filter-select"></div>
+    </div>
+    <div class="modal-footer"><div class="btn" onclick="clearDateFilter()">Clear</div><div class="btn btn-primary" onclick="applyDateFilter()">Apply</div></div>
+  </div>
+</div>
+
+<!-- ROW ACTION MENU -->
+<div class="action-menu" id="rowActionMenu"></div>
+
+<div class="toast" id="toast"></div>
+
+<script src="shiloh-sidebar.js"></script>
+<script src="../services/api.js"></script>
+<script src="../services/lab-service.js"></script>
+<script>
+const AVATAR_COLORS = ['#2563eb','#7c3aed','#ec4899','#059669','#d97706','#dc2626','#0891b2','#4f46e5'];
+const STATUS_ORDER = ['pending','collected','progress','completed'];
+const priorityLabels = {routine:{label:'Routine',cls:'priority-routine'},urgent:{label:'Urgent',cls:'priority-urgent'},stat:{label:'STAT',cls:'priority-stat'}};
+const statusLabels = {pending:{label:'Pending',cls:'badge-pending'},collected:{label:'Sample Collected',cls:'badge-collected'},progress:{label:'In Progress',cls:'badge-progress'},completed:{label:'Completed',cls:'badge-completed'},critical:{label:'Critical',cls:'badge-critical'}};
+const hiddenColKeys = [];
+
+function esc(s) { return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._tm); t._tm = setTimeout(() => t.classList.remove('show'), 2400); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function setLoading(btn, loading) { if (!btn) return; if (loading) { btn.classList.add('loading'); btn._oldHTML = btn.innerHTML; } else { btn.classList.remove('loading'); if (btn._oldHTML) btn.innerHTML = btn._oldHTML; } }
+
+document.addEventListener('DOMContentLoaded', async () => {
+  ShilohSidebar.attach('#sidebarPlaceholder', { activeFile: 'laboratory.html', user: { name: 'Lab Tech Uche', role: 'Laboratory', avatar: 'https://i.pravatar.cc/64?img=47' } });
+  await LabService.init();
+  renderStats();
+  renderTable();
+  bindEvents();
+  renderColumnMenu();
+});
+
+function renderStats() {
+  const s = LabService.getStats();
+  document.getElementById('statsRow').innerHTML = `
+    <div class="stat-card"><div class="stat-top"><div class="stat-icon ic-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><div class="stat-label">Pending Tests</div></div><div class="stat-value">${s.pending}</div></div>
+    <div class="stat-card"><div class="stat-top"><div class="stat-icon ic-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 2v6L3 20a1 1 0 001 2h16a1 1 0 001-2L15 8V2M9 2h6"/></svg></div><div class="stat-label">Collected Today</div></div><div class="stat-value">${s.collectedToday}</div></div>
+    <div class="stat-card"><div class="stat-top"><div class="stat-icon ic-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div><div class="stat-label">In Progress</div></div><div class="stat-value">${s.inProgress}</div></div>
+    <div class="stat-card"><div class="stat-top"><div class="stat-icon ic-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></div><div class="stat-label">Results Today</div></div><div class="stat-value">${s.resultsToday}</div></div>
+    <div class="stat-card"><div class="stat-top"><div class="stat-icon ic-red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg></div><div class="stat-label">Critical</div></div><div class="stat-value">${s.critical}</div></div>
+    <div class="stat-card"><div class="stat-top"><div class="stat-icon ic-pink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a5 5 0 015 5v2a5 5 0 01-10 0V7a5 5 0 015-5z"/><path d="M8 14v2a4 4 0 004 4 4 4 0 004-4v-2M6 21h12"/></svg></div><div class="stat-label">Lab Techs</div></div><div class="stat-value">${s.labTechs}</div></div>`;
+}
+
+function applyFilters() {
+  LabService.search(document.getElementById('searchInput').value);
+  LabService.filterByType(document.getElementById('testTypeFilter').value);
+  LabService.filterByPriority(document.getElementById('priorityFilter').value);
+  LabService.filterByStatus(document.getElementById('statusFilter').value);
+  renderTable();
+}
+
+function renderTable() {
+  const filtered = LabService.getFiltered();
+  const page = LabService.getPage(LabService.state.currentPage);
+  const total = filtered.length;
+  const totalPages = LabService.getTotalPages();
+
+  document.getElementById('tableTitle').textContent = 'Test Orders (' + total + ')';
+  document.getElementById('footerText').textContent = total ? 'Showing ' + (LabService.state.currentPage-1)*LabService.state.perPage+1 + ' to ' + Math.min(LabService.state.currentPage*LabService.state.perPage, total) + ' of ' + total : 'No orders found';
+
+  const tbody = document.getElementById('labTable');
+  const grid = document.getElementById('gridView');
+  if (!page.length) { tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;padding:40px;color:var(--text-light);">No test orders found</td></tr>'; grid.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-light);">No test orders found</div>'; document.getElementById('pagination').innerHTML = ''; return; }
+
+  tbody.innerHTML = page.map((o, i) => {
+    const pr = priorityLabels[o.priority];
+    const s = statusLabels[o.status];
+    const resultHtml = o.result ? '<span class="result-value '+(o.resultClass||'')+'">'+esc(o.result)+'</span>' : '<span class="result-dash">&mdash;</span>';
+    return `<tr onclick="goToView('${o.id}')">
+      <td>${(LabService.state.currentPage-1)*LabService.state.perPage+i+1}</td>
+      <td><span class="order-id">${o.id}</span></td>
+      <td><div class="patient-cell"><div class="avatar"><img src="https://i.pravatar.cc/80?img=${o.img}" alt=""></div><div><div class="patient-name">${esc(o.name)}</div></div></div></td>
+      <td data-col="hosp">${esc(o.hosp)}</td>
+      <td><div class="test-cell"><div class="test-name">${esc(o.test)}</div><div class="sample-type">${esc(o.sample)}</div></div></td>
+      <td data-col="priority"><span class="priority-chip ${pr.cls}">${pr.label}</span></td>
+      <td data-col="by">${esc(o.by)}</td>
+      <td data-col="time">${o.time}</td>
+      <td data-col="result">${resultHtml}</td>
+      <td><span class="badge ${s.cls}"><span class="dot"></span>${s.label}</span></td>
+      <td><div class="row-actions"><div class="icon-btn" onclick="event.stopPropagation();openActionMenu('${o.id}',this)" title="More">&#8943;</div></div></td>
+    </tr>`;
+  }).join('');
+
+  grid.innerHTML = page.map(o => {
+    const pr = priorityLabels[o.priority];
+    const s = statusLabels[o.status];
+    const resultHtml = o.result ? '<span class="result-value '+(o.resultClass||'')+'">'+esc(o.result)+'</span>' : '<span class="result-dash">&mdash;</span>';
+    return `<div class="order-card" onclick="goToView('${o.id}')">
+      <div class="order-card-top"><div class="patient-cell"><div class="avatar"><img src="https://i.pravatar.cc/80?img=${o.img}" alt=""></div><div><div class="patient-name">${esc(o.name)}</div></div></div><span class="priority-chip ${pr.cls}">${pr.label}</span></div>
+      <div class="order-card-meta"><div class="test-name">${esc(o.test)}</div><div class="sample-type">${esc(o.sample)} &middot; ${esc(o.hosp)}</div></div>
+      <div class="order-card-row"><span class="order-id">${o.id}</span><span class="badge ${s.cls}"><span class="dot"></span>${s.label}</span></div>
+      <div class="order-card-footer"><div style="font-size:11.5px;color:var(--text-light);">${esc(o.by)} &middot; ${o.time}</div><div>${resultHtml}</div></div>
+    </div>`;
+  }).join('');
+
+  renderPagination(totalPages);
+  applyColumnVisibility();
+}
+
+function renderPagination(totalPages) {
+  const el = document.getElementById('pagination');
+  if (totalPages <= 1) { el.innerHTML = ''; return; }
+  const cp = LabService.state.currentPage;
+  let html = '<div class="page-btn '+(cp===1?'disabled':'')+'" onclick="goPage('+(cp-1)+')">&lt;</div>';
+  let pages = [];
+  if (totalPages <= 7) { pages = Array.from({length:totalPages},(_,i)=>i+1); }
+  else { pages.push(1); if(cp>3) pages.push('...'); const s=Math.max(2,cp-1), e=Math.min(totalPages-1,cp+1); for(let p=s;p<=e;p++) pages.push(p); if(cp<totalPages-2) pages.push('...'); pages.push(totalPages); }
+  pages.forEach(p => { if(p==='...') html+='<div class="page-btn" style="pointer-events:none;opacity:.4">...</div>'; else html+='<div class="page-btn '+(p===cp?'active':'')+'" onclick="goPage('+p+')">'+p+'</div>'; });
+  html += '<div class="page-btn '+(cp===totalPages?'disabled':'')+'" onclick="goPage('+(cp+1)+')">&gt;</div>';
+  html += '<select class="per-page" onchange="changePerPage(this.value)"><option value="10" '+(LabService.state.perPage===10?'selected':'')+'>10 / page</option><option value="25" '+(LabService.state.perPage===25?'selected':'')+'>25 / page</option></select>';
+  el.innerHTML = html;
+}
+
+function goPage(p) { LabService.setPage(p); renderTable(); }
+function changePerPage(v) { LabService.setPerPage(parseInt(v)); renderTable(); }
+function setView(v) { document.getElementById('listView').style.display=v==='list'?'':'none'; document.getElementById('gridView').style.display=v==='grid'?'grid':'none'; document.getElementById('listBtn').classList.toggle('active',v==='list'); document.getElementById('gridBtn').classList.toggle('active',v==='grid'); }
+function goToView(id) { window.location.href = 'lab-view.html?order=' + encodeURIComponent(id); }
+
+const ACTION_ICONS = {view:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>',print:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M6 9V2h12v7M6 18H4a1 1 0 01-1-1v-5a1 1 0 011-1h16a1 1 0 011 1v5a1 1 0 01-1 1h-2M6 14h12v8H6z"/></svg>',advance:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',cancel:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg>'};
+let menuOrderId = null;
+
+function openActionMenu(orderId, anchorEl) {
+  const o = LabService.getById(orderId);
+  if (!o) return;
+  menuOrderId = orderId;
+  const idx = STATUS_ORDER.indexOf(o.status);
+  const nextLabel = (idx !== -1 && idx < STATUS_ORDER.length-1) ? statusLabels[STATUS_ORDER[idx+1]].label : null;
+  const menu = document.getElementById('rowActionMenu');
+  menu.innerHTML = `<div class="action-menu-item" onclick="handleMenuAction('view')">${ACTION_ICONS.view}View Details</div><div class="action-menu-item" onclick="handleMenuAction('print')">${ACTION_ICONS.print}Print Label</div>${nextLabel ? '<div class="action-menu-item" onclick="handleMenuAction(\'advance\')">'+ACTION_ICONS.advance+'Mark as '+nextLabel+'</div>' : ''}<div class="action-menu-sep"></div><div class="action-menu-item danger" onclick="handleMenuAction('cancel')">${ACTION_ICONS.cancel}Cancel Order</div>`;
+  const rect = anchorEl.getBoundingClientRect();
+  menu.style.display = 'block';
+  let left = rect.right - (menu.offsetWidth || 190);
+  if (left < 8) left = 8;
+  let top = rect.bottom + 6;
+  if (top + 180 > window.innerHeight) top = rect.top - 6 - 180;
+  menu.style.left = left + 'px';
+  menu.style.top = top + 'px';
+  menu.classList.add('open');
+}
+
+function handleMenuAction(action) {
+  const o = LabService.getById(menuOrderId);
+  if (!o) return closeActionMenu();
+  if (action === 'view') goToView(o.id);
+  else if (action === 'print') { showToast('Printing label for ' + o.id); setTimeout(() => window.print(), 250); }
+  else if (action === 'advance') {
+    const btn = document.querySelector('#rowActionMenu .action-menu-item:nth-child(3)');
+    setLoading(btn, true);
+    setTimeout(() => {
+      LabService.advanceStatus(o.id);
+      setLoading(btn, false);
+      showToast(o.id+' marked as '+statusLabels[LabService.getById(o.id).status].label);
+      applyFilters();
+    }, 400);
+  }
+  else if (action === 'cancel') {
+    if(confirm('Cancel test order '+o.id+'?')){
+      const btn = document.querySelector('#rowActionMenu .action-menu-item:nth-child(4)');
+      setLoading(btn, true);
+      setTimeout(() => {
+        LabService.cancelOrder(o.id);
+        setLoading(btn, false);
+        showToast(o.id+' cancelled');
+        applyFilters();
+      }, 400);
+    }
+  }
+  closeActionMenu();
+}
+
+function closeActionMenu() { document.getElementById('rowActionMenu').classList.remove('open'); document.getElementById('rowActionMenu').style.display = 'none'; }
+
+const COLUMNS = [{key:'hosp',label:'Hospital No.'},{key:'priority',label:'Priority'},{key:'by',label:'Ordered By'},{key:'time',label:'Ordered At'},{key:'result',label:'Result'}];
+function renderColumnMenu() {
+  document.getElementById('columnMenu').innerHTML = COLUMNS.map(c => '<label class="column-toggle-row"><input type="checkbox" data-col-key="'+c.key+'" '+(hiddenColKeys.includes(c.key)?'':'checked')+'>'+c.label+'</label>').join('');
+  document.getElementById('columnMenu').querySelectorAll('input[type="checkbox"]').forEach(cb => { cb.addEventListener('change', () => { const k = cb.dataset.colKey; if(cb.checked) { const i = hiddenColKeys.indexOf(k); if(i>-1) hiddenColKeys.splice(i,1); } else if(!hiddenColKeys.includes(k)) hiddenColKeys.push(k); applyColumnVisibility(); }); });
+}
+function applyColumnVisibility() { COLUMNS.forEach(c => { const hidden = hiddenColKeys.includes(c.key); document.querySelectorAll('[data-col="'+c.key+'"]').forEach(n => { n.style.display = hidden ? 'none' : ''; }); }); }
+
+function exportCsv() {
+  const rows = [['Order ID','Patient','Hospital No','Test','Sample','Priority','Ordered By','Time','Result','Status']];
+  LabService.getFiltered().forEach(o => { const pr = priorityLabels[o.priority]; const s = statusLabels[o.status]; rows.push([o.id,o.name,o.hosp,o.test,o.sample,pr.label,o.by,o.time,o.result||'',s.label]); });
+  const csv = rows.map(r => r.map(c => '"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const blob = new Blob([csv],{type:'text/csv'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'lab-orders.csv'; a.click();
+  showToast('Exported '+LabService.getFiltered().length+' orders');
+}
+
+function populateTestTypeFilter() {
+  const types = Array.from(new Set(LabService.getAll().map(o => o.test))).sort();
+  document.getElementById('testTypeFilter').innerHTML = '<option value="All">All Test Types</option>' + types.map(t => '<option value="'+esc(t)+'">'+esc(t)+'</option>').join('');
+}
+
+function applyDateFilter() {
+  const from = document.getElementById('dateFromInput').value;
+  const to = document.getElementById('dateToInput').value;
+  LabService.filterByDate(from || null, to || null);
+  closeModal('dateModal');
+  applyFilters();
+  showToast('Date filter applied');
+}
+
+function clearDateFilter() {
+  document.getElementById('dateFromInput').value = '';
+  document.getElementById('dateToInput').value = '';
+  LabService.filterByDate(null, null);
+  closeModal('dateModal');
+  applyFilters();
+  showToast('Date filter cleared');
+}
+
+function bindEvents() {
+  let debounce;
+  document.getElementById('searchInput').addEventListener('input', () => { clearTimeout(debounce); debounce = setTimeout(applyFilters, 300); });
+  document.getElementById('testTypeFilter').addEventListener('change', applyFilters);
+  document.getElementById('priorityFilter').addEventListener('change', applyFilters);
+  document.getElementById('statusFilter').addEventListener('change', applyFilters);
+  document.getElementById('moreFiltersBtn').addEventListener('click', () => openModal('dateModal'));
+  document.getElementById('topExportBtn').addEventListener('click', exportCsv);
+  document.getElementById('printLabelsBtn').addEventListener('click', () => { showToast('Preparing labels for print...'); setTimeout(() => window.print(), 250); });
+  document.getElementById('columnSettingsBtn').addEventListener('click', e => { e.stopPropagation(); document.getElementById('columnMenu').classList.toggle('open'); });
+  document.addEventListener('click', e => { if (!e.target.closest('#rowActionMenu')) closeActionMenu(); if (!e.target.closest('#columnMenu') && !e.target.closest('#columnSettingsBtn')) document.getElementById('columnMenu').classList.remove('open'); });
+  populateTestTypeFilter();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shiloh Clinic &amp; Maternity — Billing</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root{
+    --navy:#0d1b4c;--blue:#2563eb;--bg:#f4f6fb;--card:#fff;--border:#eef0f6;
+    --text-dark:#1c2440;--text-mid:#6b7280;--text-light:#9aa1b3;
+    --green:#12b76a;--green-bg:#e9f9f0;--purple:#8b5cf6;--purple-bg:#f4efff;
+    --orange:#f79009;--orange-bg:#fff4e5;--red:#f04438;--red-bg:#feecec;
+    --blue-bg:#eaf1ff;--pink:#ee46bc;--pink-bg:#fdeefa;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text-dark);display:flex;min-height:100vh;font-size:13px;}
+  .main{flex:1;min-width:0;padding:20px 26px 40px;}
+
+  .topbar{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px;flex-wrap:wrap;gap:14px;}
+  .page-title{font-size:22px;font-weight:700;}
+  .breadcrumb{font-size:12.5px;color:var(--text-light);margin-top:4px;}
+  .breadcrumb a{color:var(--blue);text-decoration:none;}
+  .topbar-actions{display:flex;gap:10px;flex-wrap:wrap;}
+  .btn{display:flex;align-items:center;gap:7px;padding:9px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:#fff;color:#334155;white-space:nowrap;}
+  .btn:hover{background:var(--bg);}
+  .btn-primary{background:var(--blue);color:#fff;border-color:var(--blue);}
+  .btn-primary:hover{background:#1d4ed8;}
+  .btn-success{background:var(--green);color:#fff;border-color:var(--green);}
+
+  .stats-row{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-bottom:20px;}
+  .stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;}
+  .stat-top{display:flex;align-items:center;gap:10px;}
+  .stat-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;}
+  .stat-label{font-size:12px;color:var(--text-mid);font-weight:500;}
+  .stat-value{font-size:20px;font-weight:700;}
+  .stat-sub{font-size:10.5px;color:#94a3b8;margin-top:-4px;}
+  .ic-blue{background:var(--blue-bg);color:var(--blue);}
+  .ic-green{background:var(--green-bg);color:var(--green);}
+  .ic-purple{background:var(--purple-bg);color:var(--purple);}
+  .ic-orange{background:var(--orange-bg);color:var(--orange);}
+  .ic-red{background:var(--red-bg);color:var(--red);}
+  .ic-pink{background:var(--pink-bg);color:var(--pink);}
+
+  .filter-bar{display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap;}
+  .search-box{flex:1;min-width:260px;position:relative;}
+  .search-box input{width:100%;padding:10px 14px 10px 36px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:#fff;outline:none;}
+  .search-box input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1);}
+  .search-box i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-light);font-size:13px;}
+  .filter-group{display:flex;flex-direction:column;gap:3px;}
+  .filter-group label{font-size:11.5px;color:var(--text-mid);font-weight:500;}
+  .filter-select{padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:#fff;min-width:120px;color:#334155;}
+
+  .table-card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+  .table-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;flex-wrap:wrap;gap:10px;}
+  .table-title{font-size:15px;font-weight:700;}
+  .view-toggle{display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+  .view-toggle .vbtn{border:none;border-radius:0;width:34px;height:34px;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-mid);}
+  .view-toggle .vbtn.active{background:var(--blue-bg);color:var(--blue);}
+
+  .table-scroll{overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;}
+  thead tr{border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:#fafbfc;}
+  th{text-align:left;padding:11px 12px;font-size:11px;color:var(--text-light);font-weight:700;text-transform:uppercase;letter-spacing:.02em;white-space:nowrap;}
+  td{padding:11px 12px;font-size:13px;border-bottom:1px solid var(--border);white-space:nowrap;color:#334155;}
+  tbody tr{cursor:pointer;transition:transform .15s ease,background .15s ease,box-shadow .15s ease;}
+  tbody tr:hover{transform:translateY(-2px) scale(1.005);box-shadow:0 4px 12px rgba(0,0,0,0.06);background:#f8fafc;}
+
+  .patient-cell{display:flex;align-items:center;gap:10px;}
+  .avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:800;flex-shrink:0;}
+  .patient-name{font-weight:700;color:var(--text-dark);font-size:13px;}
+  .patient-sub{font-size:11px;color:var(--text-light);}
+  .invoice-link{font-weight:700;color:var(--blue);font-size:12px;}
+  .badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:10.5px;font-weight:700;}
+  .badge i{font-size:8px;}
+  .b-paid{background:var(--green-bg);color:#0a8a52;}
+  .b-partial{background:var(--orange-bg);color:#c56c05;}
+  .b-unpaid{background:var(--red-bg);color:#c1362b;}
+
+  .row-actions{display:flex;gap:6px;align-items:center;}
+  .icon-btn{width:28px;height:28px;border-radius:8px;border:1px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;color:var(--text-mid);font-size:12px;cursor:pointer;}
+  .icon-btn:hover{color:var(--blue);border-color:var(--blue-bg);background:var(--blue-bg);}
+
+  .table-footer{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;flex-wrap:wrap;gap:10px;}
+  .footer-text{font-size:12.5px;color:var(--text-mid);}
+  .pagination{display:flex;gap:6px;align-items:center;}
+  .page-btn{min-width:32px;height:32px;padding:0 8px;border:1px solid var(--border);border-radius:7px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;color:#334155;cursor:pointer;}
+  .page-btn:hover{background:var(--bg);}
+  .page-btn.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+  .page-btn.disabled{opacity:.4;cursor:not-allowed;}
+  .per-page{padding:7px 10px;border:1px solid var(--border);border-radius:7px;font-size:12.5px;color:#334155;}
+
+  .empty-state{text-align:center;padding:50px 20px;color:var(--text-light);}
+  .empty-state i{font-size:28px;display:block;margin-bottom:8px;}
+
+  .grid-wrap{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding:16px 20px;}
+  .inv-card{border:1px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;}
+  .inv-card:hover{transform:translateY(-4px) scale(1.015);box-shadow:0 8px 24px rgba(0,0,0,0.08);border-color:var(--blue-bg);}
+  .inv-card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
+  .inv-card-meta{font-size:12px;color:var(--text-mid);margin:6px 0;}
+  .inv-card-row{display:flex;justify-content:space-between;align-items:center;margin:8px 0;font-weight:700;}
+  .inv-card-footer{display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);}
+
+  .modal-overlay{position:fixed;inset:0;background:rgba(15,20,40,0.45);display:none;align-items:flex-start;justify-content:center;z-index:2000;padding:40px 20px;overflow-y:auto;}
+  .modal-overlay.open{display:flex;}
+  .modal-box{background:#fff;border-radius:16px;max-width:560px;width:100%;padding:22px;box-shadow:0 20px 60px rgba(10,15,40,0.25);}
+  .modal-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;gap:10px;}
+  .modal-title{font-size:15px;font-weight:800;}
+  .modal-subtitle{font-size:11.5px;color:var(--text-light);margin-top:3px;font-weight:600;}
+  .modal-close{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text-mid);cursor:pointer;}
+  .modal-close:hover{background:var(--bg);}
+  .modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border);}
+
+  .view-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border);}
+  .invoice-no-lg{font-size:18px;font-weight:800;color:var(--blue);margin-bottom:4px;}
+  .patient-name-lg{font-size:16px;font-weight:800;}
+  .patient-hosp-lg{font-size:12px;color:var(--text-light);margin-top:2px;}
+  .view-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 20px;}
+  .view-item{padding:9px 0;border-bottom:1px solid var(--border);}
+  .view-item:last-child{border-bottom:none;}
+  .view-item-label{font-size:10px;color:var(--text-light);font-weight:700;text-transform:uppercase;letter-spacing:.03em;}
+  .view-item-value{font-size:13px;color:var(--text-dark);font-weight:700;margin-top:2px;}
+
+  .payment-box{margin-top:16px;padding:14px;background:#fafbfc;border-radius:10px;border:1px solid var(--border);}
+  .payment-box-title{font-size:13px;font-weight:800;margin-bottom:10px;}
+  .payment-history-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:12.5px;}
+  .payment-history-row:last-child{border-bottom:none;}
+  .payment-history-method{font-weight:700;}
+  .payment-history-date{font-size:11px;color:var(--text-light);}
+  .payment-history-amount{font-weight:700;color:var(--green);}
+  .payment-history-empty{font-size:12px;color:var(--text-light);text-align:center;padding:12px;}
+
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .form-group{margin-bottom:14px;}
+  .form-label{font-size:11px;font-weight:800;color:var(--text-mid);text-transform:uppercase;letter-spacing:.03em;margin-bottom:6px;display:block;}
+  .form-input,.form-select{width:100%;border:1px solid var(--border);border-radius:9px;padding:9px 12px;font-family:inherit;font-size:12.5px;color:var(--text-dark);outline:none;background:#fff;}
+  .form-input:focus,.form-select:focus{border-color:var(--blue);}
+  .form-err{font-size:10.5px;color:var(--red);font-weight:700;margin-top:4px;display:none;}
+  .form-group.invalid .form-input,.form-group.invalid .form-select{border-color:var(--red);}
+  .form-group.invalid .form-err{display:block;}
+
+  .chip{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:20px;}
+
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;padding:11px 20px;border-radius:10px;font-size:12.5px;font-weight:700;box-shadow:0 10px 30px rgba(10,15,40,0.3);opacity:0;pointer-events:none;transition:.22s;z-index:2200;display:flex;align-items:center;gap:9px;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  @media(max-width:1200px){.stats-row{grid-template-columns:repeat(3,1fr);}.grid-wrap{grid-template-columns:repeat(2,1fr);}}
+  @media(max-width:720px){.form-row{grid-template-columns:1fr;}.stats-row{grid-template-columns:repeat(2,1fr);}.grid-wrap{grid-template-columns:1fr;}}
+  .btn.loading{pointer-events:none;opacity:.7;}
+  .btn.loading::after{content:'';width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:phspin .6s linear infinite;margin-left:6px;display:inline-block;vertical-align:middle;}
+  .btn:not(.btn-primary).loading::after{border-color:rgba(0,0,0,.15);border-top-color:var(--blue);}
+  @keyframes phspin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+
+<div id="sidebarPlaceholder"></div>
+
+<main class="main">
+  <div class="topbar">
+    <div><div class="page-title">Billing</div><div class="breadcrumb"><a href="dashboard.html">Dashboard</a> / Billing / All Invoices</div></div>
+    <div class="topbar-actions">
+      <div class="btn" onclick="exportCsv()"><i class="fa-solid fa-download"></i> Export CSV</div>
+      <div class="btn" onclick="window.print()"><i class="fa-solid fa-print"></i> Print</div>
+      <a href="invoice-new.html" class="btn btn-primary"><i class="fa-solid fa-plus"></i> New Invoice</a>
+    </div>
+  </div>
+
+  <div class="stats-row" id="statsRow"></div>
+
+  <div class="filter-bar">
+    <div class="search-box"><input type="text" id="searchInput" placeholder="Search by invoice no., patient name or hospital no..."><i class="fa-solid fa-magnifying-glass"></i></div>
+    <div class="filter-group"><select class="filter-select" id="statusFilter"><option value="all">All Statuses</option><option value="Paid">Paid</option><option value="Partial">Partial</option><option value="Unpaid">Unpaid</option></select></div>
+    <div class="filter-group"><select class="filter-select" id="methodFilter"><option value="all">All Methods</option><option value="Cash">Cash</option><option value="Card">Card</option><option value="Bank Transfer">Bank Transfer</option><option value="Insurance">Insurance</option></select></div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-header">
+      <div class="table-title" id="tableTitle">Invoices</div>
+      <div class="view-toggle">
+        <div class="vbtn active" id="listBtn" onclick="setView('list')"><i class="fa-solid fa-list" style="font-size:13px"></i></div>
+        <div class="vbtn" id="gridBtn" onclick="setView('grid')"><i class="fa-solid fa-grip" style="font-size:13px"></i></div>
+      </div>
+    </div>
+    <div class="table-scroll" id="listView"><table><thead><tr><th>#</th><th>Invoice</th><th>Patient</th><th>Description</th><th>Amount</th><th>Paid</th><th>Balance</th><th>Method</th><th>Date</th><th>Status</th><th></th></tr></thead><tbody id="billTable"></tbody></table></div>
+    <div class="grid-wrap" id="gridView" style="display:none"></div>
+    <div class="table-footer"><div class="footer-text" id="footerText">Showing 0 of 0</div><div class="pagination" id="pagination"></div></div>
+  </div>
+</main>
+
+<!-- VIEW INVOICE MODAL -->
+<div class="modal-overlay" id="viewModal">
+  <div class="modal-box">
+    <div class="modal-head"><div></div><div class="modal-close" onclick="closeModal('viewModal')"><i class="fa-solid fa-xmark"></i></div></div>
+    <div id="viewBody"></div>
+    <div class="modal-actions">
+      <div class="btn" onclick="closeModal('viewModal')">Close</div>
+      <div class="btn btn-success" onclick="payFromView()"><i class="fa-solid fa-money-bill"></i> Record Payment</div>
+    </div>
+  </div>
+</div>
+
+<!-- RECORD PAYMENT MODAL -->
+<div class="modal-overlay" id="payModal">
+  <div class="modal-box">
+    <div class="modal-head"><div><div class="modal-title">Record Payment</div><div class="modal-subtitle" id="payInfo"></div></div><div class="modal-close" onclick="closeModal('payModal')"><i class="fa-solid fa-xmark"></i></div></div>
+    <div class="form-group" id="payAmtGroup"><label class="form-label">Amount</label><input type="number" min="1" class="form-input" id="payAmount" placeholder="Enter amount"><div class="form-err">Invalid amount</div></div>
+    <div class="form-group"><label class="form-label">Method</label><select class="form-select" id="payMethod"><option>Cash</option><option>Card</option><option>Bank Transfer</option><option>Insurance</option></select></div>
+    <div class="modal-actions"><div class="btn" onclick="closeModal('payModal')">Cancel</div><div class="btn btn-primary" onclick="submitPayment()"><i class="fa-solid fa-check"></i> Confirm</div></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><i class="fa-solid fa-circle-check"></i><span id="toastText"></span></div>
+
+<input type="file" id="importFileInput" accept=".csv" style="display:none">
+
+<script src="shiloh-sidebar.js"></script>
+<script src="../services/api.js"></script>
+<script src="../services/billing-service.js"></script>
+<script>
+const AVATAR_COLORS = ['#2563eb','#7c3aed','#db2777','#059669','#d97706','#dc2626','#0891b2','#4f46e5'];
+const STATUS_CLS = {Paid:'b-paid',Partial:'b-partial',Unpaid:'b-unpaid'};
+
+let viewingId = null;
+let payingId = null;
+
+function esc(s) { return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function fmtDate(iso) { if (!iso) return '—'; const d = new Date(iso); const m = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return m[d.getMonth()]+' '+d.getDate()+', '+d.getFullYear(); }
+function money(n) { return '₦' + Number(n||0).toLocaleString('en-NG',{maximumFractionDigits:0}); }
+
+document.addEventListener('DOMContentLoaded', async () => {
+  ShilohSidebar.attach('#sidebarPlaceholder', { activeFile: 'billing.html', user: { name: 'Cashier Bisi', role: 'Billing Desk', avatar: 'https://i.pravatar.cc/64?img=47' } });
+  await BillingService.init();
+  renderStats();
+  renderTable();
+  bindEvents();
+});
+
+function renderStats() {
+  const s = BillingService.getStats();
+  document.getElementById('statsRow').innerHTML = `
+    <div class="stat-card"><div class="stat-top"><div class="stat-icon ic-blue"><i class="fa-solid fa-receipt"></i></div><div class="stat-label">Total Invoices</div></div><div class="stat-value">${s.total}</div></div>
+    <div class="stat-card"><div class="stat-top"><div class="stat-icon ic-green"><i class="fa-solid fa-circle-check"></i></div><div class="stat-label">Paid</div></div><div class="stat-value" style="color:var(--green)">${s.paid}</div></div>
+    <div class="stat-card"><div class="stat-top"><div class="stat-icon ic-orange"><i class="fa-solid fa-clock"></i></div><div class="stat-label">Partial</div></div><div class="stat-value" style="color:var(--orange)">${s.partial}</div></div>
+    <div class="stat-card"><div class="stat-top"><div class="stat-icon ic-red"><i class="fa-solid fa-xmark"></i></div><div class="stat-label">Unpaid</div></div><div class="stat-value" style="color:var(--red)">${s.unpaid}</div></div>
+    <div class="stat-card"><div class="stat-top"><div class="stat-icon ic-purple"><i class="fa-solid fa-naira-sign"></i></div><div class="stat-label">Total Billed</div></div><div class="stat-value" style="font-size:16px">${money(s.totalBilled)}</div></div>
+    <div class="stat-card"><div class="stat-top"><div class="stat-icon ic-pink"><i class="fa-solid fa-hourglass-half"></i></div><div class="stat-label">Outstanding</div></div><div class="stat-value" style="font-size:16px;color:var(--red)">${money(s.outstanding)}</div></div>`;
+}
+
+function applyFilters() {
+  BillingService.search(document.getElementById('searchInput').value);
+  BillingService.filterByStatus(document.getElementById('statusFilter').value);
+  BillingService.filterByMethod(document.getElementById('methodFilter').value);
+  renderTable();
+}
+
+function renderTable() {
+  const filtered = BillingService.getFiltered();
+  const page = BillingService.getPage(BillingService.state.currentPage);
+  const total = filtered.length;
+  const totalPages = BillingService.getTotalPages();
+
+  document.getElementById('tableTitle').textContent = `Invoices (${total})`;
+  document.getElementById('footerText').textContent = `Showing ${total?(BillingService.state.currentPage-1)*BillingService.state.perPage+1:0} to ${Math.min(BillingService.state.currentPage*BillingService.state.perPage,total)} of ${total}`;
+
+  const tbody = document.getElementById('billTable');
+  const grid = document.getElementById('gridView');
+  if (!page.length) { tbody.innerHTML = '<tr><td colspan="11" class="empty-state"><i class="fa-solid fa-receipt"></i>No invoices found</td></tr>'; grid.innerHTML = '<div class="empty-state"><i class="fa-solid fa-receipt"></i>No invoices found</div>'; document.getElementById('pagination').innerHTML = ''; return; }
+
+  tbody.innerHTML = page.map((inv, i) => {
+    const colorIdx = (inv.hospNo||'').charCodeAt((inv.hospNo||'').length-1) % AVATAR_COLORS.length;
+    const initials = inv.patientName.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    const sc = STATUS_CLS[inv.status] || 'b-unpaid';
+    return `<tr onclick="openViewModal('${inv.id}')">
+      <td>${(BillingService.state.currentPage-1)*BillingService.state.perPage+i+1}</td>
+      <td><span class="invoice-link">${esc(inv.id)}</span></td>
+      <td><div class="patient-cell"><div class="avatar" style="background:${AVATAR_COLORS[colorIdx]}">${initials}</div><div><div class="patient-name">${esc(inv.patientName)}</div><div class="patient-sub">${esc(inv.hospNo)}</div></div></div></td>
+      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis">${esc(inv.description)}</td>
+      <td style="font-weight:700">${money(inv.amount)}</td>
+      <td>${money(inv.amountPaid)}</td>
+      <td style="font-weight:700;color:${inv.balance>0?'var(--red)':'var(--green)'}">${money(inv.balance)}</td>
+      <td>${inv.method ? '<span class="chip" style="background:var(--blue-bg);color:var(--blue)">'+esc(inv.method)+'</span>' : '<span style="color:var(--text-light)">—</span>'}</td>
+      <td>${fmtDate(inv.date)}</td>
+      <td><span class="badge ${sc}"><i class="fa-solid fa-circle"></i>${inv.status}</span></td>
+      <td><div class="row-actions"><div class="icon-btn" onclick="event.stopPropagation();openPayModal('${inv.id}')" title="Record Payment" style="${inv.status==='Paid'?'opacity:.35;pointer-events:none':''}"><i class="fa-solid fa-money-bill" style="font-size:11px"></i></div></div></td>
+    </tr>`;
+  }).join('');
+
+  grid.innerHTML = page.map(inv => {
+    const colorIdx = (inv.hospNo||'').charCodeAt((inv.hospNo||'').length-1) % AVATAR_COLORS.length;
+    const initials = inv.patientName.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    const sc = STATUS_CLS[inv.status] || 'b-unpaid';
+    return `<div class="inv-card" onclick="openViewModal('${inv.id}')">
+      <div class="inv-card-top"><div class="patient-cell"><div class="avatar" style="background:${AVATAR_COLORS[colorIdx]}">${initials}</div><div><div class="patient-name">${esc(inv.patientName)}</div><div class="patient-sub">${esc(inv.hospNo)}</div></div></div><span class="badge ${sc}"><i class="fa-solid fa-circle"></i>${inv.status}</span></div>
+      <div class="inv-card-meta">${esc(inv.description)}</div>
+      <div class="inv-card-row"><span>${money(inv.amount)}</span><span style="color:${inv.balance>0?'var(--red)':'var(--green)'}">Bal: ${money(inv.balance)}</span></div>
+      <div class="inv-card-footer"><div style="font-size:11.5px;color:var(--text-light);">${inv.method||'No method'} &middot; ${fmtDate(inv.date)}</div><div class="icon-btn" onclick="event.stopPropagation();openPayModal('${inv.id}')" title="Record Payment" style="${inv.status==='Paid'?'opacity:.35;pointer-events:none':''}"><i class="fa-solid fa-money-bill" style="font-size:11px"></i></div></div>
+    </div>`;
+  }).join('');
+
+  renderPagination(totalPages);
+}
+
+function renderPagination(totalPages) {
+  const el = document.getElementById('pagination');
+  if (totalPages <= 1) { el.innerHTML = ''; return; }
+  const cp = BillingService.state.currentPage;
+  let html = `<div class="page-btn ${cp===1?'disabled':''}" onclick="goPage(${cp-1})"><i class="fa-solid fa-chevron-left" style="font-size:10px"></i></div>`;
+  for (let i = 1; i <= totalPages; i++) {
+    if (i===1||i===totalPages||(i>=cp-1&&i<=cp+1)) html += `<div class="page-btn ${i===cp?'active':''}" onclick="goPage(${i})">${i}</div>`;
+    else if (i===cp-2||i===cp+2) html += '<div class="page-btn" style="pointer-events:none;opacity:.4">...</div>';
+  }
+  html += `<div class="page-btn ${cp===totalPages?'disabled':''}" onclick="goPage(${cp+1})"><i class="fa-solid fa-chevron-right" style="font-size:10px"></i></div>`;
+  html += `<select class="per-page" onchange="changePerPage(this.value)"><option value="10" ${BillingService.state.perPage===10?'selected':''}>10</option><option value="25" ${BillingService.state.perPage===25?'selected':''}>25</option><option value="50" ${BillingService.state.perPage===50?'selected':''}>50</option></select>`;
+  el.innerHTML = html;
+}
+
+function goPage(p) { BillingService.setPage(p); renderTable(); }
+function changePerPage(v) { BillingService.setPerPage(parseInt(v)); renderTable(); }
+function setView(v) { document.getElementById('listView').style.display=v==='list'?'':'none'; document.getElementById('gridView').style.display=v==='grid'?'grid':'none'; document.getElementById('listBtn').classList.toggle('active',v==='list'); document.getElementById('gridBtn').classList.toggle('active',v==='grid'); }
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function openViewModal(id) {
+  const inv = BillingService.getById(id);
+  if (!inv) return;
+  viewingId = id;
+  const historyHtml = inv.payments && inv.payments.length ? inv.payments.map(p => `<div class="payment-history-row"><div><div class="payment-history-method">${esc(p.method)}</div><div class="payment-history-date">${fmtDate(p.date)}</div></div><div class="payment-history-amount">+ ${money(p.amount)}</div></div>`).join('') : '<div class="payment-history-empty">No payments recorded yet.</div>';
+  document.getElementById('viewBody').innerHTML = `
+    <div class="view-header"><div><div class="invoice-no-lg">${esc(inv.id)}</div><div class="patient-name-lg">${esc(inv.patientName)}</div><div class="patient-hosp-lg">${esc(inv.hospNo)}</div></div><span class="badge ${STATUS_CLS[inv.status]}"><i class="fa-solid fa-circle"></i>${inv.status}</span></div>
+    <div class="view-grid">
+      <div class="view-item"><div class="view-item-label">Description</div><div class="view-item-value">${esc(inv.description)}</div></div>
+      <div class="view-item"><div class="view-item-label">Date</div><div class="view-item-value">${fmtDate(inv.date)}</div></div>
+      <div class="view-item"><div class="view-item-label">Amount Billed</div><div class="view-item-value">${money(inv.amount)}</div></div>
+      <div class="view-item"><div class="view-item-label">Amount Paid</div><div class="view-item-value">${money(inv.amountPaid)}</div></div>
+      <div class="view-item"><div class="view-item-label">Balance Due</div><div class="view-item-value" style="color:${inv.balance>0?'var(--red)':'var(--green)'}">${money(inv.balance)}</div></div>
+      <div class="view-item"><div class="view-item-label">Payment Method</div><div class="view-item-value">${inv.method||'—'}</div></div>
+    </div>
+    <div class="payment-box"><div class="payment-box-title">Payment History</div>${historyHtml}</div>`;
+  openModal('viewModal');
+}
+
+function payFromView() { closeModal('viewModal'); openPayModal(viewingId); }
+
+function openPayModal(id) {
+  const inv = BillingService.getById(id);
+  if (!inv || inv.status === 'Paid') return;
+  payingId = id;
+  document.getElementById('payInfo').textContent = inv.id + ' — ' + inv.patientName + ' — balance ' + money(inv.balance);
+  document.getElementById('payAmount').value = '';
+  document.getElementById('payAmount').max = inv.balance;
+  document.getElementById('payAmtGroup').classList.remove('invalid');
+  document.getElementById('payMethod').value = inv.method || 'Cash';
+  openModal('payModal');
+}
+
+function submitPayment() {
+  if (!payingId) return;
+  const amt = parseFloat(document.getElementById('payAmount').value);
+  const inv = BillingService.getById(payingId);
+  if (!inv || !amt || amt <= 0 || amt > inv.balance) { document.getElementById('payAmtGroup').classList.add('invalid'); return; }
+  const btn = document.querySelector('#payModal .btn-primary');
+  setLoading(btn, true);
+  setTimeout(() => {
+    BillingService.recordPayment(payingId, amt, document.getElementById('payMethod').value);
+    setLoading(btn, false);
+    closeModal('payModal');
+    showToast('Recorded ' + money(amt) + ' for ' + payingId);
+    renderStats();
+    applyFilters();
+  }, 500);
+}
+
+function setLoading(btn, loading) { if (!btn) return; if (loading) { btn.classList.add('loading'); btn._oldHTML = btn.innerHTML; } else { btn.classList.remove('loading'); if (btn._oldHTML) btn.innerHTML = btn._oldHTML; } }
+
+function exportCsv() {
+  const rows = [['Invoice','Patient','Hospital No','Description','Amount','Paid','Balance','Status','Date']];
+  BillingService.getFiltered().forEach(inv => rows.push([inv.id,inv.patientName,inv.hospNo,inv.description,inv.amount,inv.amountPaid,inv.balance,inv.status,inv.date]));
+  const csv = rows.map(r => r.map(c => '"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const blob = new Blob([csv],{type:'text/csv'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'billing-export.csv'; a.click();
+  showToast('Exported ' + BillingService.getFiltered().length + ' invoices');
+}
+
+function showToast(msg) { const t = document.getElementById('toast'); document.getElementById('toastText').textContent = msg; t.classList.add('show'); clearTimeout(showToast._tm); showToast._tm = setTimeout(() => t.classList.remove('show'), 2400); }
+
+function bindEvents() {
+  let debounce;
+  document.getElementById('searchInput').addEventListener('input', () => { clearTimeout(debounce); debounce = setTimeout(applyFilters, 300); });
+  document.getElementById('statusFilter').addEventListener('change', applyFilters);
+  document.getElementById('methodFilter').addEventListener('change', applyFilters);
+}
+</script>
+</body>
+</html>

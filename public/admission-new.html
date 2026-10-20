@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shiloh Clinic &amp; Maternity — New Admission</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root{
+    --navy:#0d1b4c; --navy-2:#1e3a8a; --blue-accent:#2563eb; --bg:#f4f6fb; --card:#ffffff; --border:#eef0f6;
+    --text-dark:#1c2440; --text-mid:#6b7280; --text-light:#9aa1b3;
+    --green:#12b76a; --green-bg:#e9f9f0;
+    --blue:#2563eb; --blue-bg:#eaf1ff;
+    --purple:#8b5cf6; --purple-bg:#f4efff;
+    --orange:#f79009; --orange-bg:#fff4e5;
+    --pink:#ec4899; --pink-bg:#fde8f2;
+    --red:#f04438; --red-bg:#feecec;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif;
+    background:var(--bg); color:var(--text-dark); font-size:13px; min-height:100vh;
+  }
+  .main{max-width:1320px; margin:0 auto; padding:24px 26px 60px;}
+
+  /* ---------- TOPBAR ---------- */
+  .topbar{display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:20px; flex-wrap:wrap;}
+  .topbar-left{display:flex; align-items:center; gap:14px;}
+  .back-btn{
+    width:40px; height:40px; border-radius:10px; background:#fff; border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; color:var(--text-mid); cursor:pointer; flex-shrink:0;
+  }
+  .back-btn:hover{background:var(--bg);}
+  .topbar-title h1{font-size:19px; font-weight:800; color:var(--text-dark); margin-bottom:2px;}
+  .topbar-title p{font-size:12px; color:var(--text-light); font-weight:500;}
+  .topbar-actions{display:flex; align-items:center; gap:10px; flex-shrink:0; flex-wrap:wrap;}
+
+  .btn{
+    display:flex; align-items:center; gap:8px; border-radius:11px; padding:11px 18px;
+    font-weight:700; font-size:13px; cursor:pointer; border:1px solid transparent; white-space:nowrap;
+    font-family:inherit; transition:background .15s ease, opacity .15s ease;
+  }
+  .btn-outline{background:#fff; border-color:var(--border); color:var(--text-dark);}
+  .btn-outline:hover{background:var(--bg);}
+  .btn-primary{background:var(--blue-accent); color:#fff;}
+  .btn-primary:hover{background:#1d4ed8;}
+  .btn-primary:disabled{opacity:.5; cursor:not-allowed;}
+  .btn-dark{background:var(--navy); color:#fff;}
+  .btn-dark:hover{background:#13245e;}
+  .btn-dark:disabled{opacity:.5; cursor:not-allowed;}
+
+  /* ---------- FORM LAYOUT ---------- */
+  .form-grid{display:grid; grid-template-columns:1fr 320px; gap:16px; align-items:start;}
+  .col-left{display:flex; flex-direction:column; gap:16px;}
+  .col-right{display:flex; flex-direction:column; gap:16px; position:sticky; top:16px;}
+
+  .panel{background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px;}
+  .panel-title{display:flex; align-items:center; justify-content:space-between; gap:9px; margin-bottom:18px; flex-wrap:wrap;}
+  .panel-title-text{display:flex; align-items:center; gap:9px; font-size:14.5px; font-weight:800; color:var(--text-dark);}
+  .panel-title-text i{color:var(--blue-accent); font-size:14px;}
+  .panel-title-text.pt-orange i{color:var(--orange);}
+
+  .mode-toggle{display:flex; gap:4px; background:var(--bg); border:1px solid var(--border); border-radius:9px; padding:3px;}
+  .mode-toggle-btn{padding:6px 12px; border-radius:6px; font-size:11.5px; font-weight:700; color:var(--text-mid); cursor:pointer;}
+  .mode-toggle-btn.active{background:#fff; color:var(--blue-accent); box-shadow:0 1px 4px rgba(0,0,0,.08);}
+
+  .field-grid{display:grid; gap:14px 16px;}
+  .cols-4{grid-template-columns:repeat(4,1fr);}
+  .cols-3{grid-template-columns:repeat(3,1fr);}
+  .cols-2{grid-template-columns:repeat(2,1fr);}
+  .cols-1{grid-template-columns:1fr;}
+
+  .field{display:flex; flex-direction:column; gap:6px;}
+  .field label{font-size:11.5px; font-weight:700; color:var(--text-mid);}
+  .field label .req{color:var(--red); margin-left:2px;}
+  .field .input-wrap{position:relative; display:flex; align-items:center;}
+  .field .input-wrap i{position:absolute; left:12px; color:var(--text-light); font-size:12px;}
+  .field input, .field select, .field textarea{
+    border:1px solid var(--border); border-radius:10px; padding:10px 12px; font-size:12.5px;
+    color:var(--text-dark); background:#fff; outline:none; font-family:inherit; width:100%;
+  }
+  .field .input-wrap input, .field .input-wrap select{padding-left:32px;}
+  .field input:focus, .field select:focus, .field textarea:focus{border-color:var(--blue-accent); box-shadow:0 0 0 3px var(--blue-bg);}
+  .field select{appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M0 0l5 6 5-6z' fill='%239aa1b3'/></svg>"); background-repeat:no-repeat; background-position:right 12px center;}
+  .field textarea{resize:none; min-height:76px;}
+  .field input:disabled{background:var(--bg); color:var(--text-mid);}
+  .char-count{font-size:10.5px; color:var(--text-light); text-align:right; margin-top:-4px;}
+  .field-err{font-size:10.5px; color:var(--red); font-weight:700; display:none;}
+  .field.invalid input, .field.invalid select{border-color:var(--red);}
+  .field.invalid .field-err{display:block;}
+
+  /* patient search */
+  .patient-search-wrap{position:relative;}
+  .patient-dropdown{
+    position:absolute; top:calc(100% + 6px); left:0; right:0; background:#fff; border:1px solid var(--border);
+    border-radius:10px; box-shadow:0 14px 32px rgba(16,20,40,.14); max-height:230px; overflow-y:auto; z-index:50; display:none;
+  }
+  .patient-dropdown.open{display:block;}
+  .pd-item{display:flex; align-items:center; gap:10px; padding:9px 12px; cursor:pointer;}
+  .pd-item:hover{background:var(--bg);}
+  .pd-avatar{width:30px; height:30px; border-radius:50%; background-size:cover; background-position:center; background-color:#cbd5e1; flex-shrink:0;}
+  .pd-name{font-size:12.5px; font-weight:700; color:var(--text-dark);}
+  .pd-meta{font-size:10.5px; color:var(--text-light); font-weight:600;}
+  .pd-empty{padding:14px; text-align:center; font-size:12px; color:var(--text-light); font-weight:600;}
+
+  .selected-patient-card{
+    display:flex; align-items:center; gap:12px; background:var(--blue-bg); border-radius:12px; padding:12px 14px; margin-bottom:14px;
+  }
+  .selected-patient-card .pd-avatar{width:40px; height:40px;}
+  .sp-name{font-size:13px; font-weight:800; color:var(--text-dark);}
+  .sp-meta{font-size:11px; color:var(--text-mid); font-weight:600; margin-top:1px;}
+  .sp-clear{margin-left:auto; width:26px; height:26px; border-radius:7px; background:#fff; border:1px solid var(--border); display:flex; align-items:center; justify-content:center; color:var(--text-mid); cursor:pointer; flex-shrink:0;}
+  .sp-clear:hover{color:var(--red); border-color:#f9d4d1;}
+
+  /* ---------- RIGHT COLUMN ---------- */
+  .bed-status-card{display:flex; align-items:center; gap:12px; background:var(--bg); border-radius:12px; padding:14px; margin-bottom:14px;}
+  .bed-status-ic{width:40px; height:40px; border-radius:11px; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;}
+  .bed-status-title{font-size:13px; font-weight:800; color:var(--text-dark);}
+  .bed-status-sub{font-size:11px; color:var(--text-light); font-weight:600; margin-top:1px;}
+
+  .summary-row{display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border); gap:10px;}
+  .summary-row:last-child{border-bottom:none;}
+  .summary-label{font-size:11.5px; color:var(--text-mid); font-weight:600;}
+  .summary-value{font-size:12px; font-weight:700; color:var(--text-dark); text-align:right;}
+
+  .ward-tag{font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:7px; display:inline-block;}
+  .status-pill{font-size:10.5px; font-weight:700; padding:4px 11px; border-radius:20px; display:inline-block;}
+
+  .notice-box{display:flex; gap:10px; background:var(--blue-bg); border-radius:10px; padding:12px; margin-top:14px; font-size:11.5px; color:#1d54c9; font-weight:600; line-height:1.4;}
+  .notice-box i{margin-top:1px; flex-shrink:0;}
+  .notice-box.warn{background:var(--orange-bg); color:#a86a04;}
+
+  .consent-title{font-size:12.5px; font-weight:800; color:var(--blue-accent); margin-bottom:10px;}
+  .consent-box{display:flex; gap:10px; font-size:11.5px; color:var(--text-mid); line-height:1.45; font-weight:500;}
+  .consent-box input{width:16px; height:16px; accent-color:var(--blue-accent); flex-shrink:0; margin-top:1px;}
+
+  /* ---------- BOTTOM ACTIONS ---------- */
+  .bottom-actions{display:flex; align-items:center; justify-content:flex-end; gap:10px; margin-top:20px; flex-wrap:wrap;}
+
+  .toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;
+    padding:11px 20px;border-radius:10px;font-size:12.5px;font-weight:700;box-shadow:0 10px 30px rgba(10,15,40,0.3);
+    opacity:0;pointer-events:none;transition:.22s; z-index:300; display:flex; align-items:center; gap:9px; max-width:90vw;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .toast i{color:var(--green);}
+  .toast.err i{color:var(--red);}
+
+  @media (max-width:1100px){
+    .form-grid{grid-template-columns:1fr;}
+    .col-right{position:static;}
+    .cols-4{grid-template-columns:repeat(2,1fr);}
+    .cols-3{grid-template-columns:repeat(2,1fr);}
+  }
+  @media (max-width:640px){
+    .cols-4, .cols-3, .cols-2{grid-template-columns:1fr;}
+    .topbar{flex-direction:column; align-items:flex-start;}
+    .topbar-actions{width:100%; flex-wrap:wrap;}
+    .bottom-actions{flex-wrap:wrap;}
+  }
+</style>
+</head>
+<body>
+
+<main class="main">
+
+  <!-- topbar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="back-btn" id="backBtn"><i class="fa-solid fa-arrow-left"></i></div>
+      <div class="topbar-title">
+        <h1>New Admission</h1>
+        <p>Admit a patient to a ward and assign a bed</p>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <div class="btn btn-outline" id="clearFormBtn"><i class="fa-solid fa-rotate-left"></i> Clear Form</div>
+      <div class="btn btn-primary" id="admitTopBtn" disabled><i class="fa-solid fa-bed-pulse"></i> Admit Patient</div>
+    </div>
+  </div>
+
+  <div class="form-grid">
+
+    <!-- LEFT COLUMN -->
+    <div class="col-left">
+
+      <!-- Patient Information -->
+      <div class="panel">
+        <div class="panel-title">
+          <div class="panel-title-text"><i class="fa-regular fa-user"></i> Patient Information</div>
+          <div class="mode-toggle" id="patientModeToggle">
+            <div class="mode-toggle-btn active" data-mode="existing">Existing Patient</div>
+            <div class="mode-toggle-btn" data-mode="new">New / Walk-in</div>
+          </div>
+        </div>
+
+        <div id="existingPatientBlock">
+          <div class="selected-patient-card" id="selectedPatientCard" style="display:none;"></div>
+          <div class="field patient-search-wrap" id="patientSearchField">
+            <label>Search Patient<span class="req">*</span></label>
+            <div class="input-wrap"><i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="patientSearch" placeholder="Search by name or hospital no…" autocomplete="off">
+            </div>
+            <div class="field-err">Please select a patient</div>
+            <div class="patient-dropdown" id="patientDropdown"></div>
+          </div>
+        </div>
+
+        <div id="newPatientBlock" style="display:none;">
+          <div class="field-grid cols-4">
+            <div class="field" data-field="newName" style="grid-column:span 2;"><label>Patient Name<span class="req">*</span></label><input type="text" id="newName" placeholder="e.g. Grace U. Emu"><div class="field-err">Required</div></div>
+            <div class="field" data-field="newHosp"><label>Hospital No.<span class="req">*</span></label><input type="text" id="newHosp" placeholder="e.g. SHC-000199"><div class="field-err">Required</div></div>
+            <div class="field"><label>Gender</label><select id="newGender"><option>Female</option><option>Male</option></select></div>
+            <div class="field" data-field="newAge"><label>Age<span class="req">*</span></label><input type="number" min="0" id="newAge" placeholder="e.g. 31"><div class="field-err">Required</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Admission Details -->
+      <div class="panel">
+        <div class="panel-title"><div class="panel-title-text"><i class="fa-solid fa-hospital"></i> Admission Details</div></div>
+        <div class="field-grid cols-3">
+          <div class="field" data-field="ward">
+            <label>Ward<span class="req">*</span></label>
+            <select id="fWard"></select>
+            <div class="field-err">Please select a ward</div>
+          </div>
+          <div class="field" data-field="bed">
+            <label>Bed No.<span class="req">*</span></label>
+            <input type="text" id="fBed" placeholder="e.g. Bed 4">
+            <div class="field-err">Please enter a bed number</div>
+          </div>
+          <div class="field">
+            <label>Status</label>
+            <select id="fStatus"></select>
+          </div>
+        </div>
+        <div class="field-grid cols-2" style="margin-top:14px;">
+          <div class="field">
+            <label>Admission Date<span class="req">*</span></label>
+            <div class="input-wrap"><i class="fa-regular fa-calendar"></i><input type="date" id="fDate"></div>
+          </div>
+          <div class="field" data-field="doctor">
+            <label>Attending Doctor<span class="req">*</span></label>
+            <div class="input-wrap"><i class="fa-solid fa-user-doctor"></i><input type="text" id="fDoctor" placeholder="e.g. Dr. Samuel O."></div>
+            <div class="field-err">Please enter the attending doctor</div>
+          </div>
+        </div>
+        <div class="field-grid cols-1" style="margin-top:14px;">
+          <div class="field" data-field="diagnosis">
+            <label>Diagnosis<span class="req">*</span></label>
+            <textarea id="fDiagnosis" placeholder="e.g. Malaria with dehydration" maxlength="300"></textarea>
+            <div class="char-count"><span id="diagCount">0</span> / 300</div>
+            <div class="field-err">Please enter a diagnosis</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="col-right">
+
+      <div class="panel">
+        <div class="panel-title"><div class="panel-title-text"><i class="fa-solid fa-bed"></i> Bed Availability</div></div>
+        <div class="bed-status-card">
+          <div class="bed-status-ic" id="bedIcon"><i class="fa-solid fa-bed"></i></div>
+          <div>
+            <div class="bed-status-title" id="bedTitle">Select a ward</div>
+            <div class="bed-status-sub" id="bedSub">—</div>
+          </div>
+        </div>
+        <div class="notice-box" id="bedWarning" style="display:none;">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <div>This ward is at full capacity. You can still admit the patient, but consider another ward if possible.</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title"><div class="panel-title-text"><i class="fa-regular fa-file-lines"></i> Admission Summary</div></div>
+        <div class="summary-row"><div class="summary-label">Admission ID</div><div class="summary-value" id="sumId">—</div></div>
+        <div class="summary-row"><div class="summary-label">Patient</div><div class="summary-value" id="sumPatient">Not selected</div></div>
+        <div class="summary-row"><div class="summary-label">Ward / Bed</div><div class="summary-value" id="sumWardBed">—</div></div>
+        <div class="summary-row"><div class="summary-label">Doctor</div><div class="summary-value" id="sumDoctor">Not entered</div></div>
+        <div class="summary-row"><div class="summary-label">Admitted On</div><div class="summary-value" id="sumDate">—</div></div>
+        <div class="summary-row"><div class="summary-label">Status</div><div id="sumStatus">—</div></div>
+
+        <div class="notice-box">
+          <i class="fa-regular fa-circle-check"></i>
+          <div>Once admitted, this patient appears immediately on the Admissions list and their bed is marked occupied.</div>
+        </div>
+
+        <div style="margin-top:18px;">
+          <div class="consent-title">Confirmation</div>
+          <div class="consent-box">
+            <input type="checkbox" id="fConsent">
+            <div>I confirm the admission details above are correct and the patient is ready to be admitted.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="bottom-actions">
+    <div class="btn btn-outline" id="cancelBtn">Cancel</div>
+    <div class="btn btn-outline" id="admitAnotherBtn" disabled><i class="fa-regular fa-square-plus"></i> Admit &amp; Add Another</div>
+    <div class="btn btn-dark" id="admitBtn" disabled><i class="fa-solid fa-bed-pulse"></i> Admit Patient</div>
+  </div>
+
+</main>
+
+<div class="toast" id="toast"><i class="fa-solid fa-circle-check"></i><span id="toastText">Saved</span></div>
+
+<script src="../services/api.js"></script>
+<script src="../services/patient-service.js"></script>
+<script src="../services/admission-service.js"></script>
+<script>
+(function(){
+  'use strict';
+  const el = id => document.getElementById(id);
+
+  /* Backend-only: patients via PatientService (GET /patients),
+     admissions via AdmissionService (POST /admissions). */
+  const TODAY = '2026-07-10';
+
+  const PALETTE = [
+    {bg:'#eaf1ff', fg:'#1d54c9'}, {bg:'#e9f9f0', fg:'#0a8a52'}, {bg:'#f4efff', fg:'#6b3fd6'},
+    {bg:'#fff4e5', fg:'#c56c05'}, {bg:'#feecec', fg:'#c1362b'}, {bg:'#fdeefa', fg:'#c026a3'},
+    {bg:'#e0f2fe', fg:'#0369a1'}, {bg:'#fef9c3', fg:'#854d0e'},
+  ];
+  const NEUTRAL = {bg:'#eef0f6', fg:'#6b7280'};
+
+  let PATIENTS = [];
+  let wards = [];
+  let statuses = [];
+
+  function wardColor(name){
+    const w = wards.find(x=>x.name===name);
+    if(!w) return NEUTRAL;
+    const idx = (w.colorIndex != null ? w.colorIndex : (w.colorIdx || 0));
+    return PALETTE[idx % PALETTE.length];
+  }
+  function statusColor(name){
+    const s = statuses.find(x=>x.name===name);
+    if(!s) return NEUTRAL;
+    if(s.neutral) return NEUTRAL;
+    const idx = (s.colorIndex != null ? s.colorIndex : (s.colorIdx || 0));
+    return PALETTE[idx % PALETTE.length];
+  }
+  function wardBeds(w){ return w.totalBeds != null ? w.totalBeds : (w.beds || 0); }
+
+  function loadAdmissions(){ try { return AdmissionService.getAll() || []; } catch (e) { return []; } }
+  function peekNextId(){ return 'ADM-(auto)'; }
+
+  function escapeHtml(str){
+    return String(str==null?'':str).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function showToast(msg, isErr){
+    const t = el('toast');
+    el('toastText').textContent = msg;
+    t.classList.toggle('err', !!isErr);
+    t.querySelector('i').className = isErr ? 'fa-solid fa-triangle-exclamation' : 'fa-solid fa-circle-check';
+    t.classList.add('show');
+    clearTimeout(showToast._tm);
+    showToast._tm = setTimeout(()=>t.classList.remove('show'), 2400);
+  }
+
+  let selectedPatient = null;
+  let patientMode = 'existing';
+
+  /* ============ PATIENT MODE TOGGLE ============ */
+  document.querySelectorAll('#patientModeToggle .mode-toggle-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('#patientModeToggle .mode-toggle-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      patientMode = btn.dataset.mode;
+      el('existingPatientBlock').style.display = patientMode==='existing' ? 'block' : 'none';
+      el('newPatientBlock').style.display = patientMode==='new' ? 'block' : 'none';
+      updateSummary(); validateForm();
+    });
+  });
+
+  /* ============ PATIENT SEARCH ============ */
+  const dropdown = el('patientDropdown');
+  function renderPatientDropdown(query){
+    const q = query.trim().toLowerCase();
+    const matches = q ? PATIENTS.filter(p=> p.name.toLowerCase().includes(q) || p.hosp.toLowerCase().includes(q)) : PATIENTS;
+    dropdown.innerHTML = matches.length===0
+      ? `<div class="pd-empty">No patients found</div>`
+      : matches.slice(0,8).map(p=>`
+          <div class="pd-item" data-idx="${PATIENTS.indexOf(p)}">
+            <div class="pd-avatar" style="background-image:url('https://i.pravatar.cc/80?img=${p.img}')"></div>
+            <div><div class="pd-name">${escapeHtml(p.name)}</div><div class="pd-meta">${escapeHtml(p.hosp)} · ${escapeHtml(p.gender)}, ${p.age} yrs</div></div>
+          </div>
+        `).join('');
+    dropdown.classList.add('open');
+  }
+  el('patientSearch').addEventListener('focus', ()=> renderPatientDropdown(el('patientSearch').value));
+  el('patientSearch').addEventListener('input', ()=> renderPatientDropdown(el('patientSearch').value));
+  dropdown.addEventListener('click', (e)=>{
+    const item = e.target.closest('.pd-item');
+    if(!item) return;
+    selectedPatient = PATIENTS[Number(item.dataset.idx)];
+    dropdown.classList.remove('open');
+    el('patientSearch').value = '';
+    renderSelectedPatient();
+    el('patientSearchField').classList.remove('invalid');
+    updateSummary(); validateForm();
+  });
+  document.addEventListener('click', (e)=>{
+    if(!e.target.closest('.patient-search-wrap')) dropdown.classList.remove('open');
+  });
+
+  function renderSelectedPatient(){
+    const card = el('selectedPatientCard');
+    if(!selectedPatient){ card.style.display='none'; return; }
+    card.style.display='flex';
+    card.innerHTML = `
+      <div class="pd-avatar" style="width:40px;height:40px;background-image:url('https://i.pravatar.cc/80?img=${selectedPatient.img}')"></div>
+      <div><div class="sp-name">${escapeHtml(selectedPatient.name)}</div><div class="sp-meta">${escapeHtml(selectedPatient.hosp)} · ${escapeHtml(selectedPatient.gender)}, ${selectedPatient.age} yrs</div></div>
+      <div class="sp-clear" id="clearPatientBtn" title="Clear"><i class="fa-solid fa-xmark"></i></div>
+    `;
+    el('clearPatientBtn').addEventListener('click', ()=>{
+      selectedPatient = null; renderSelectedPatient(); updateSummary(); validateForm();
+    });
+  }
+
+  /* ============ NEW PATIENT FIELDS ============ */
+  ['newName','newHosp','newAge'].forEach(id=>{
+    el(id).addEventListener('input', ()=>{ updateSummary(); validateForm(); });
+  });
+
+  /* ============ WARD / STATUS SELECTS ============ */
+  function populateWardSelect(){
+    el('fWard').innerHTML = wards.map(w=>`<option value="${escapeHtml(w.name)}">${escapeHtml(w.name)}</option>`).join('');
+  }
+  function populateStatusSelect(){
+    el('fStatus').innerHTML = statuses.map(s=>`<option value="${escapeHtml(s.name)}">${escapeHtml(s.name)}</option>`).join('');
+    const admitted = statuses.find(s=>s.name.toLowerCase()==='admitted');
+    if(admitted) el('fStatus').value = admitted.name;
+  }
+  el('fWard').addEventListener('change', ()=>{ updateBedAvailability(); updateSummary(); });
+  el('fStatus').addEventListener('change', updateSummary);
+
+  function updateBedAvailability(){
+    const wardName = el('fWard').value;
+    const w = wards.find(x=>x.name===wardName);
+    if(!w){
+      el('bedTitle').textContent = 'Select a ward';
+      el('bedSub').textContent = '—';
+      el('bedWarning').style.display = 'none';
+      return;
+    }
+    const admissions = loadAdmissions();
+    const occupied = admissions.filter(a=>a.ward===wardName && a.status && a.status.toLowerCase()!=='discharged' && a.status.toLowerCase()!=='transferred').length;
+    const totalBeds = wardBeds(w);
+    const available = Math.max(0, totalBeds - occupied);
+    const wc = wardColor(wardName);
+    el('bedIcon').style.background = wc.bg; el('bedIcon').style.color = wc.fg;
+    el('bedTitle').textContent = `${available} of ${totalBeds} beds available`;
+    el('bedSub').textContent = `${wardName} · ${occupied} currently occupied`;
+    el('bedWarning').style.display = available <= 0 ? 'flex' : 'none';
+  }
+
+  /* ============ FIELD LISTENERS ============ */
+  el('fBed').addEventListener('input', ()=>{ updateSummary(); validateForm(); });
+  el('fDate').addEventListener('change', updateSummary);
+  el('fDoctor').addEventListener('input', ()=>{ updateSummary(); validateForm(); });
+  el('fDiagnosis').addEventListener('input', ()=>{
+    el('diagCount').textContent = el('fDiagnosis').value.length;
+    updateSummary(); validateForm();
+  });
+  el('fConsent').addEventListener('change', validateForm);
+
+  /* ============ SUMMARY ============ */
+  function fmtDateNice(iso){
+    if(!iso) return '—';
+    try{ return new Date(iso+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }
+    catch(e){ return iso; }
+  }
+  function currentPatientLabel(){
+    if(patientMode === 'existing') return selectedPatient ? selectedPatient.name : 'Not selected';
+    const n = el('newName').value.trim();
+    return n ? n + ' (new)' : 'Not entered';
+  }
+  function updateSummary(){
+    el('sumId').textContent = peekNextId();
+    el('sumPatient').textContent = currentPatientLabel();
+
+    const wardName = el('fWard').value;
+    const bed = el('fBed').value.trim();
+    const wc = wardColor(wardName);
+    el('sumWardBed').innerHTML = wardName
+      ? `<span class="ward-tag" style="background:${wc.bg};color:${wc.fg};">${escapeHtml(wardName)}</span> ${escapeHtml(bed || '—')}`
+      : '—';
+
+    el('sumDoctor').textContent = el('fDoctor').value.trim() || 'Not entered';
+    el('sumDate').textContent = fmtDateNice(el('fDate').value);
+
+    const statusName = el('fStatus').value;
+    const sc = statusColor(statusName);
+    el('sumStatus').innerHTML = statusName
+      ? `<span class="status-pill" style="background:${sc.bg};color:${sc.fg};">${escapeHtml(statusName)}</span>`
+      : '—';
+  }
+
+  /* ============ VALIDATION ============ */
+  function validateForm(){
+    const patientOk = patientMode === 'existing'
+      ? !!selectedPatient
+      : (el('newName').value.trim() !== '' && el('newHosp').value.trim() !== '' && el('newAge').value !== '');
+    const wardOk = el('fWard').value !== '';
+    const bedOk = el('fBed').value.trim() !== '';
+    const doctorOk = el('fDoctor').value.trim() !== '';
+    const diagnosisOk = el('fDiagnosis').value.trim() !== '';
+    const dateOk = el('fDate').value !== '';
+    const consentOk = el('fConsent').checked;
+
+    const allOk = patientOk && wardOk && bedOk && doctorOk && diagnosisOk && dateOk && consentOk;
+    el('admitBtn').disabled = !allOk;
+    el('admitTopBtn').disabled = !allOk;
+    el('admitAnotherBtn').disabled = !allOk;
+    return { patientOk, wardOk, bedOk, doctorOk, diagnosisOk, dateOk, consentOk };
+  }
+  function markFieldStates(v){
+    el('patientSearchField')?.classList.toggle('invalid', patientMode==='existing' && !v.patientOk);
+    document.querySelector('[data-field="newName"]')?.classList.toggle('invalid', patientMode==='new' && !el('newName').value.trim());
+    document.querySelector('[data-field="newHosp"]')?.classList.toggle('invalid', patientMode==='new' && !el('newHosp').value.trim());
+    document.querySelector('[data-field="newAge"]')?.classList.toggle('invalid', patientMode==='new' && !el('newAge').value);
+    document.querySelector('[data-field="ward"]').classList.toggle('invalid', !v.wardOk);
+    document.querySelector('[data-field="bed"]').classList.toggle('invalid', !v.bedOk);
+    document.querySelector('[data-field="doctor"]').classList.toggle('invalid', !v.doctorOk);
+    document.querySelector('[data-field="diagnosis"]').classList.toggle('invalid', !v.diagnosisOk);
+  }
+
+  /* ============ SUBMIT (POST /admissions via AdmissionService) ============ */
+  async function submitAdmission(addAnother){
+    const v = validateForm();
+    markFieldStates(v);
+    if(!(v.patientOk && v.wardOk && v.bedOk && v.doctorOk && v.diagnosisOk && v.dateOk && v.consentOk)){
+      showToast('Please complete all required fields', true);
+      return;
+    }
+
+    if(patientMode !== 'existing' || !selectedPatient || !selectedPatient.id){
+      window.ShilohAPI.toast('Walk-in admissions require an existing patient. Please select a patient.', 'error');
+      return;
+    }
+
+    const payload = {
+      patientId: selectedPatient.id,
+      patientName: selectedPatient.name,
+      hospitalNo: selectedPatient.hosp,
+      ward: el('fWard').value,
+      bed: el('fBed').value.trim(),
+      admitDate: el('fDate').value,
+      doctor: el('fDoctor').value.trim(),
+      admittingDoctor: el('fDoctor').value.trim(),
+      diagnosis: el('fDiagnosis').value.trim(),
+      reason: el('fDiagnosis').value.trim(),
+      status: el('fStatus').value,
+    };
+
+    try {
+      const created = await AdmissionService.createAdmission(payload);
+      if(!created){
+        window.ShilohAPI.toast('Could not create admission. Check connection / login.', 'error');
+        return;
+      }
+      const label = created.patientName || selectedPatient.name;
+      showToast(`${label} admitted to ${created.ward || payload.ward} · ${created.id || ''}`);
+      if(addAnother){ resetForm(); }
+      else { setTimeout(()=>{ window.location.href = 'admissions.html'; }, 700); }
+    } catch (e) {
+      window.ShilohAPI.toast('Could not create admission. Check connection / login.', 'error');
+    }
+  }
+
+  el('admitBtn').addEventListener('click', ()=> submitAdmission(false));
+  el('admitTopBtn').addEventListener('click', ()=> submitAdmission(false));
+  el('admitAnotherBtn').addEventListener('click', ()=> submitAdmission(true));
+
+  el('cancelBtn').addEventListener('click', ()=>{ window.location.href = 'admissions.html'; });
+  el('backBtn').addEventListener('click', ()=>{
+    if(window.history.length > 1) window.history.back(); else window.location.href = 'admissions.html';
+  });
+  el('clearFormBtn').addEventListener('click', ()=>{
+    if(confirm('Clear all fields?')){ resetForm(); showToast('Form cleared'); }
+  });
+
+  function resetForm(){
+    selectedPatient = null; renderSelectedPatient();
+    el('patientSearch').value = '';
+    el('newName').value=''; el('newHosp').value=''; el('newGender').value='Female'; el('newAge').value='';
+    document.querySelectorAll('#patientModeToggle .mode-toggle-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelector('#patientModeToggle [data-mode="existing"]').classList.add('active');
+    patientMode = 'existing';
+    el('existingPatientBlock').style.display='block'; el('newPatientBlock').style.display='none';
+
+    el('fWard').value = wards[0] ? wards[0].name : '';
+    el('fBed').value = '';
+    populateStatusSelect();
+    el('fDate').value = TODAY;
+    el('fDoctor').value = '';
+    el('fDiagnosis').value = ''; el('diagCount').textContent = '0';
+    el('fConsent').checked = false;
+
+    document.querySelectorAll('.field.invalid').forEach(f=>f.classList.remove('invalid'));
+    updateBedAvailability();
+    updateSummary();
+    validateForm();
+  }
+
+  /* ============ INIT (async, backend-only) ============ */
+  async function init(){
+    try { await PatientService.init(); } catch (e) { window.ShilohAPI.toast('Could not load patients. Check connection / login.', 'error'); }
+    try { await AdmissionService.init(); } catch (e) { window.ShilohAPI.toast('Could not load admissions. Check connection / login.', 'error'); }
+    try {
+      const list = PatientService.getAllPatients() || [];
+      PATIENTS = list.map((p, i)=>({ id: p.id, name: p.name, hosp: p.hospitalNo || '', gender: p.gender || '', age: p.age || '', img: 12 }));
+    } catch (e) { window.ShilohAPI.toast('Could not load patients. Check connection / login.', 'error'); PATIENTS = []; }
+    try {
+      wards = (AdmissionService.state && AdmissionService.state.wards) || [];
+      statuses = (AdmissionService.state && AdmissionService.state.statuses) || [];
+    } catch (e) { window.ShilohAPI.toast('Could not load admissions. Check connection / login.', 'error'); }
+    populateWardSelect();
+    populateStatusSelect();
+    resetForm();
+  }
+  init();
+})();
+</script>
+
+</body>
+</html>

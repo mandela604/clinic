@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Shiloh Clinic &amp; Maternity - Roles &amp; Permissions</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root{--navy:#0d1b4c;--blue:#2563eb;--blue-light:#eef2ff;--bg:#f5f6f8;--card:#fff;--border:#e5e7eb;--text-dark:#1e293b;--text-gray:#64748b;--text-light:#94a3b8;--green:#16a34a;--green-bg:#dcfce7;--orange:#f97316;--orange-bg:#fff1e6;--purple:#8b5cf6;--purple-bg:#f1eaff;--pink:#ec4899;--pink-bg:#fde8f2;--red:#ef4444;--red-bg:#fee2e2;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text-dark);display:flex;min-height:100vh;}
+  .main{flex:1;min-width:0;padding:22px 28px;overflow-x:auto;}
+  .topbar{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px;gap:14px;flex-wrap:wrap;}
+  .page-title{font-size:22px;font-weight:700;}
+  .breadcrumb{font-size:12.5px;color:var(--text-gray);margin-top:4px;}
+  .breadcrumb a{color:var(--blue);text-decoration:none;}
+  .topbar-actions{display:flex;gap:10px;flex-wrap:wrap;}
+  .btn{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:#fff;color:#334155;white-space:nowrap;}
+  .btn:hover{background:var(--bg);}
+  .btn-primary{background:var(--blue);color:#fff;border-color:var(--blue);}
+  .btn-primary:hover{background:#1d4ed8;}
+  .btn-danger{background:var(--red);color:#fff;border-color:var(--red);}
+  .btn i{font-size:13px;}
+
+  .stats-row{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-bottom:20px;align-items:stretch;}
+  .stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;}
+  .stat-top{display:flex;align-items:center;gap:10px;}
+  .stat-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;}
+  .stat-label{font-size:12px;color:var(--text-gray);font-weight:500;}
+  .stat-value{font-size:20px;font-weight:700;}
+  .stat-sub{font-size:10.5px;color:var(--text-light);margin-top:-4px;}
+  .ic-blue{background:var(--blue-light);color:var(--blue);}
+  .ic-green{background:var(--green-bg);color:var(--green);}
+  .ic-orange{background:var(--orange-bg);color:var(--orange);}
+  .ic-purple{background:var(--purple-bg);color:var(--purple);}
+  .ic-pink{background:var(--pink-bg);color:var(--pink);}
+  .ic-red{background:var(--red-bg);color:var(--red);}
+
+  .filter-bar{display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap;}
+  .search-box{flex:1;min-width:260px;position:relative;}
+  .search-box input{width:100%;padding:10px 14px 10px 36px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:#fff;outline:none;}
+  .search-box input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1);}
+  .search-box i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-light);font-size:13px;}
+  .filter-group{display:flex;flex-direction:column;gap:3px;}
+  .filter-group label{font-size:11.5px;color:var(--text-gray);font-weight:500;}
+  .filter-select{padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:#fff;min-width:120px;color:#334155;}
+
+  .table-card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+  .table-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;}
+  .table-title{font-size:15px;font-weight:700;}
+
+  .table-scroll{overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;}
+  thead tr{border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:#fafbfc;}
+  th{text-align:left;padding:11px 12px;font-size:11px;color:var(--text-light);font-weight:700;text-transform:uppercase;letter-spacing:.02em;white-space:nowrap;}
+  td{padding:11px 12px;font-size:13px;border-bottom:1px solid var(--border);white-space:nowrap;color:#334155;}
+  tbody tr{transition:all .15s ease;}
+  tbody tr:hover{background:#fafbfc;transform:translateY(-2px) scale(1.005);box-shadow:0 4px 12px rgba(0,0,0,0.06);}
+
+  .role-name-cell{display:flex;align-items:center;gap:10px;}
+  .role-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;}
+  .role-name{font-weight:700;color:#0f172a;font-size:13px;cursor:pointer;}
+  .role-name:hover{color:var(--blue);text-decoration:underline;}
+  .role-desc{font-size:11.5px;color:#94a3b8;max-width:260px;white-space:normal;}
+
+  .type-chip{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11.5px;font-weight:600;}
+  .type-system{background:var(--blue-light);color:var(--blue);}
+  .type-custom{background:var(--purple-bg);color:var(--purple);}
+
+  .perm-count{font-weight:600;color:#0f172a;}
+  .perm-total{color:#94a3b8;font-weight:500;}
+
+  .users-count{display:inline-flex;align-items:center;gap:6px;font-weight:600;color:#0f172a;cursor:pointer;}
+  .users-count i{color:var(--text-light);font-size:13px;}
+  .users-count:hover{color:var(--blue);}
+
+  .badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11.5px;font-weight:600;white-space:nowrap;}
+  .badge .dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
+  .badge-active{background:var(--green-bg);color:var(--green);}
+  .badge-active .dot{background:var(--green);}
+  .badge-disabled{background:#f1f5f9;color:#64748b;}
+  .badge-disabled .dot{background:#94a3b8;}
+
+  .toggle-switch{position:relative;width:36px;height:20px;border-radius:20px;background:#e2e8f0;flex-shrink:0;cursor:pointer;}
+  .toggle-switch.on{background:var(--green);}
+  .toggle-knob{position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,0.15);transition:left .15s;}
+  .toggle-switch.on .toggle-knob{left:18px;}
+
+  .row-actions{display:flex;gap:6px;align-items:center;}
+  .icon-btn{width:30px;height:30px;border:1px solid var(--border);border-radius:8px;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#64748b;}
+  .icon-btn:hover{background:var(--blue-light);border-color:var(--blue-light);color:var(--blue);}
+  .icon-btn.danger:hover{background:var(--red-bg);border-color:var(--red-bg);color:var(--red);}
+  .icon-btn:disabled{opacity:.35;cursor:not-allowed;background:#fff;color:#64748b;}
+  .icon-btn i{font-size:12px;}
+
+  .table-footer{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;}
+  .footer-text{font-size:12.5px;color:var(--text-gray);}
+  .empty-row td{text-align:center;padding:40px 10px;color:#94a3b8;font-size:13px;}
+
+  .modal-overlay{position:fixed;inset:0;background:rgba(13,27,76,0.45);display:none;align-items:flex-start;justify-content:center;z-index:300;padding:40px 20px;overflow-y:auto;}
+  .modal-overlay.open{display:flex;}
+  .modal-box{background:#fff;border-radius:16px;max-width:520px;width:100%;padding:22px;box-shadow:0 20px 60px rgba(10,15,40,0.25);}
+  .modal-box.wide{max-width:760px;}
+  .modal-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;gap:10px;}
+  .modal-title{font-size:15px;font-weight:800;color:#0f172a;}
+  .modal-subtitle{font-size:11.5px;color:var(--text-gray);margin-top:3px;font-weight:500;}
+  .modal-close{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text-gray);cursor:pointer;flex-shrink:0;}
+  .modal-close:hover{background:var(--bg);}
+  .modal-close i{font-size:13px;}
+  .modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border);}
+  .btn-secondary{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border);border-radius:8px;padding:9px 16px;font-size:13px;font-weight:600;color:#64748b;cursor:pointer;}
+  .btn-secondary:hover{background:var(--bg);color:var(--text-dark);}
+
+  .form-group{margin-bottom:14px;}
+  .form-label{font-size:11px;font-weight:800;color:var(--text-gray);text-transform:uppercase;letter-spacing:.03em;margin-bottom:6px;display:block;}
+  .form-input,.form-textarea,.form-select{width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-family:inherit;font-size:13px;color:var(--text-dark);outline:none;background:#fff;}
+  .form-textarea{resize:vertical;min-height:56px;}
+  .form-input:focus,.form-textarea:focus,.form-select:focus{border-color:var(--blue);}
+  .form-err{font-size:10.5px;color:var(--red);font-weight:700;margin-top:4px;display:none;}
+  .form-group.invalid .form-input,.form-group.invalid .form-textarea{border-color:var(--red);}
+  .form-group.invalid .form-err{display:block;}
+
+  .perm-matrix-wrap{border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-top:6px;}
+  .perm-matrix{width:100%;border-collapse:collapse;}
+  .perm-matrix thead th{background:#fafbfc;font-size:10.5px;text-transform:uppercase;letter-spacing:.03em;color:#64748b;font-weight:700;padding:9px 10px;border-bottom:1px solid var(--border);text-align:center;}
+  .perm-matrix thead th:first-child{text-align:left;}
+  .perm-matrix tbody td{padding:8px 10px;font-size:12.5px;border-bottom:1px solid var(--border);text-align:center;}
+  .perm-matrix tbody tr:last-child td{border-bottom:none;}
+  .perm-matrix tbody td:first-child{text-align:left;font-weight:600;color:#0f172a;display:flex;align-items:center;gap:8px;}
+  .perm-module-icon{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;}
+  .perm-checkbox{width:16px;height:16px;cursor:pointer;accent-color:var(--blue);}
+  .perm-select-all-label{font-size:9.5px;color:#94a3b8;font-weight:600;display:block;margin-top:2px;cursor:pointer;}
+
+  .view-perm-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;margin-top:6px;}
+  .view-perm-row{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--bg);border-radius:8px;font-size:12px;}
+  .view-perm-mod{font-weight:600;color:#0f172a;display:flex;align-items:center;gap:8px;}
+  .view-perm-acts{display:flex;gap:4px;}
+  .mini-tag{font-size:9.5px;font-weight:700;padding:2px 6px;border-radius:5px;}
+  .mini-on{background:var(--green-bg);color:var(--green);}
+  .mini-off{background:#f1f5f9;color:#cbd5e1;}
+
+  .assigned-users-list{display:flex;flex-direction:column;gap:8px;margin-top:6px;max-height:220px;overflow-y:auto;}
+  .assigned-user-row{display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:8px;}
+  .assigned-user-row:hover{background:var(--bg);}
+  .assigned-avatar{width:30px;height:30px;border-radius:50%;background-size:cover;background-position:center;flex-shrink:0;background-color:#e2e8f0;}
+  .assigned-name{font-size:12.5px;font-weight:600;color:#0f172a;}
+  .assigned-email{font-size:10.5px;color:#94a3b8;}
+  .no-users-note{font-size:12px;color:#94a3b8;padding:10px 4px;}
+
+  .confirm-icon{width:48px;height:48px;border-radius:50%;background:var(--red-bg);color:var(--red);display:flex;align-items:center;justify-content:center;margin-bottom:12px;font-size:18px;}
+  .confirm-text{font-size:13px;color:#334155;line-height:1.5;}
+  .confirm-text b{color:#0f172a;}
+  .confirm-warn{margin-top:10px;padding:10px 12px;background:var(--orange-bg);border-radius:8px;font-size:11.5px;color:#c56c05;font-weight:600;display:flex;align-items:flex-start;gap:8px;}
+  .confirm-warn i{flex-shrink:0;margin-top:1px;}
+
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;padding:11px 20px;border-radius:10px;font-size:12.5px;font-weight:700;box-shadow:0 10px 30px rgba(10,15,40,0.3);opacity:0;pointer-events:none;transition:.22s;z-index:400;display:flex;align-items:center;gap:9px;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .toast i{color:var(--green);}
+
+  @media(max-width:1200px){.stats-row{grid-template-columns:repeat(3,1fr);}}
+  @media(max-width:720px){.stats-row{grid-template-columns:repeat(2,1fr);}.view-perm-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<div id="sidebarPlaceholder"></div>
+<script src="shiloh-sidebar.js"></script>
+
+<main class="main">
+  <div class="topbar">
+    <div>
+      <div class="page-title">Roles &amp; Permissions</div>
+      <div class="breadcrumb"><a href="dashboard.html">Dashboard</a> / Administration / Roles &amp; Permissions</div>
+    </div>
+    <div class="topbar-actions">
+      <div class="btn" id="exportBtn"><i class="fa-solid fa-download"></i> Export</div>
+      <div class="btn btn-primary" id="addRoleBtn"><i class="fa-solid fa-plus"></i> Add New Role</div>
+    </div>
+  </div>
+
+  <div class="stats-row" id="statsRow"></div>
+
+  <div class="filter-bar">
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Search by role name or description...">
+      <i class="fa-solid fa-magnifying-glass"></i>
+    </div>
+    <div class="filter-group">
+      <select class="filter-select" id="typeFilter">
+        <option value="all">All Types</option>
+        <option value="system">System</option>
+        <option value="custom">Custom</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <select class="filter-select" id="statusFilter">
+        <option value="all">All Statuses</option>
+        <option value="active">Active</option>
+        <option value="disabled">Disabled</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-header">
+      <div class="table-title" id="tableTitle">All Roles (0)</div>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Role</th>
+            <th>Type</th>
+            <th>Permissions</th>
+            <th>Users Assigned</th>
+            <th>Status</th>
+            <th>Enabled</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="rolesTable"></tbody>
+      </table>
+    </div>
+    <div class="table-footer">
+      <div class="footer-text" id="footerText">Showing 0 of 0 roles</div>
+    </div>
+  </div>
+</main>
+
+<!-- CREATE / EDIT ROLE MODAL -->
+<div class="modal-overlay" id="roleModal">
+  <div class="modal-box wide">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title" id="roleModalTitle">Create a new role</div>
+        <div class="modal-subtitle" id="roleModalSubtitle">Define the role's name and choose its permissions below</div>
+      </div>
+      <div class="modal-close" data-close="roleModal"><i class="fa-solid fa-xmark"></i></div>
+    </div>
+    <div class="form-group" id="rNameGroup">
+      <label class="form-label">Role Name</label>
+      <input class="form-input" id="rName" placeholder="e.g. Ward Supervisor">
+      <div class="form-err">Please enter a role name</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <textarea class="form-textarea" id="rDesc" placeholder="Briefly describe what this role is for"></textarea>
+    </div>
+    <label class="form-label">Permissions</label>
+    <div class="perm-matrix-wrap">
+      <table class="perm-matrix">
+        <thead>
+          <tr>
+            <th>Module</th>
+            <th>View <label class="perm-select-all-label"><input type="checkbox" class="perm-checkbox" data-selectcol="view"> All</label></th>
+            <th>Create <label class="perm-select-all-label"><input type="checkbox" class="perm-checkbox" data-selectcol="create"> All</label></th>
+            <th>Edit <label class="perm-select-all-label"><input type="checkbox" class="perm-checkbox" data-selectcol="edit"> All</label></th>
+            <th>Delete <label class="perm-select-all-label"><input type="checkbox" class="perm-checkbox" data-selectcol="delete"> All</label></th>
+          </tr>
+        </thead>
+        <tbody id="permMatrixBody"></tbody>
+      </table>
+    </div>
+    <div class="modal-actions">
+      <div class="btn-secondary" data-close="roleModal">Cancel</div>
+      <div class="btn-primary" id="roleSubmit"><i class="fa-solid fa-check"></i> <span id="roleSubmitText">Create Role</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW ROLE MODAL -->
+<div class="modal-overlay" id="viewModal">
+  <div class="modal-box wide">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title" id="viewModalTitle">Role Details</div>
+        <div class="modal-subtitle" id="viewModalSubtitle"></div>
+      </div>
+      <div class="modal-close" data-close="viewModal"><i class="fa-solid fa-xmark"></i></div>
+    </div>
+    <label class="form-label">Permissions Summary</label>
+    <div class="view-perm-grid" id="viewPermGrid"></div>
+    <div style="margin-top:18px;">
+      <label class="form-label">Assigned Users</label>
+      <div class="assigned-users-list" id="assignedUsersList"></div>
+    </div>
+    <div class="modal-actions">
+      <div class="btn-secondary" data-close="viewModal">Close</div>
+      <div class="btn-primary" id="viewEditBtn">Edit Role</div>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM MODAL -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div></div>
+      <div class="modal-close" data-close="deleteModal"><i class="fa-solid fa-xmark"></i></div>
+    </div>
+    <div class="confirm-icon"><i class="fa-solid fa-trash"></i></div>
+    <div class="modal-title" style="margin-bottom:8px;">Delete this role?</div>
+    <div class="confirm-text">Are you sure you want to delete <b id="deleteRoleName"></b>? This action cannot be undone.</div>
+    <div class="confirm-warn" id="deleteWarn" style="display:none;">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      <span id="deleteWarnText"></span>
+    </div>
+    <div class="modal-actions">
+      <div class="btn-secondary" data-close="deleteModal">Cancel</div>
+      <div class="btn-danger" id="confirmDeleteBtn"><i class="fa-solid fa-trash"></i> Delete Role</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><i class="fa-solid fa-circle-check"></i><span id="toastText">Saved</span></div>
+
+<script>
+(function(){
+  const el = id => document.getElementById(id);
+
+  const MODULES = [
+    {key:'patients',label:'Patients',icon:'fa-users',bg:'var(--blue-light)',color:'var(--blue)'},
+    {key:'visits',label:'Visits',icon:'fa-clipboard-check',bg:'var(--green-bg)',color:'var(--green)'},
+    {key:'appointments',label:'Appointments',icon:'fa-calendar-check',bg:'var(--purple-bg)',color:'var(--purple)'},
+    {key:'nursing',label:'Nursing',icon:'fa-user-nurse',bg:'var(--pink-bg)',color:'var(--pink)'},
+    {key:'laboratory',label:'Laboratory',icon:'fa-flask',bg:'var(--orange-bg)',color:'var(--orange)'},
+    {key:'pharmacy',label:'Pharmacy',icon:'fa-pills',bg:'var(--green-bg)',color:'var(--green)'},
+    {key:'billing',label:'Billing',icon:'fa-file-invoice-dollar',bg:'var(--red-bg)',color:'var(--red)'},
+    {key:'reports',label:'Reports',icon:'fa-chart-bar',bg:'var(--blue-light)',color:'var(--blue)'},
+    {key:'users',label:'Users',icon:'fa-user-gear',bg:'var(--purple-bg)',color:'var(--purple)'},
+    {key:'settings',label:'Settings',icon:'fa-gear',bg:'#f1f5f9',color:'#64748b'},
+  ];
+  const ACTIONS = ['view','create','edit','delete'];
+
+  function emptyPerms(defaults){
+    const p = {};
+    MODULES.forEach(m => { p[m.key] = {view:false,create:false,edit:false,delete:false}; });
+    if(defaults) Object.keys(defaults).forEach(k => { if(p[k]) Object.assign(p[k], defaults[k]); });
+    return p;
+  }
+  function allTruePerms(){
+    const p = {};
+    MODULES.forEach(m => { p[m.key] = {view:true,create:true,edit:true,delete:true}; });
+    return p;
+  }
+
+  const DEMO_USERS_BY_ROLE = {
+    1:[{name:'Tolu Bankole',email:'tolu.bankole@shiloh.clinic',img:33},{name:'Femi Adebayo',email:'femi.adebayo@shiloh.clinic',img:22},{name:'Grace Udoh',email:'grace.udoh@shiloh.clinic',img:56}],
+    2:[{name:'Dr. Samuel Okonkwo',email:'samuel.okonkwo@shiloh.clinic',img:11},{name:'Dr. Ifeoma Balogun',email:'ifeoma.balogun@shiloh.clinic',img:44},{name:'Dr. Chuka Nnamdi',email:'chuka.nnamdi@shiloh.clinic',img:5},{name:'Dr. Amaka Obi',email:'amaka.obi@shiloh.clinic',img:41},{name:'Dr. Bode Fashola',email:'bode.fashola@shiloh.clinic',img:13}],
+    3:[{name:'Nurse Adaeze Nwosu',email:'adaeze.nwosu@shiloh.clinic',img:47},{name:'Nurse Blessing Etim',email:'blessing.etim@shiloh.clinic',img:48},{name:'Nurse Chidinma Ude',email:'chidinma.ude@shiloh.clinic',img:20},{name:'Nurse Peace Effiong',email:'peace.effiong@shiloh.clinic',img:32}],
+    4:[{name:'Lab Tech Uche Igwe',email:'uche.igwe@shiloh.clinic',img:14},{name:'Lab Tech Musa Bello',email:'musa.bello@shiloh.clinic',img:15},{name:'Lab Tech Rita Nkem',email:'rita.nkem@shiloh.clinic',img:49}],
+    5:[{name:'Pharm. Ngozi Eze',email:'ngozi.eze@shiloh.clinic',img:50},{name:'Pharm. Tunde Ojo',email:'tunde.ojo@shiloh.clinic',img:9}],
+    6:[{name:'Chidinma Obi',email:'chidinma.obi@shiloh.clinic',img:23},{name:'Kelechi Anyanwu',email:'kelechi.anyanwu@shiloh.clinic',img:8}],
+    7:[{name:'Ada Umeh',email:'ada.umeh@shiloh.clinic',img:29},{name:'Joseph Danladi',email:'joseph.danladi@shiloh.clinic',img:18}],
+  };
+
+  let roles = [
+    {id:1,name:'Administrator',description:'Full system access including user management and settings.',type:'system',status:'active',usersCount:3,permissions:allTruePerms()},
+    {id:2,name:'Doctor',description:'Access to patient records, visits, consultations and prescriptions.',type:'system',status:'active',usersCount:5,permissions:emptyPerms({patients:{view:true,edit:true},visits:{view:true,create:true,edit:true},appointments:{view:true,edit:true},nursing:{view:true},laboratory:{view:true,create:true},pharmacy:{view:true,create:true},billing:{view:true},reports:{view:true}})},
+    {id:3,name:'Nurse',description:'Records vitals, manages nursing queue and patient visit flow.',type:'system',status:'active',usersCount:4,permissions:emptyPerms({patients:{view:true},visits:{view:true,edit:true},nursing:{view:true,create:true,edit:true},laboratory:{view:true},pharmacy:{view:true}})},
+    {id:4,name:'Lab Technician',description:'Manages test orders, sample collection and lab results.',type:'system',status:'active',usersCount:3,permissions:emptyPerms({patients:{view:true},laboratory:{view:true,create:true,edit:true}})},
+    {id:5,name:'Pharmacist',description:'Manages prescriptions and medication dispensing.',type:'system',status:'active',usersCount:2,permissions:emptyPerms({patients:{view:true},pharmacy:{view:true,create:true,edit:true}})},
+    {id:6,name:'Receptionist',description:'Registers patients, books appointments and manages front desk.',type:'system',status:'active',usersCount:2,permissions:emptyPerms({patients:{view:true,create:true,edit:true},appointments:{view:true,create:true,edit:true},visits:{view:true,create:true},billing:{view:true}})},
+    {id:7,name:'Cashier',description:'Handles invoicing and payment collection at the billing desk.',type:'custom',status:'active',usersCount:2,permissions:emptyPerms({patients:{view:true},billing:{view:true,create:true,edit:true}})},
+    {id:8,name:'Front Desk Supervisor',description:'Oversees reception staff with elevated appointment permissions.',type:'custom',status:'disabled',usersCount:0,permissions:emptyPerms({patients:{view:true,create:true,edit:true,delete:true},appointments:{view:true,create:true,edit:true,delete:true},visits:{view:true,create:true,edit:true},billing:{view:true}})},
+  ];
+  let nextId = 9;
+  let state = {search:'',type:'all',status:'all'};
+  let editingId = null;
+  let viewingId = null;
+  let deletingId = null;
+
+  function showToast(msg,isErr){
+    const t = el('toast');
+    el('toastText').textContent = msg;
+    t.classList.toggle('err',!!isErr);
+    t.classList.add('show');
+    clearTimeout(showToast._tm);
+    showToast._tm = setTimeout(()=>t.classList.remove('show'),2000);
+  }
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+  function countPerms(perms){
+    let c = 0;
+    MODULES.forEach(m => ACTIONS.forEach(a => {if(perms[m.key][a]) c++;}));
+    return c;
+  }
+  const TOTAL_PERMS = MODULES.length * ACTIONS.length;
+
+  function renderStats(){
+    const total=roles.length;
+    const active=roles.filter(r=>r.status==='active').length;
+    const custom=roles.filter(r=>r.type==='custom').length;
+    const system=roles.filter(r=>r.type==='system').length;
+    const usersAssigned=roles.reduce((s,r)=>s+r.usersCount,0);
+    el('statsRow').innerHTML=`
+      <div class="stat-card"><div class="stat-top"><div class="stat-icon ic-blue"><i class="fa-solid fa-shield-halved"></i></div><div class="stat-label">Total Roles</div></div><div class="stat-value">${total}</div><div class="stat-sub">Defined in the system</div></div>
+      <div class="stat-card"><div class="stat-top"><div class="stat-icon ic-green"><i class="fa-solid fa-check"></i></div><div class="stat-label">Active Roles</div></div><div class="stat-value">${active}</div><div class="stat-sub">Currently enabled</div></div>
+      <div class="stat-card"><div class="stat-top"><div class="stat-icon ic-orange"><i class="fa-solid fa-key"></i></div><div class="stat-label">Total Permissions</div></div><div class="stat-value">${TOTAL_PERMS}</div><div class="stat-sub">Across ${MODULES.length} modules</div></div>
+      <div class="stat-card"><div class="stat-top"><div class="stat-icon ic-purple"><i class="fa-solid fa-users"></i></div><div class="stat-label">Users Assigned</div></div><div class="stat-value">${usersAssigned}</div><div class="stat-sub">Across all roles</div></div>
+      <div class="stat-card"><div class="stat-top"><div class="stat-icon ic-pink"><i class="fa-solid fa-plus-circle"></i></div><div class="stat-label">Custom Roles</div></div><div class="stat-value">${custom}</div><div class="stat-sub">Created by admins</div></div>
+      <div class="stat-card"><div class="stat-top"><div class="stat-icon ic-red"><i class="fa-solid fa-lock"></i></div><div class="stat-label">System Roles</div></div><div class="stat-value">${system}</div><div class="stat-sub">Built-in, protected</div></div>`;
+  }
+
+  function getFiltered(){
+    const q=state.search.trim().toLowerCase();
+    return roles.filter(r=>{
+      if(state.type!=='all'&&r.type!==state.type) return false;
+      if(state.status!=='all'&&r.status!==state.status) return false;
+      if(q&&!(r.name.toLowerCase().includes(q)||r.description.toLowerCase().includes(q))) return false;
+      return true;
+    });
+  }
+
+  function roleIconFor(r){
+    if(r.type==='system') return {bg:'var(--blue-light)',color:'var(--blue)',icon:'fa-shield-halved'};
+    return {bg:'var(--purple-bg)',color:'var(--purple)',icon:'fa-gear'};
+  }
+
+  function renderTable(){
+    const filtered=getFiltered();
+    el('tableTitle').textContent=`All Roles (${filtered.length})`;
+    el('footerText').textContent=`Showing ${filtered.length} of ${roles.length} roles`;
+    if(filtered.length===0){
+      el('rolesTable').innerHTML=`<tr class="empty-row"><td colspan="7">No roles match your filters</td></tr>`;
+      return;
+    }
+    el('rolesTable').innerHTML=filtered.map(r=>{
+      const ic=roleIconFor(r);
+      const permCount=countPerms(r.permissions);
+      const isSystem=r.type==='system';
+      return `<tr>
+        <td><div class="role-name-cell"><div class="role-icon" style="background:${ic.bg};color:${ic.color};"><i class="fa-solid ${ic.icon}"></i></div><div><div class="role-name" data-action="view" data-id="${r.id}">${esc(r.name)}</div><div class="role-desc">${esc(r.description)}</div></div></div></td>
+        <td><span class="type-chip ${isSystem?'type-system':'type-custom'}">${isSystem?'System':'Custom'}</span></td>
+        <td><span class="perm-count">${permCount}</span> <span class="perm-total">/ ${TOTAL_PERMS}</span></td>
+        <td><div class="users-count" data-action="view" data-id="${r.id}"><i class="fa-solid fa-users"></i> ${r.usersCount}</div></td>
+        <td><span class="badge ${r.status==='active'?'badge-active':'badge-disabled'}"><span class="dot"></span>${r.status==='active'?'Active':'Disabled'}</span></td>
+        <td><div class="toggle-switch ${r.status==='active'?'on':''}" data-action="toggle" data-id="${r.id}"><div class="toggle-knob"></div></div></td>
+        <td><div class="row-actions">
+          <div class="icon-btn" data-action="view" data-id="${r.id}" title="View"><i class="fa-solid fa-eye"></i></div>
+          <div class="icon-btn" data-action="edit" data-id="${r.id}" title="Edit"><i class="fa-solid fa-pen"></i></div>
+          <div class="icon-btn" data-action="duplicate" data-id="${r.id}" title="Duplicate"><i class="fa-solid fa-copy"></i></div>
+          <div class="icon-btn danger" data-action="delete" data-id="${r.id}" title="Delete" ${isSystem?'disabled':''}><i class="fa-solid fa-trash"></i></div>
+        </div></td>
+      </tr>`;
+    }).join('');
+
+    document.querySelectorAll('[data-action="view"]').forEach(b=>b.addEventListener('click',()=>openViewModal(Number(b.dataset.id))));
+    document.querySelectorAll('[data-action="edit"]').forEach(b=>b.addEventListener('click',()=>openEditModal(Number(b.dataset.id))));
+    document.querySelectorAll('[data-action="duplicate"]').forEach(b=>b.addEventListener('click',()=>duplicateRole(Number(b.dataset.id))));
+    document.querySelectorAll('[data-action="delete"]').forEach(b=>{if(!b.disabled) b.addEventListener('click',()=>openDeleteModal(Number(b.dataset.id)));});
+    document.querySelectorAll('[data-action="toggle"]').forEach(b=>b.addEventListener('click',()=>toggleStatus(Number(b.dataset.id))));
+  }
+
+  function renderAll(){renderStats();renderTable();}
+
+  el('searchInput').addEventListener('input',e=>{state.search=e.target.value;renderTable();});
+  el('typeFilter').addEventListener('change',e=>{state.type=e.target.value;renderTable();});
+  el('statusFilter').addEventListener('change',e=>{state.status=e.target.value;renderTable();});
+  el('exportBtn').addEventListener('click',()=>showToast('Roles list exported (demo)'));
+
+  function toggleStatus(id){
+    const r=roles.find(x=>x.id===id);
+    if(!r) return;
+    r.status=r.status==='active'?'disabled':'active';
+    renderAll();
+    showToast(`${r.name} ${r.status==='active'?'enabled':'disabled'}`);
+  }
+
+  function openOverlay(id){el(id).classList.add('open');}
+  function closeOverlay(id){el(id).classList.remove('open');}
+  document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>closeOverlay(b.dataset.close)));
+  document.querySelectorAll('.modal-overlay').forEach(ov=>ov.addEventListener('click',e=>{if(e.target===ov) closeOverlay(ov.id);}));
+  document.addEventListener('keydown',e=>{if(e.key==='Escape') document.querySelectorAll('.modal-overlay.open').forEach(ov=>closeOverlay(ov.id));});
+
+  function buildPermMatrix(perms){
+    el('permMatrixBody').innerHTML=MODULES.map(m=>`
+      <tr data-module="${m.key}">
+        <td><div class="perm-module-icon" style="background:${m.bg};color:${m.color};"><i class="fa-solid ${m.icon}"></i></div>${m.label}</td>
+        ${ACTIONS.map(a=>`<td><input type="checkbox" class="perm-checkbox" data-module="${m.key}" data-action="${a}" ${perms[m.key][a]?'checked':''}></td>`).join('')}
+      </tr>`).join('');
+    document.querySelectorAll('#permMatrixBody .perm-checkbox').forEach(cb=>cb.addEventListener('change',updateColumnHeaderState));
+    updateColumnHeaderState();
+  }
+  function updateColumnHeaderState(){
+    ACTIONS.forEach(a=>{
+      const boxes=document.querySelectorAll(`#permMatrixBody .perm-checkbox[data-action="${a}"]`);
+      const allOn=boxes.length>0&&Array.from(boxes).every(b=>b.checked);
+      const header=document.querySelector(`[data-selectcol="${a}"]`);
+      if(header) header.checked=allOn;
+    });
+  }
+  document.querySelectorAll('[data-selectcol]').forEach(header=>{
+    header.addEventListener('change',()=>{
+      document.querySelectorAll(`#permMatrixBody .perm-checkbox[data-action="${header.dataset.selectcol}"]`).forEach(cb=>cb.checked=header.checked);
+    });
+  });
+  function readPermMatrix(){
+    const perms=emptyPerms();
+    document.querySelectorAll('#permMatrixBody .perm-checkbox').forEach(cb=>{perms[cb.dataset.module][cb.dataset.action]=cb.checked;});
+    return perms;
+  }
+
+  function clearRoleForm(){el('rName').value='';el('rDesc').value='';el('rNameGroup').classList.remove('invalid');buildPermMatrix(emptyPerms());}
+
+  el('addRoleBtn').addEventListener('click',()=>{
+    editingId=null;
+    el('roleModalTitle').textContent='Create a new role';
+    el('roleModalSubtitle').textContent="Define the role's name and choose its permissions below";
+    el('roleSubmitText').textContent='Create Role';
+    clearRoleForm();
+    openOverlay('roleModal');
+  });
+
+  function openEditModal(id){
+    const r=roles.find(x=>x.id===id);
+    if(!r) return;
+    editingId=id;
+    el('roleModalTitle').textContent=`Edit role — ${r.name}`;
+    el('roleModalSubtitle').textContent=r.type==='system'?'This is a system role. You can still adjust its description and permissions.':'Update this role\'s details and permissions';
+    el('roleSubmitText').textContent='Save Changes';
+    el('rName').value=r.name;
+    el('rDesc').value=r.description;
+    el('rNameGroup').classList.remove('invalid');
+    buildPermMatrix(r.permissions);
+    closeOverlay('viewModal');
+    openOverlay('roleModal');
+  }
+
+  el('roleSubmit').addEventListener('click',()=>{
+    el('rNameGroup').classList.remove('invalid');
+    const name=el('rName').value.trim();
+    if(!name){el('rNameGroup').classList.add('invalid');showToast('Please fix the highlighted fields',true);return;}
+    const description=el('rDesc').value.trim()||'No description provided.';
+    const perms=readPermMatrix();
+    if(editingId){
+      const r=roles.find(x=>x.id===editingId);
+      r.name=name;r.description=description;r.permissions=perms;
+      showToast('Role updated');
+    } else {
+      roles.unshift({id:nextId++,name,description,type:'custom',status:'active',usersCount:0,permissions:perms});
+      showToast('Role created');
+    }
+    closeOverlay('roleModal');
+    renderAll();
+  });
+
+  function openViewModal(id){
+    const r=roles.find(x=>x.id===id);
+    if(!r) return;
+    viewingId=id;
+    el('viewModalTitle').textContent=r.name;
+    el('viewModalSubtitle').textContent=`${r.type==='system'?'System role':'Custom role'} · ${countPerms(r.permissions)} of ${TOTAL_PERMS} permissions granted · ${r.usersCount} user${r.usersCount===1?'':'s'} assigned`;
+    el('viewPermGrid').innerHTML=MODULES.map(m=>{
+      const p=r.permissions[m.key];
+      return `<div class="view-perm-row"><div class="view-perm-mod"><div class="perm-module-icon" style="background:${m.bg};color:${m.color};"><i class="fa-solid ${m.icon}"></i></div>${m.label}</div><div class="view-perm-acts"><span class="mini-tag ${p.view?'mini-on':'mini-off'}">View</span><span class="mini-tag ${p.create?'mini-on':'mini-off'}">Create</span><span class="mini-tag ${p.edit?'mini-on':'mini-off'}">Edit</span><span class="mini-tag ${p.delete?'mini-on':'mini-off'}">Delete</span></div></div>`;
+    }).join('');
+    const users=DEMO_USERS_BY_ROLE[r.id]||[];
+    el('assignedUsersList').innerHTML=users.length===0?`<div class="no-users-note">No users are currently assigned to this role.</div>`:users.map(u=>`<div class="assigned-user-row"><div class="assigned-avatar" style="background-image:url('https://i.pravatar.cc/80?img=${u.img}')"></div><div><div class="assigned-name">${esc(u.name)}</div><div class="assigned-email">${esc(u.email)}</div></div></div>`).join('');
+    openOverlay('viewModal');
+  }
+  el('viewEditBtn').addEventListener('click',()=>{if(viewingId) openEditModal(viewingId);});
+
+  function duplicateRole(id){
+    const r=roles.find(x=>x.id===id);
+    if(!r) return;
+    const clonedPerms=emptyPerms();
+    MODULES.forEach(m=>ACTIONS.forEach(a=>{clonedPerms[m.key][a]=r.permissions[m.key][a];}));
+    roles.unshift({id:nextId++,name:`Copy of ${r.name}`,description:r.description,type:'custom',status:'active',usersCount:0,permissions:clonedPerms});
+    renderAll();
+    showToast(`Duplicated as "Copy of ${r.name}"`);
+  }
+
+  function openDeleteModal(id){
+    const r=roles.find(x=>x.id===id);
+    if(!r) return;
+    deletingId=id;
+    el('deleteRoleName').textContent=r.name;
+    if(r.usersCount>0){
+      el('deleteWarn').style.display='flex';
+      el('deleteWarnText').textContent=`${r.usersCount} user${r.usersCount===1?'':'s'} currently ${r.usersCount===1?'has':'have'} this role assigned. They will lose these permissions immediately.`;
+    } else {
+      el('deleteWarn').style.display='none';
+    }
+    openOverlay('deleteModal');
+  }
+  el('confirmDeleteBtn').addEventListener('click',()=>{
+    if(!deletingId) return;
+    const r=roles.find(x=>x.id===deletingId);
+    roles=roles.filter(x=>x.id!==deletingId);
+    closeOverlay('deleteModal');
+    renderAll();
+    showToast(`"${r?r.name:'Role'}" deleted`);
+    deletingId=null;
+  });
+
+  renderAll();
+
+  if(window.ShilohSidebar){
+    window.ShilohSidebar.attach('#sidebarPlaceholder',{
+      activeFile:'roles-permissions.html',
+      user:{name:'Admin Tolu',role:'System Admin',avatar:'https://i.pravatar.cc/64?img=47'}
+    });
+  }
+})();
+</script>
+</body>
+</html>

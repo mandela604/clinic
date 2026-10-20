@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Shiloh Clinic — Visit History Demo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+<h2>John O. Adekunle — Visit History</h2>
+<div id="visitHistoryPlaceholder"></div>
+
+<script src="visit-history.js"></script>
+
+<script>
+// Demo data
+const demoVisits = [
+  { visitNo: "VIS-000089", dept: "General OPD", doctor: "Dr. Samuel O.", type: "consultation", status: "Completed", ts: Date.now() - 86400000 * 2, notes: "Routine follow-up." },
+  { visitNo: "VIS-000075", dept: "Maternity", doctor: "Dr. Amaka N.", type: "antenatal", status: "Completed", ts: Date.now() - 86400000 * 8 },
+];
+
+const vh = ShilohVisits.attach('#visitHistoryPlaceholder', {
+  title: "Visit History",
+  subtitle: "All recorded visits for John O. Adekunle",
+  visits: demoVisits,
+
+  onLogVisit: (v) => alert('Visit logged successfully!'),
+  onPrint: (visit) => {
+    // Create printable content
+    const printHTML = `
+      <div style="padding:30px; font-family:Arial,sans-serif; max-width:800px; margin:0 auto;">
+        <h1 style="color:#0b1a4d; text-align:center;">Shiloh Clinic & Maternity</h1>
+        <hr>
+        <h2>Visit Record</h2>
+        <p><strong>Visit No:</strong> ${visit.visitNo}</p>
+        <p><strong>Date:</strong> ${visit.date || new Date(visit.ts).toLocaleDateString()}</p>
+        <p><strong>Department:</strong> ${visit.dept}</p>
+        <p><strong>Doctor:</strong> ${visit.doctor}</p>
+        <p><strong>Status:</strong> ${visit.status}</p>
+        <p><strong>Notes:</strong> ${visit.notes || 'No additional notes.'}</p>
+        <hr>
+        <p style="text-align:center; font-size:11px; color:#666;">Generated on ${new Date().toLocaleString()}</p>
+      </div>`;
+
+    // Put it in hidden print area
+    let printArea = document.getElementById('printArea');
+    if (!printArea) {
+      printArea = document.createElement('div');
+      printArea.id = 'printArea';
+      printArea.style.cssText = 'display:none;';
+      document.body.appendChild(printArea);
+    }
+    printArea.innerHTML = printHTML;
+
+    // Trigger print
+    document.body.classList.add('print-mode');
+    window.print();
+  }
+});
+
+// Clean up after print
+window.addEventListener('afterprint', () => {
+  document.body.classList.remove('print-mode');
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shiloh Clinic &amp; Maternity — New Invoice</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root{
+    --navy:#0d1b4c;--blue:#2563eb;--bg:#f4f6fb;--card:#fff;--border:#eef0f6;
+    --text-dark:#1c2440;--text-mid:#6b7280;--text-light:#9aa1b3;
+    --green:#12b76a;--green-bg:#e9f9f0;--purple:#8b5cf6;--purple-bg:#f4efff;
+    --orange:#f79009;--orange-bg:#fff4e5;--red:#f04438;--red-bg:#feecec;
+    --blue-bg:#eaf1ff;--pink:#ee46bc;--pink-bg:#fdeefa;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text-dark);font-size:13px;min-height:100vh;}
+  .main{max-width:900px;margin:0 auto;padding:24px 26px 60px;}
+
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:20px;flex-wrap:wrap;}
+  .topbar-left{display:flex;align-items:center;gap:14px;}
+  .back-btn{width:40px;height:40px;border-radius:10px;background:#fff;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--text-mid);cursor:pointer;flex-shrink:0;}
+  .back-btn:hover{background:var(--bg);}
+  .topbar-title h1{font-size:19px;font-weight:800;color:var(--text-dark);margin-bottom:2px;}
+  .topbar-title p{font-size:12px;color:var(--text-light);font-weight:500;}
+  .topbar-actions{display:flex;align-items:center;gap:10px;flex-shrink:0;flex-wrap:wrap;}
+
+  .btn{display:flex;align-items:center;gap:8px;border-radius:11px;padding:11px 18px;font-weight:700;font-size:13px;cursor:pointer;border:1px solid transparent;white-space:nowrap;font-family:inherit;transition:background .15s ease,opacity .15s ease;}
+  .btn-outline{background:#fff;border-color:var(--border);color:var(--text-dark);}
+  .btn-outline:hover{background:var(--bg);}
+  .btn-primary{background:var(--blue);color:#fff;}
+  .btn-primary:hover{background:#1d4ed8;}
+  .btn-primary:disabled{opacity:.5;cursor:not-allowed;}
+
+  .panel{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px;}
+  .panel-title{display:flex;align-items:center;gap:9px;margin-bottom:18px;font-size:14.5px;font-weight:800;color:var(--text-dark);}
+  .panel-title i{color:var(--blue);font-size:14px;}
+
+  .field-grid{display:grid;gap:14px 16px;}
+  .cols-2{grid-template-columns:1fr 1fr;}
+  .cols-1{grid-template-columns:1fr;}
+
+  .field{display:flex;flex-direction:column;gap:6px;}
+  .field label{font-size:11.5px;font-weight:700;color:var(--text-mid);}
+  .field label .req{color:var(--red);margin-left:2px;}
+  .field input,.field select,.field textarea{border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:12.5px;color:var(--text-dark);background:#fff;outline:none;font-family:inherit;width:100%;}
+  .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1);}
+  .field textarea{resize:vertical;min-height:80px;}
+  .field-err{font-size:10.5px;color:var(--red);font-weight:700;margin-top:2px;display:none;}
+  .field.invalid input,.field.invalid select{border-color:var(--red);}
+  .field.invalid .field-err{display:block;}
+
+  .selected-patient{display:flex;align-items:center;gap:12px;padding:12px;background:var(--blue-bg);border:1px solid var(--blue);border-radius:10px;margin-top:8px;}
+  .selected-patient .avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:800;flex-shrink:0;}
+  .selected-patient .info{flex:1;}
+  .selected-patient .name{font-weight:700;font-size:13px;}
+  .selected-patient .sub{font-size:11px;color:var(--text-light);}
+  .selected-patient .remove{width:28px;height:28px;border-radius:8px;border:1px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;color:var(--text-mid);cursor:pointer;font-size:12px;}
+  .selected-patient .remove:hover{color:var(--red);border-color:var(--red-bg);background:var(--red-bg);}
+
+  .items-table{width:100%;border-collapse:collapse;margin-top:12px;}
+  .items-table th{text-align:left;font-size:10.5px;color:var(--text-light);font-weight:700;text-transform:uppercase;letter-spacing:.03em;padding:8px 6px;border-bottom:1px solid var(--border);}
+  .items-table td{padding:8px 6px;border-bottom:1px solid var(--border);}
+  .items-table td input,.items-table td select{border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;width:100%;}
+  .items-table td input:focus,.items-table td select:focus{border-color:var(--blue);}
+  .items-table .total-cell{font-weight:700;font-size:13px;text-align:right;}
+  .remove-item{width:28px;height:28px;border-radius:8px;border:1px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;color:var(--text-mid);cursor:pointer;font-size:11px;}
+  .remove-item:hover{color:var(--red);border-color:var(--red-bg);background:var(--red-bg);}
+  .add-item{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700;color:var(--blue);cursor:pointer;margin-top:10px;}
+  .add-item:hover{text-decoration:underline;}
+
+  .summary{display:flex;justify-content:flex-end;margin-top:16px;}
+  .summary-box{min-width:250px;}
+  .summary-row{display:flex;justify-content:space-between;padding:6px 0;font-size:12.5px;}
+  .summary-row.total{border-top:2px solid var(--border);padding-top:10px;margin-top:6px;font-weight:800;font-size:14px;}
+
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;padding:11px 20px;border-radius:10px;font-size:12.5px;font-weight:700;box-shadow:0 10px 30px rgba(10,15,40,0.3);opacity:0;pointer-events:none;transition:.22s;z-index:2200;display:flex;align-items:center;gap:9px;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  @media(max-width:720px){.cols-2{grid-template-columns:1fr;}.topbar{flex-direction:column;align-items:flex-start;}}
+</style>
+</head>
+<body>
+
+<div id="sidebarPlaceholder"></div>
+
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="back-btn" id="backBtn"><i class="fa-solid fa-arrow-left"></i></div>
+      <div class="topbar-title"><h1>New Invoice</h1><p>Create a billing invoice for a patient</p></div>
+    </div>
+    <div class="topbar-actions">
+      <div class="btn btn-outline" onclick="resetForm()"><i class="fa-solid fa-rotate-left"></i> Reset</div>
+      <div class="btn btn-primary" id="submitBtn"><i class="fa-solid fa-check"></i> Create Invoice</div>
+    </div>
+  </div>
+
+  <!-- Patient Selection -->
+  <div class="panel">
+    <div class="panel-title"><i class="fa-solid fa-user"></i> Patient Information</div>
+    <div class="field-grid cols-2">
+      <div class="field" data-field="patientSearch">
+        <label>Search Patient <span class="req">*</span></label>
+        <input type="text" id="patientSearch" placeholder="Type patient name or hospital no...">
+        <div class="field-err">Please select a patient</div>
+      </div>
+      <div class="field"><label>Hospital No.</label><input type="text" id="hospNo" disabled placeholder="—"></div>
+    </div>
+    <div class="selected-patient" id="selectedPatient" style="display:none">
+      <div class="avatar" id="patientAvatar" style="background:var(--blue)"></div>
+      <div class="info"><div class="name" id="patientName"></div><div class="sub" id="patientSub"></div></div>
+      <div class="remove" id="removePatient"><i class="fa-solid fa-xmark"></i></div>
+    </div>
+    <div id="patientDropdown" style="display:none;position:absolute;z-index:100;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.12);max-height:200px;overflow-y:auto;width:100%;max-width:400px;"></div>
+  </div>
+
+  <!-- Invoice Details -->
+  <div class="panel">
+    <div class="panel-title"><i class="fa-solid fa-file-invoice"></i> Invoice Details</div>
+    <div class="field-grid cols-2">
+      <div class="field"><label>Description <span class="req">*</span></label><input type="text" id="description" placeholder="e.g. Consultation + Lab Tests"></div>
+      <div class="field"><label>Date <span class="req">*</span></label><input type="date" id="invoiceDate"></div>
+      <div class="field"><label>Payment Method</label><select id="paymentMethod"><option value="">Select method</option><option>Cash</option><option>Card</option><option>Bank Transfer</option><option>Insurance</option></select></div>
+      <div class="field"><label>Due Date</label><input type="date" id="dueDate"></div>
+    </div>
+  </div>
+
+  <!-- Line Items -->
+  <div class="panel">
+    <div class="panel-title"><i class="fa-solid fa-list"></i> Line Items</div>
+    <table class="items-table">
+      <thead><tr><th style="width:40%">Item</th><th style="width:20%">Qty</th><th style="width:20%">Unit Price (₦)</th><th style="width:15%">Total</th><th style="width:5%"></th></tr></thead>
+      <tbody id="itemsBody"></tbody>
+    </table>
+    <div class="add-item" id="addItemBtn"><i class="fa-solid fa-plus"></i> Add item</div>
+    <div class="summary">
+      <div class="summary-box">
+        <div class="summary-row"><span>Subtotal</span><span id="subtotal">₦0</span></div>
+        <div class="summary-row total"><span>Total</span><span id="totalAmount">₦0</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notes -->
+  <div class="panel">
+    <div class="panel-title"><i class="fa-solid fa-note-sticky"></i> Notes</div>
+    <div class="field"><textarea id="notes" placeholder="Additional notes for this invoice (optional)"></textarea></div>
+  </div>
+</main>
+
+<div class="toast" id="toast"><i class="fa-solid fa-circle-check"></i><span id="toastText"></span></div>
+
+<script src="shiloh-sidebar.js"></script>
+<script src="../services/api.js"></script>
+<script src="../services/patient-service.js"></script>
+<script src="../services/billing-service.js"></script>
+<script>
+const AVATAR_COLORS = ['#2563eb','#7c3aed','#db2777','#059669','#d97706','#dc2626','#0891b2','#4f46e5'];
+const el = id => document.getElementById(id);
+let selectedPatientData = null;
+let itemCount = 0;
+
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function money(n){return '₦'+Number(n||0).toLocaleString('en-NG',{maximumFractionDigits:0});}
+function showToast(msg){const t=el('toast');el('toastText').textContent=msg;t.classList.add('show');clearTimeout(showToast._tm);showToast._tm=setTimeout(()=>t.classList.remove('show'),2400);}
+
+let allPatients = [];
+
+document.addEventListener('DOMContentLoaded', async ()=>{
+  ShilohSidebar.attach('#sidebarPlaceholder',{activeFile:'billing.html',user:{name:'Cashier Bisi',role:'Billing Desk',avatar:'https://i.pravatar.cc/64?img=47'}});
+  el('invoiceDate').valueAsDate = new Date();
+  addItem();
+  bindEvents();
+  await initData();
+});
+
+async function initData(){
+  try { await PatientService.init(); } catch (e) { window.ShilohAPI.toast('Could not load patients. Check connection / login.', 'error'); }
+  try {
+    allPatients = PatientService.getAllPatients() || [];
+  } catch (e) { window.ShilohAPI.toast('Could not load patients. Check connection / login.', 'error'); allPatients = []; }
+}
+
+function getPatients(){
+  return allPatients;
+}
+
+function patientLabel(p){
+  return { id: p.id, name: p.name, hospNo: p.hospitalNo || p.hospNo || p.id, phone: p.phonePrimary || p.phone || '' };
+}
+
+function bindEvents(){
+  el('patientSearch').addEventListener('input',function(){
+    const q = this.value.trim().toLowerCase();
+    if(q.length<1){el('patientDropdown').style.display='none';return;}
+    const patients = getPatients();
+    const matches = patients.filter(p=>{
+      const hosp = (p.hospitalNo || p.hospNo || '').toLowerCase();
+      const phone = (p.phonePrimary || p.phone || '').toLowerCase();
+      return (p.name||'').toLowerCase().includes(q)||hosp.includes(q)||phone.includes(q);
+    }).slice(0,8);
+    if(!matches.length){el('patientDropdown').style.display='none';return;}
+    el('patientDropdown').innerHTML = matches.map(p=>{
+      const hosp = p.hospitalNo || p.hospNo || p.id;
+      const colorIdx = String(p.id||'?').length % AVATAR_COLORS.length;
+      const initials = (p.name||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+      return `<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;border-bottom:1px solid var(--border)" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='#fff'" onclick="selectPatient('${esc(p.id)}')">
+        <div style="width:32px;height:32px;border-radius:50%;background:${AVATAR_COLORS[colorIdx]};display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:800;flex-shrink:0">${initials}</div>
+        <div><div style="font-weight:700;font-size:12.5px">${esc(p.name)}</div><div style="font-size:11px;color:var(--text-light)">${esc(hosp)}</div></div>
+      </div>`;
+    }).join('');
+    el('patientDropdown').style.display='block';
+  });
+
+  el('removePatient').addEventListener('click',()=>{
+    selectedPatientData=null;
+    el('selectedPatient').style.display='none';
+    el('patientSearch').value='';
+    el('hospNo').value='';
+    el('patientSearch').closest('.field').classList.remove('invalid');
+  });
+
+  document.addEventListener('click',e=>{
+    if(!e.target.closest('#patientSearch')&&!e.target.closest('#patientDropdown')) el('patientDropdown').style.display='none';
+  });
+
+  el('addItemBtn').addEventListener('click',addItem);
+  el('submitBtn').addEventListener('click',submitInvoice);
+}
+
+function selectPatient(id){
+  const patients = getPatients();
+  const p = patients.find(x=>String(x.id)===String(id));
+  if(!p) return;
+  selectedPatientData = p;
+  const hosp = p.hospitalNo || p.hospNo || p.id;
+  const colorIdx = String(p.id||'?').length % AVATAR_COLORS.length;
+  const initials = (p.name||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  el('patientAvatar').style.background = AVATAR_COLORS[colorIdx];
+  el('patientAvatar').textContent = initials;
+  el('patientName').textContent = p.name;
+  el('patientSub').textContent = hosp;
+  el('hospNo').value = hosp;
+  el('selectedPatient').style.display='flex';
+  el('patientSearch').value='';
+  el('patientDropdown').style.display='none';
+  el('patientSearch').closest('.field').classList.remove('invalid');
+}
+
+function addItem(){
+  itemCount++;
+  const tbody = el('itemsBody');
+  const tr = document.createElement('tr');
+  tr.dataset.row = itemCount;
+  tr.innerHTML = `<td><input type="text" placeholder="e.g. Consultation" class="item-name"></td>
+    <td><input type="number" min="1" value="1" class="item-qty" oninput="calcRow(this)"></td>
+    <td><input type="number" min="0" placeholder="0" class="item-price" oninput="calcRow(this)"></td>
+    <td class="total-cell item-total">₦0</td>
+    <td><div class="remove-item" onclick="removeItem(this)"><i class="fa-solid fa-trash"></i></div></td>`;
+  tbody.appendChild(tr);
+}
+
+function removeItem(btn){
+  const tbody = el('itemsBody');
+  if(tbody.children.length<=1){showToast('At least one item is required');return;}
+  btn.closest('tr').remove();
+  calcTotals();
+}
+
+function calcRow(input){
+  const tr = input.closest('tr');
+  const qty = parseFloat(tr.querySelector('.item-qty').value)||0;
+  const price = parseFloat(tr.querySelector('.item-price').value)||0;
+  tr.querySelector('.item-total').textContent = money(qty*price);
+  calcTotals();
+}
+
+function calcTotals(){
+  let total = 0;
+  el('itemsBody').querySelectorAll('.item-total').forEach(td=>{
+    const val = parseFloat(td.textContent.replace(/[₦,]/g,''))||0;
+    total += val;
+  });
+  el('subtotal').textContent = money(total);
+  el('totalAmount').textContent = money(total);
+}
+
+function resetForm(){
+  selectedPatientData = null;
+  el('selectedPatient').style.display='none';
+  el('patientSearch').value='';
+  el('hospNo').value='';
+  el('description').value='';
+  el('invoiceDate').valueAsDate = new Date();
+  el('paymentMethod').value='';
+  el('dueDate').value='';
+  el('notes').value='';
+  el('itemsBody').innerHTML='';
+  itemCount=0;
+  addItem();
+  document.querySelectorAll('.field.invalid').forEach(f=>f.classList.remove('invalid'));
+}
+
+async function submitInvoice(){
+  let valid = true;
+  if(!selectedPatientData){el('patientSearch').closest('.field').classList.add('invalid');valid=false;}
+  if(!el('description').value.trim()){el('description').closest('.field').classList.add('invalid');valid=false;}
+  if(!el('invoiceDate').value){el('invoiceDate').closest('.field').classList.add('invalid');valid=false;}
+  if(!valid){showToast('Please fill in all required fields','error');return;}
+
+  const items = [];
+  el('itemsBody').querySelectorAll('tr').forEach(tr=>{
+    const name = tr.querySelector('.item-name').value.trim();
+    const qty = parseFloat(tr.querySelector('.item-qty').value)||0;
+    const price = parseFloat(tr.querySelector('.item-price').value)||0;
+    if(name) items.push({name,qty,price,total:qty*price});
+  });
+
+  const total = items.reduce((s,i)=>s+i.total,0);
+  const lineItems = items.map(i=>({ description: i.name, quantity: i.qty, unitPrice: i.price, total: i.total }));
+
+  el('submitBtn').style.opacity = '.6';
+  try {
+    const payload = {
+      patientId: selectedPatientData.id,
+      patientName: selectedPatientData.name,
+      hospitalNo: selectedPatientData.hospitalNo || selectedPatientData.hospNo || '',
+      date: el('invoiceDate').value,
+      items: items.map(i=>i.name),
+      lineItems,
+      total,
+      paid: 0,
+      method: el('paymentMethod').value || 'Cash',
+      dueDate: el('dueDate').value || '',
+      notes: el('notes').value || el('description').value.trim()
+    };
+    const result = await BillingService.createInvoice(payload);
+    if(!result || !result.success){
+      window.ShilohAPI.toast((result && result.error) || 'Could not create invoice. Check connection / login.', 'error');
+      return;
+    }
+    const invNo = (result.invoice && (result.invoice.invoiceNo || result.invoice.id)) || 'invoice';
+    showToast('Invoice '+invNo+' created — '+money(total));
+    setTimeout(()=>{window.location.href='billing.html';},1200);
+  } catch (e) {
+    window.ShilohAPI.toast('Could not create invoice. Check connection / login.', 'error');
+  } finally {
+    el('submitBtn').style.opacity = '';
+  }
+}
+</script>
+</body>
+</html>

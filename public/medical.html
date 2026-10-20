@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shiloh Clinic & Maternity — Medical History (tab prototype)</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root{
+    --navy:#0b1a4d; --blue-accent:#2f6fed; --bg:#f4f6fb; --card:#ffffff; --border:#eef0f6;
+    --text-dark:#1c2440; --text-mid:#6b7280; --text-light:#9aa1b3;
+    --green:#12b76a; --green-bg:#e9f9f0;
+    --blue:#2f6fed; --blue-bg:#eaf1ff;
+    --purple:#8b5cf6; --purple-bg:#f4efff;
+    --orange:#f79009; --orange-bg:#fff4e5;
+    --red:#f04438; --red-bg:#feecec;
+    --pink:#ee46bc; --pink-bg:#fdeefa;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif;
+    background:var(--bg); color:var(--text-dark); font-size:13px; padding:26px;
+  }
+
+  .back-btn{
+    display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border);border-radius:10px;
+    padding:9px 14px;font-size:12.5px;font-weight:700;color:var(--text-dark);white-space:nowrap;cursor:pointer;
+    margin-bottom:16px;max-width:fit-content;
+  }
+  .back-btn i{color:var(--text-mid);font-size:11px;}
+
+  .mh-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:18px;flex-wrap:wrap;max-width:1100px;}
+  .mh-title{font-size:18px;font-weight:800;color:var(--text-dark);}
+  .mh-sub{font-size:11.5px;color:var(--text-light);font-weight:600;margin-top:2px;}
+  .btn-primary{
+    display:flex;align-items:center;gap:8px;background:var(--blue-accent);border:1px solid var(--blue-accent);
+    border-radius:10px;padding:10px 16px;font-size:12.5px;font-weight:700;color:#fff;white-space:nowrap;cursor:pointer;
+    box-shadow:0 4px 10px rgba(47,111,237,0.28);
+  }
+
+  .mh-layout{display:grid;grid-template-columns:1fr 320px;gap:16px;align-items:start;max-width:1100px;}
+  .mh-left{display:flex;flex-direction:column;gap:16px;min-width:0;}
+  .mh-right{display:flex;flex-direction:column;gap:16px;}
+
+  .panel{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px;}
+  .panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:10px;}
+  .panel-title{font-size:14px;font-weight:800;color:var(--text-dark);display:flex;align-items:center;gap:9px;}
+  .panel-title-ic{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
+  .edit-link{
+    display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;color:var(--blue);
+    border:1px solid var(--blue-bg);background:var(--blue-bg);padding:6px 12px;border-radius:8px;cursor:pointer;
+  }
+  .add-link{
+    display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;color:var(--blue);
+    background:none;border:none;padding:0;cursor:pointer;
+  }
+
+  /* ── Diagnosis timeline ── */
+  .tl{display:flex;flex-direction:column;}
+  .tl-item{display:flex;gap:12px;position:relative;padding-bottom:20px;}
+  .tl-item:last-child{padding-bottom:0;}
+  .tl-item:not(:last-child)::before{
+    content:'';position:absolute;left:14px;top:30px;bottom:0;width:2px;background:var(--border);
+  }
+  .tl-dot{width:29px;height:29px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;z-index:1;}
+  .tl-body{flex:1;padding-top:2px;}
+  .tl-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:3px;flex-wrap:wrap;}
+  .tl-name{font-size:13px;font-weight:800;color:var(--text-dark);}
+  .tl-date{font-size:11px;color:var(--text-light);font-weight:600;white-space:nowrap;}
+  .tl-meta{font-size:11.5px;color:var(--text-mid);font-weight:600;margin-bottom:4px;}
+  .tl-status{font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:20px;display:inline-block;margin-top:2px;}
+  .tl-status-active{background:var(--orange-bg);color:#c56c05;}
+  .tl-status-resolved{background:var(--green-bg);color:#0a8a52;}
+  .tl-status-managed{background:var(--blue-bg);color:#1d54c9;}
+
+  /* ── Surgeries / procedures ── */
+  .proc-row{display:flex;justify-content:space-between;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--border);gap:10px;}
+  .proc-row:last-child{border-bottom:none;padding-bottom:0;}
+  .proc-name{font-size:12.5px;font-weight:700;color:var(--text-dark);}
+  .proc-meta{font-size:11px;color:var(--text-light);font-weight:600;margin-top:2px;}
+  .proc-date{font-size:11.5px;color:var(--text-mid);font-weight:700;white-space:nowrap;}
+
+  /* ── Simple list panels (allergies / immunizations) ── */
+  .simple-row{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+  .simple-row:last-child{border-bottom:none;padding-bottom:0;}
+  .simple-ic{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
+  .simple-name{font-size:12.5px;font-weight:700;color:var(--text-dark);}
+  .simple-sub{font-size:11px;color:var(--text-light);font-weight:600;margin-top:1px;}
+  .severity-tag{font-size:9.5px;font-weight:800;padding:2px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.02em;margin-left:6px;}
+  .sev-high{background:var(--red-bg);color:#c1362b;}
+  .sev-mod{background:var(--orange-bg);color:#c56c05;}
+  .sev-low{background:var(--green-bg);color:#0a8a52;}
+
+  .empty-note{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-mid);font-weight:600;}
+  .empty-note i{color:var(--green);font-size:13px;}
+
+  /* family history */
+  .fam-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);gap:10px;}
+  .fam-row:last-child{border-bottom:none;}
+  .fam-rel{font-size:12px;color:var(--text-mid);font-weight:600;}
+  .fam-cond{font-size:12px;color:var(--text-dark);font-weight:700;text-align:right;}
+
+  @media (max-width:1000px){
+    .mh-layout{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+  <div class="back-btn"><i class="fa-solid fa-arrow-left"></i> Back to Profile</div>
+
+  <div class="mh-head">
+    <div>
+      <div class="mh-title">Medical History</div>
+      <div class="mh-sub">Diagnoses, procedures, allergies &amp; family history</div>
+    </div>
+    <div class="btn-primary"><i class="fa-solid fa-plus"></i> Add Record</div>
+  </div>
+
+  <div class="mh-layout">
+
+    <div class="mh-left">
+
+      <!-- Diagnosis / condition timeline -->
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">
+            <div class="panel-title-ic" style="background:var(--blue-bg);color:var(--blue);"><i class="fa-solid fa-stethoscope"></i></div>
+            Diagnoses &amp; Conditions
+          </div>
+          <div class="add-link"><i class="fa-solid fa-plus"></i> Add</div>
+        </div>
+        <div class="tl">
+          <div class="tl-item">
+            <div class="tl-dot" style="background:var(--orange-bg);color:var(--orange);"><i class="fa-solid fa-heart-pulse"></i></div>
+            <div class="tl-body">
+              <div class="tl-top"><span class="tl-name">Hypertension (Stage 1)</span><span class="tl-date">Diagnosed Mar 12, 2024</span></div>
+              <div class="tl-meta">Diagnosed by Dr. Samuel O. — General OPD</div>
+              <span class="tl-status tl-status-managed">Managed</span>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot" style="background:var(--green-bg);color:var(--green);"><i class="fa-solid fa-lungs"></i></div>
+            <div class="tl-body">
+              <div class="tl-top"><span class="tl-name">Malaria</span><span class="tl-date">Diagnosed Aug 4, 2023</span></div>
+              <div class="tl-meta">Diagnosed by Dr. Samuel O. — General OPD</div>
+              <span class="tl-status tl-status-resolved">Resolved</span>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot" style="background:var(--blue-bg);color:var(--blue);"><i class="fa-solid fa-bone"></i></div>
+            <div class="tl-body">
+              <div class="tl-top"><span class="tl-name">Fractured Left Wrist</span><span class="tl-date">Diagnosed Jan 20, 2022</span></div>
+              <div class="tl-meta">Diagnosed by Dr. Chidi K. — Emergency</div>
+              <span class="tl-status tl-status-resolved">Resolved</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Surgeries / procedures -->
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">
+            <div class="panel-title-ic" style="background:var(--purple-bg);color:var(--purple);"><i class="fa-solid fa-syringe"></i></div>
+            Surgeries &amp; Procedures
+          </div>
+          <div class="add-link"><i class="fa-solid fa-plus"></i> Add</div>
+        </div>
+        <div>
+          <div class="proc-row">
+            <div>
+              <div class="proc-name">Appendectomy</div>
+              <div class="proc-meta">Shiloh Clinic &amp; Maternity — Dr. Chidi K.</div>
+            </div>
+            <div class="proc-date">Jun 2, 2021</div>
+          </div>
+          <div class="proc-row">
+            <div>
+              <div class="proc-name">Wrist Cast Removal</div>
+              <div class="proc-meta">Shiloh Clinic &amp; Maternity — Dr. Chidi K.</div>
+            </div>
+            <div class="proc-date">Mar 15, 2022</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Family medical history -->
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">
+            <div class="panel-title-ic" style="background:var(--pink-bg);color:var(--pink);"><i class="fa-solid fa-people-roof"></i></div>
+            Family Medical History
+          </div>
+          <div class="add-link"><i class="fa-solid fa-plus"></i> Add</div>
+        </div>
+        <div>
+          <div class="fam-row"><span class="fam-rel">Father</span><span class="fam-cond">Hypertension, Type 2 Diabetes</span></div>
+          <div class="fam-row"><span class="fam-rel">Mother</span><span class="fam-cond">None reported</span></div>
+          <div class="fam-row"><span class="fam-rel">Sibling</span><span class="fam-cond">Asthma</span></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="mh-right">
+
+      <!-- Allergies -->
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">
+            <div class="panel-title-ic" style="background:var(--red-bg);color:var(--red);"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            Allergies
+          </div>
+          <div class="edit-link"><i class="fa-solid fa-pen"></i> Edit</div>
+        </div>
+        <div>
+          <div class="simple-row">
+            <div class="simple-ic" style="background:var(--red-bg);color:var(--red);"><i class="fa-solid fa-pills"></i></div>
+            <div>
+              <div class="simple-name">Penicillin <span class="severity-tag sev-high">High</span></div>
+              <div class="simple-sub">Reaction: Rash, difficulty breathing</div>
+            </div>
+          </div>
+          <div class="simple-row">
+            <div class="simple-ic" style="background:var(--orange-bg);color:var(--orange);"><i class="fa-solid fa-seedling"></i></div>
+            <div>
+              <div class="simple-name">Pollen <span class="severity-tag sev-mod">Moderate</span></div>
+              <div class="simple-sub">Reaction: Sneezing, watery eyes</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Immunizations -->
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">
+            <div class="panel-title-ic" style="background:var(--green-bg);color:var(--green);"><i class="fa-solid fa-shield-virus"></i></div>
+            Immunizations
+          </div>
+          <div class="edit-link"><i class="fa-solid fa-pen"></i> Edit</div>
+        </div>
+        <div>
+          <div class="simple-row">
+            <div class="simple-ic" style="background:var(--green-bg);color:var(--green);"><i class="fa-solid fa-syringe"></i></div>
+            <div>
+              <div class="simple-name">Tetanus Toxoid</div>
+              <div class="simple-sub">Given Feb 10, 2024</div>
+            </div>
+          </div>
+          <div class="simple-row">
+            <div class="simple-ic" style="background:var(--green-bg);color:var(--green);"><i class="fa-solid fa-syringe"></i></div>
+            <div>
+              <div class="simple-name">Hepatitis B</div>
+              <div class="simple-sub">Given Nov 2, 2023</div>
+            </div>
+          </div>
+          <div class="simple-row">
+            <div class="simple-ic" style="background:var(--green-bg);color:var(--green);"><i class="fa-solid fa-syringe"></i></div>
+            <div>
+              <div class="simple-name">Yellow Fever</div>
+              <div class="simple-sub">Given May 17, 2020</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chronic conditions summary -->
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">
+            <div class="panel-title-ic" style="background:var(--blue-bg);color:var(--blue);"><i class="fa-solid fa-notes-medical"></i></div>
+            Chronic Conditions
+          </div>
+          <div class="edit-link"><i class="fa-solid fa-pen"></i> Edit</div>
+        </div>
+        <div class="empty-note"><i class="fa-solid fa-circle-info" style="color:var(--orange);"></i>Hypertension — ongoing management</div>
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>

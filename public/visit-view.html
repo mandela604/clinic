@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Shiloh Clinic &amp; Maternity - Visit Details</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root{
+    --navy:#0d1b4c;
+    --navy-active:#1e3a8a;
+    --blue:#2563eb;
+    --blue-light:#eef2ff;
+    --text-dark:#1e293b;
+    --text-gray:#64748b;
+    --border:#e5e7eb;
+    --bg:#f5f6f8;
+    --green:#16a34a;
+    --green-bg:#dcfce7;
+    --orange:#f97316;
+    --orange-bg:#fff1e6;
+    --purple:#8b5cf6;
+    --purple-bg:#f1eaff;
+    --pink:#ec4899;
+    --pink-bg:#fde8f2;
+    --red:#ef4444;
+    --red-bg:#fee2e2;
+    --teal:#0891b2;
+    --teal-bg:#e0f7fa;
+    --gray:#64748b;
+    --gray-bg:#f1f5f9;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background:var(--bg);
+    color:var(--text-dark);
+    display:flex;
+    min-height:100vh;
+  }
+  a{ text-decoration:none; }
+
+  .main{
+    flex:1;
+    padding:22px 28px;
+    overflow-x:auto;
+    min-width:0;
+  }
+  .topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    margin-bottom:20px;
+    flex-wrap:wrap;
+    gap:14px;
+  }
+  .topbar-left{display:flex; align-items:center; gap:14px;}
+  .back-btn{
+    width:40px; height:40px; border-radius:10px; background:#fff; border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; color:var(--text-gray); cursor:pointer; flex-shrink:0;
+  }
+  .back-btn:hover{ background:#f8fafc; }
+  .page-title{font-size:22px; font-weight:700; color:#0f172a;}
+  .breadcrumb{font-size:12.5px; color:var(--text-gray); margin-top:4px;}
+  .topbar-actions{display:flex; gap:10px; flex-wrap:wrap;}
+
+  .btn{
+    display:flex; align-items:center; gap:7px; padding:9px 16px; border-radius:8px; font-size:13.5px;
+    font-weight:600; cursor:pointer; border:1px solid var(--border); background:#fff; color:#334155; white-space:nowrap;
+    font-family:inherit;
+  }
+  .btn:hover{ background:#f8fafc; }
+  .btn svg{width:15px;height:15px;}
+  .btn-primary{background:var(--blue); color:#fff; border:1px solid var(--blue);}
+  .btn-primary:hover{ background:#1d4ed8; }
+  .btn-green{background:var(--green); color:#fff; border:1px solid var(--green);}
+  .btn-green:hover{background:#0e9c5c;}
+  .btn-danger{background:#fff; color:var(--red); border:1px solid var(--red-bg);}
+  .btn-danger:hover{background:var(--red-bg);}
+  .btn:disabled{opacity:.5; cursor:not-allowed;}
+
+  /* ---------- NOT FOUND STATE ---------- */
+  .not-found{
+    background:#fff; border:1px solid var(--border); border-radius:14px; padding:60px 20px; text-align:center;
+  }
+  .not-found svg{width:44px; height:44px; color:#cbd5e1; margin-bottom:14px;}
+  .not-found h2{font-size:16px; font-weight:700; color:#0f172a; margin-bottom:6px;}
+  .not-found p{font-size:13px; color:var(--text-gray); margin-bottom:18px;}
+
+  /* ---------- LAYOUT ---------- */
+  .view-grid{display:grid; grid-template-columns:1fr 320px; gap:16px; align-items:start;}
+  .col-left{display:flex; flex-direction:column; gap:16px;}
+  .col-right{display:flex; flex-direction:column; gap:16px; position:sticky; top:16px;}
+
+  .panel{background:#fff; border:1px solid var(--border); border-radius:14px; padding:20px;}
+  .panel-title{display:flex; align-items:center; justify-content:space-between; gap:9px; margin-bottom:16px; flex-wrap:wrap;}
+  .panel-title-text{display:flex; align-items:center; gap:9px; font-size:14px; font-weight:700; color:#0f172a;}
+  .panel-title-text i{color:var(--blue); font-size:14px;}
+  .panel-title-text.pt-pink i{color:var(--pink);}
+  .panel-title-text.pt-orange i{color:var(--orange);}
+  .panel-title-text.pt-teal i{color:var(--teal);}
+
+  /* ---------- PATIENT CARD ---------- */
+  .patient-card{display:flex; align-items:center; gap:16px; flex-wrap:wrap;}
+  .patient-avatar{
+    width:64px; height:64px; border-radius:50%; background-size:cover; background-position:center;
+    background-color:#cbd5e1; flex-shrink:0;
+  }
+  .patient-name{font-size:16px; font-weight:800; color:#0f172a;}
+  .patient-chips{display:flex; gap:6px; margin:6px 0 8px; flex-wrap:wrap;}
+  .p-chip{font-size:10.5px; font-weight:700; padding:3px 10px; border-radius:20px; background:var(--blue-light); color:var(--blue);}
+  .patient-lines{display:flex; flex-direction:column; gap:5px;}
+  .p-line{display:flex; align-items:center; gap:8px; font-size:12px; color:var(--text-gray); font-weight:500;}
+  .p-line i{width:13px; color:#94a3b8; font-size:11px; text-align:center;}
+  .p-line strong{color:#0f172a; font-weight:700;}
+
+  /* ---------- INFO GRID ---------- */
+  .info-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:14px;}
+  .info-item{display:flex; flex-direction:column; gap:5px;}
+  .info-label{font-size:10.5px; color:var(--text-gray); font-weight:700; text-transform:uppercase; letter-spacing:.03em;}
+  .info-value{font-size:13.5px; font-weight:700; color:#0f172a;}
+  .info-value.muted{color:var(--text-gray); font-weight:600;}
+
+  .badge{
+    display:inline-flex; align-items:center; gap:5px; padding:4px 11px; border-radius:20px; font-size:11.5px; font-weight:700; white-space:nowrap;
+  }
+  .badge .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+  .badge-waiting{background:var(--orange-bg); color:#c56c05;}
+  .badge-waiting .dot{background:var(--orange);}
+  .badge-active{background:var(--blue-light); color:var(--blue);}
+  .badge-active .dot{background:var(--blue);}
+  .badge-completed{background:var(--green-bg); color:var(--green);}
+  .badge-completed .dot{background:var(--green);}
+  .badge-cancelled{background:var(--red-bg); color:var(--red);}
+  .badge-cancelled .dot{background:var(--red);}
+  .badge-noshow{background:#f1f5f9; color:#64748b;}
+  .badge-noshow .dot{background:#94a3b8;}
+
+  .type-chip{display:inline-block; padding:4px 11px; border-radius:20px; font-size:11.5px; font-weight:700;}
+  .type-walkin{background:var(--purple-bg); color:var(--purple);}
+  .type-appointment{background:var(--blue-light); color:var(--blue);}
+  .type-followup{background:var(--green-bg); color:var(--green);}
+  .type-emergency{background:var(--red-bg); color:var(--red);}
+  .type-consultation{background:var(--blue-light); color:var(--blue);}
+  .type-antenatal{background:var(--pink-bg); color:var(--pink);}
+  .type-familyplanning{background:var(--purple-bg); color:var(--purple);}
+  .type-labtest{background:var(--orange-bg); color:var(--orange);}
+  .type-vitals{background:var(--teal-bg); color:var(--teal);}
+  .type-other{background:var(--gray-bg); color:var(--gray);}
+
+  .priority-chip{display:inline-block; padding:4px 11px; border-radius:20px; font-size:11.5px; font-weight:700;}
+  .priority-routine{background:#f1f5f9; color:#475066;}
+  .priority-urgent{background:var(--orange-bg); color:#c56c05;}
+  .priority-emergency{background:var(--red-bg); color:var(--red);}
+
+  /* ---------- NOTES ---------- */
+  .notes-box{
+    background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:14px; font-size:12.5px;
+    color:#334155; line-height:1.55; white-space:pre-wrap;
+  }
+
+  /* ---------- TIMELINE ---------- */
+  .timeline{display:flex; flex-direction:column;}
+  .tl-step{display:flex; gap:14px; position:relative; padding-bottom:22px;}
+  .tl-step:last-child{padding-bottom:0;}
+  .tl-line{
+    position:absolute; left:15px; top:32px; bottom:0; width:2px; background:var(--border);
+  }
+  .tl-step:last-child .tl-line{display:none;}
+  .tl-step.done .tl-line{background:var(--green);}
+  .tl-dot{
+    width:32px; height:32px; border-radius:50%; background:#f1f5f9; color:#94a3b8; display:flex; align-items:center;
+    justify-content:center; font-size:13px; flex-shrink:0; z-index:1; border:2px solid #fff; box-shadow:0 0 0 1px var(--border);
+  }
+  .tl-step.done .tl-dot{background:var(--green); color:#fff; box-shadow:0 0 0 1px var(--green);}
+  .tl-step.current .tl-dot{background:var(--blue); color:#fff; box-shadow:0 0 0 1px var(--blue);}
+  .tl-step.cancelled .tl-dot{background:var(--red); color:#fff; box-shadow:0 0 0 1px var(--red);}
+  .tl-content{padding-top:4px;}
+  .tl-title{font-size:13px; font-weight:700; color:#0f172a;}
+  .tl-sub{font-size:11.5px; color:var(--text-gray); font-weight:500; margin-top:2px;}
+  .tl-step.pending .tl-title, .tl-step.pending .tl-sub{color:#b6bcc9;}
+
+  /* ---------- ACTIONS CARD ---------- */
+  .status-display{display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;}
+  .status-display-label{font-size:11px; color:var(--text-gray); font-weight:700; text-transform:uppercase; letter-spacing:.03em;}
+  .action-stack{display:flex; flex-direction:column; gap:8px;}
+  .action-stack .btn{justify-content:center; width:100%;}
+
+  .summary-row{display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border); gap:10px;}
+  .summary-row:last-child{border-bottom:none;}
+  .summary-label{font-size:11.5px; color:var(--text-gray); font-weight:600;}
+  .summary-value{font-size:12px; font-weight:700; color:#0f172a; text-align:right;}
+
+  .toast{
+    position:fixed; bottom:24px; right:24px; background:#0f172a; color:#fff;
+    padding:12px 18px; border-radius:9px; font-size:13px; box-shadow:0 8px 24px rgba(0,0,0,0.2);
+    z-index:1200; opacity:0; transform:translateY(10px); transition:all .2s ease; pointer-events:none;
+  }
+  .toast.show{ opacity:1; transform:translateY(0); }
+
+  @media (max-width:1000px){
+    .view-grid{grid-template-columns:1fr;}
+    .col-right{position:static;}
+    .info-grid{grid-template-columns:repeat(2,1fr);}
+  }
+</style>
+</head>
+<body>
+
+<div id="sidebarPlaceholder"></div>
+
+<div class="main">
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="back-btn" id="backBtn"><i class="fa-solid fa-arrow-left"></i></div>
+      <div>
+        <div class="page-title" id="pageTitle">Visit Details</div>
+        <div class="breadcrumb" id="breadcrumb">Dashboard / Visits / —</div>
+      </div>
+    </div>
+    <div class="topbar-actions" id="topbarActions" style="display:none;">
+      <div class="btn" id="printBtn"><i class="fa-solid fa-print"></i> Print</div>
+      <div class="btn" id="editBtn"><i class="fa-regular fa-pen-to-square"></i> Edit Visit</div>
+    </div>
+  </div>
+
+  <!-- NOT FOUND -->
+  <div class="not-found" id="notFoundState" style="display:none;">
+    <i class="fa-solid fa-clipboard-question" style="font-size:44px;color:#cbd5e1;"></i>
+    <h2>Visit not found</h2>
+    <p id="notFoundText">We couldn't find a visit matching that ID. It may have been removed, or the link may be out of date.</p>
+    <a href="visits.html" class="btn btn-primary" style="display:inline-flex;">Back to All Visits</a>
+  </div>
+
+  <!-- VISIT DETAILS -->
+  <div class="view-grid" id="viewGrid" style="display:none;">
+
+    <!-- LEFT COLUMN -->
+    <div class="col-left">
+
+      <!-- Patient card -->
+      <div class="panel">
+        <div class="patient-card">
+          <div class="patient-avatar" id="patientAvatar"></div>
+          <div style="flex:1; min-width:200px;">
+            <div class="patient-name" id="patientName">—</div>
+            <div class="patient-chips" id="patientChips"></div>
+          </div>
+          <div class="patient-lines" id="patientLines"></div>
+        </div>
+      </div>
+
+      <!-- Visit info -->
+      <div class="panel">
+        <div class="panel-title"><div class="panel-title-text"><i class="fa-regular fa-calendar-check"></i> Visit Information</div></div>
+        <div class="info-grid">
+          <div class="info-item"><div class="info-label">Visit ID</div><div class="info-value" id="infoId">—</div></div>
+          <div class="info-item"><div class="info-label">Visit Type</div><div class="info-value" id="infoType">—</div></div>
+          <div class="info-item"><div class="info-label">Department</div><div class="info-value" id="infoDept">—</div></div>
+          <div class="info-item"><div class="info-label">Priority</div><div class="info-value" id="infoPriority">—</div></div>
+          <div class="info-item"><div class="info-label">Doctor</div><div class="info-value" id="infoDoctor">—</div></div>
+          <div class="info-item"><div class="info-label">Check-in Time</div><div class="info-value" id="infoCheckin">—</div></div>
+          <div class="info-item"><div class="info-label">Visit Date</div><div class="info-value" id="infoDate">—</div></div>
+          <div class="info-item"><div class="info-label">Duration</div><div class="info-value" id="infoDuration">—</div></div>
+        </div>
+      </div>
+
+      <!-- Reason / notes -->
+      <div class="panel">
+        <div class="panel-title"><div class="panel-title-text pt-orange"><i class="fa-solid fa-circle-info"></i> Reason for Visit</div></div>
+        <div class="notes-box" id="reasonBox">No reason was recorded for this visit.</div>
+        <div id="referredByRow" style="display:none; margin-top:12px;">
+          <div class="info-label" style="margin-bottom:4px;">Referred By</div>
+          <div class="info-value muted" id="referredByValue">—</div>
+        </div>
+      </div>
+
+      <!-- Timeline -->
+      <div class="panel">
+        <div class="panel-title"><div class="panel-title-text pt-teal"><i class="fa-regular fa-clock"></i> Visit Timeline</div></div>
+        <div class="timeline" id="timeline"></div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="col-right">
+
+      <div class="panel">
+        <div class="status-display">
+          <div class="status-display-label">Current Status</div>
+          <span class="badge" id="statusBadge"><span class="dot"></span><span id="statusBadgeLabel">—</span></span>
+        </div>
+        <div class="action-stack" id="actionStack"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title"><div class="panel-title-text"><i class="fa-regular fa-file-lines"></i> Summary</div></div>
+        <div class="summary-row"><div class="summary-label">Hospital No.</div><div class="summary-value" id="sumHosp">—</div></div>
+        <div class="summary-row"><div class="summary-label">Email</div><div class="summary-value" id="sumEmail">—</div></div>
+        <div class="summary-row"><div class="summary-label">Visit Type</div><div class="summary-value" id="sumType">—</div></div>
+        <div class="summary-row"><div class="summary-label">Department</div><div class="summary-value" id="sumDept">—</div></div>
+        <div class="summary-row"><div class="summary-label">Doctor</div><div class="summary-value" id="sumDoctor">—</div></div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="shiloh-sidebar.js"></script>
+<script src="../services/api.js"></script>
+<script src="../services/visit-service.js"></script>
+<script type="module" src="./app-shell.js"></script>
+<script>
+(async function(){
+  const el = id => document.getElementById(id);
+
+  try { await VisitService.init(); } catch (e) { window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error'); }
+
+  function findPatientMeta(name){
+    try {
+      const all = VisitService.getAll() || [];
+      const v = all.find(x => (x.patientName || x.name) === name);
+      if(v) return { name: v.patientName || v.name, hospNo: v.hospitalNo || v.hosp, phone: v.phone || '', gender: v.gender || '', age: v.age || 0, address: v.address || '' };
+    } catch (e) {}
+    return null;
+  }
+
+  const TYPE_META = {
+    walkin:{label:'General Walk-in', cls:'type-walkin'},
+    appointment:{label:'Appointment', cls:'type-appointment'},
+    followup:{label:'Follow-up', cls:'type-followup'},
+    emergency:{label:'Emergency', cls:'type-emergency'},
+    consultation:{label:'Consultation', cls:'type-consultation'},
+    antenatal:{label:'Antenatal Checkup', cls:'type-antenatal'},
+    familyplanning:{label:'Family Planning', cls:'type-familyplanning'},
+    labtest:{label:'Lab Test', cls:'type-labtest'},
+    vitals:{label:'Vitals Check', cls:'type-vitals'},
+    other:{label:'Other', cls:'type-other'},
+  };
+  const STATUS_META = {
+    waiting:{label:'Waiting', cls:'badge-waiting'},
+    active:{label:'Active', cls:'badge-active'},
+    completed:{label:'Completed', cls:'badge-completed'},
+    cancelled:{label:'Cancelled', cls:'badge-cancelled'},
+    noshow:{label:'No-Show', cls:'badge-noshow'},
+  };
+  const PRIORITY_META = {
+    routine:{label:'Routine', cls:'priority-routine'},
+    urgent:{label:'Urgent', cls:'priority-urgent'},
+    emergency:{label:'Emergency', cls:'priority-emergency'},
+  };
+  const STATUS_ORDER = ['waiting','active','completed'];
+
+  function escapeHtml(str){
+    return String(str==null?'':str).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function showToast(msg){
+    const t = el('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(()=>t.classList.remove('show'), 2400);
+  }
+
+  function loadVisits(){
+    try {
+      const all = VisitService.getAll() || [];
+      return all.map(v => ({
+        id: v.id, name: v.patientName || v.name, email: v.email || '',
+        hosp: v.hospitalNo || v.hosp || '',
+        type: v.type || 'walkin', dept: v.department || v.dept || '',
+        checkin: v.time || v.checkin || '', date: v.date || '',
+        durationMin: v.durationMin != null ? v.durationMin : null,
+        doctor: v.doctor || '', status: v.status || 'waiting',
+        priority: v.priority || 'routine',
+        reason: v.reason || '', referredBy: v.referredBy || null, img: v.img || 12
+      }));
+    } catch (e) { window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error'); return []; }
+  }
+  async function saveVisits(list){ /* backend-only: no localStorage persistence */ }
+
+  function getVisitId(){
+    const params = new URLSearchParams(window.location.search);
+    return params.get('visit');
+  }
+
+  let visits = loadVisits();
+  let visitId = getVisitId();
+  let visit = visitId ? visits.find(v => v.id === visitId) : visits[0];
+  if(!visitId && visit) visitId = visit.id;
+
+  /* ============ RENDER ============ */
+  function renderNotFound(){
+    el('notFoundState').style.display = 'block';
+    el('viewGrid').style.display = 'none';
+    el('topbarActions').style.display = 'none';
+    el('pageTitle').textContent = 'Visit Not Found';
+    el('breadcrumb').textContent = 'Dashboard / Visits / Not Found';
+    if(visitId){
+      el('notFoundText').textContent = `We couldn't find a visit with ID "${visitId}". It may have been removed, or the link may be out of date.`;
+    }
+  }
+
+  function renderPatientCard(){
+    el('patientAvatar').style.backgroundImage = `url('https://i.pravatar.cc/120?img=${visit.img || 12}')`;
+    el('patientName').textContent = visit.name || 'Unknown Patient';
+
+    const meta = findPatientMeta(visit.name);
+    const chips = [];
+    if(meta){ chips.push(`${escapeHtml(meta.gender)}, ${meta.age} Years`); }
+    chips.push(escapeHtml(visit.hosp || '—'));
+    el('patientChips').innerHTML = chips.map(c=>`<span class="p-chip">${c}</span>`).join('');
+
+    const lines = [];
+    lines.push(`<div class="p-line"><i class="fa-regular fa-envelope"></i> ${escapeHtml(visit.email || '—')}</div>`);
+    if(meta){
+      lines.push(`<div class="p-line"><i class="fa-solid fa-phone"></i> <strong>${escapeHtml(meta.phone)}</strong></div>`);
+      lines.push(`<div class="p-line"><i class="fa-solid fa-location-dot"></i> ${escapeHtml(meta.address)}</div>`);
+    }
+    el('patientLines').innerHTML = lines.join('');
+  }
+
+  function fmtDateNice(iso){
+    if(!iso) return '—';
+    try{ return new Date(iso+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }
+    catch(e){ return iso; }
+  }
+  function durationText(mins){
+    if(mins == null) return '—';
+    return mins + ' mins';
+  }
+
+  function renderInfo(){
+    const t = TYPE_META[visit.type] || {label: visit.type || 'Unknown', cls:'type-other'};
+    const p = PRIORITY_META[visit.priority] || PRIORITY_META.routine;
+
+    el('infoId').textContent = visit.id;
+    el('infoType').innerHTML = `<span class="type-chip ${t.cls}">${t.label}</span>`;
+    el('infoDept').textContent = visit.dept || '—';
+    el('infoPriority').innerHTML = `<span class="priority-chip ${p.cls}">${p.label}</span>`;
+    el('infoDoctor').textContent = (visit.doctor && visit.doctor !== '—') ? visit.doctor : 'Not assigned';
+    el('infoCheckin').textContent = visit.checkin || '—';
+    el('infoDate').textContent = fmtDateNice(visit.date);
+    el('infoDuration').textContent = durationText(visit.durationMin);
+  }
+
+  function renderReason(){
+    el('reasonBox').textContent = visit.reason && visit.reason.trim() ? visit.reason : 'No reason was recorded for this visit.';
+    if(visit.referredBy){
+      el('referredByRow').style.display = 'block';
+      el('referredByValue').textContent = visit.referredBy;
+    } else {
+      el('referredByRow').style.display = 'none';
+    }
+  }
+
+  function renderTimeline(){
+    const status = visit.status;
+    const steps = [
+      { key:'waiting', label:'Checked In', sub:`Checked in at ${visit.checkin || '—'} on ${fmtDateNice(visit.date)}`, icon:'fa-right-to-bracket' },
+      { key:'active', label:'In Progress', sub:`Sent to ${visit.dept || 'department'}${visit.doctor && visit.doctor!=='—' ? ' · ' + visit.doctor : ''}`, icon:'fa-person-walking' },
+      { key:'completed', label:'Completed', sub:'Visit closed out', icon:'fa-check' },
+    ];
+
+    let html = '';
+    if(status === 'cancelled' || status === 'noshow'){
+      const isNoShow = status === 'noshow';
+      html += `
+        <div class="tl-step done">
+          <div class="tl-line"></div>
+          <div class="tl-dot"><i class="fa-solid fa-right-to-bracket"></i></div>
+          <div class="tl-content">
+            <div class="tl-title">Checked In</div>
+            <div class="tl-sub">Checked in at ${visit.checkin || '—'} on ${fmtDateNice(visit.date)}</div>
+          </div>
+        </div>
+        <div class="tl-step cancelled">
+          <div class="tl-dot"><i class="fa-solid fa-${isNoShow ? 'user-slash' : 'xmark'}"></i></div>
+          <div class="tl-content">
+            <div class="tl-title">${isNoShow ? 'Marked No-Show' : 'Visit Cancelled'}</div>
+            <div class="tl-sub">${isNoShow ? 'Patient did not show up for this visit' : 'This visit was cancelled before completion'}</div>
+          </div>
+        </div>`;
+      el('timeline').innerHTML = html;
+      return;
+    }
+
+    const currentIdx = STATUS_ORDER.indexOf(status);
+    steps.forEach((s, i)=>{
+      let cls = 'pending';
+      if(i < currentIdx) cls = 'done';
+      else if(i === currentIdx) cls = (status === 'completed') ? 'done' : 'current';
+      html += `
+        <div class="tl-step ${cls}">
+          <div class="tl-line"></div>
+          <div class="tl-dot"><i class="fa-solid ${s.icon}"></i></div>
+          <div class="tl-content">
+            <div class="tl-title">${s.label}</div>
+            <div class="tl-sub">${cls === 'pending' ? 'Not yet reached' : s.sub}</div>
+          </div>
+        </div>`;
+    });
+    el('timeline').innerHTML = html;
+  }
+
+  function renderStatusAndActions(){
+    const s = STATUS_META[visit.status] || STATUS_META.waiting;
+    el('statusBadge').className = 'badge ' + s.cls;
+    el('statusBadgeLabel').textContent = s.label;
+
+    let actions = '';
+    if(visit.status === 'waiting'){
+      actions += `<div class="btn btn-primary" data-action="advance"><i class="fa-solid fa-arrow-right"></i> Move to In Progress</div>`;
+      actions += `<div class="btn btn-danger" data-action="cancel"><i class="fa-solid fa-ban"></i> Cancel Visit</div>`;
+      actions += `<div class="btn" data-action="noshow"><i class="fa-solid fa-user-slash"></i> Mark as No-Show</div>`;
+    } else if(visit.status === 'active'){
+      actions += `<div class="btn btn-green" data-action="advance"><i class="fa-solid fa-circle-check"></i> Mark as Completed</div>`;
+      actions += `<div class="btn btn-danger" data-action="cancel"><i class="fa-solid fa-ban"></i> Cancel Visit</div>`;
+    } else if(visit.status === 'completed'){
+      actions += `<div class="btn" data-action="print"><i class="fa-solid fa-print"></i> Print Visit Summary</div>`;
+    } else {
+      actions += `<div class="btn" data-action="reopen"><i class="fa-solid fa-rotate-left"></i> Reopen Visit</div>`;
+    }
+    el('actionStack').innerHTML = actions;
+  }
+
+  function renderSummary(){
+    const t = TYPE_META[visit.type] || {label: visit.type || 'Unknown'};
+    el('sumHosp').textContent = visit.hosp || '—';
+    el('sumEmail').textContent = visit.email || '—';
+    el('sumType').textContent = t.label;
+    el('sumDept').textContent = visit.dept || '—';
+    el('sumDoctor').textContent = (visit.doctor && visit.doctor !== '—') ? visit.doctor : 'Not assigned';
+  }
+
+  function renderAll(){
+    el('notFoundState').style.display = 'none';
+    el('viewGrid').style.display = 'grid';
+    el('pageTitle').textContent = visit.name || 'Visit Details';
+    el('breadcrumb').textContent = `Dashboard / Visits / ${visit.id}`;
+    el('topbarActions').style.display = 'flex';
+    renderPatientCard();
+    renderInfo();
+    renderReason();
+    renderTimeline();
+    renderStatusAndActions();
+    renderSummary();
+  }
+
+  /* ============ ACTIONS (backend-only) ============ */
+  async function persistVisit(){
+    try {
+      await VisitService.updateVisit(visit.id, { status: visit.status });
+    } catch (e) { window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error'); }
+  }
+
+  el('actionStack').addEventListener('click', async (e)=>{
+    const btn = e.target.closest('[data-action]');
+    if(!btn) return;
+    const action = btn.dataset.action;
+
+    if(action === 'advance'){
+      const idx = STATUS_ORDER.indexOf(visit.status);
+      if(idx !== -1 && idx < STATUS_ORDER.length - 1){
+        visit.status = STATUS_ORDER[idx+1];
+        if(visit.status === 'completed') visit.durationMin = null;
+        await persistVisit();
+        showToast(`${visit.id} marked as ${STATUS_META[visit.status].label}`);
+        renderAll();
+      }
+    } else if(action === 'cancel'){
+      if(confirm(`Cancel visit ${visit.id} for ${visit.name}? This cannot be undone.`)){
+        visit.status = 'cancelled';
+        visit.durationMin = null;
+        await persistVisit();
+        showToast(`${visit.id} cancelled`);
+        renderAll();
+      }
+    } else if(action === 'noshow'){
+      if(confirm(`Mark ${visit.id} as a no-show?`)){
+        visit.status = 'noshow';
+        visit.durationMin = null;
+        await persistVisit();
+        showToast(`${visit.id} marked as No-Show`);
+        renderAll();
+      }
+    } else if(action === 'reopen'){
+      visit.status = 'waiting';
+      await persistVisit();
+      showToast(`${visit.id} reopened`);
+      renderAll();
+    } else if(action === 'print'){
+      showToast('Preparing visit summary for print…');
+      setTimeout(()=> window.print(), 250);
+    }
+  });
+
+  el('printBtn').addEventListener('click', ()=>{
+    showToast('Preparing visit slip for print…');
+    setTimeout(()=> window.print(), 250);
+  });
+  el('editBtn').addEventListener('click', ()=>{
+    window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error');
+  });
+  el('backBtn').addEventListener('click', ()=>{
+    if(window.history.length > 1) window.history.back(); else window.location.href = 'visits.html';
+  });
+
+  /* ============ INIT ============ */
+  if(!visit){
+    renderNotFound();
+  } else {
+    renderAll();
+  }
+
+  if(window.ShilohSidebar){
+    window.ShilohSidebar.attach('#sidebarPlaceholder', {
+      activeFile: 'visits.html',
+      user: { name: 'Receptionist', role: 'Front Desk', avatar: 'https://i.pravatar.cc/64?img=47' }
+    });
+  }
+})();
+</script>
+
+</body>
+</html>

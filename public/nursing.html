@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Shiloh Clinic &amp; Maternity — Nursing Station</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  :root{--navy:#0d1b4c;--blue:#2563eb;--bg:#f5f6f8;--card:#fff;--border:#e5e7eb;--text-dark:#1e293b;--text-gray:#64748b;--text-light:#94a3b8;--green:#16a34a;--green-bg:#dcfce7;--orange:#f97316;--orange-bg:#fff1e6;--purple:#8b5cf6;--purple-bg:#f1eaff;--pink:#ec4899;--pink-bg:#fde8f2;--red:#ef4444;--red-bg:#fee2e2;--blue-bg:#eef2ff;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text-dark);display:flex;min-height:100vh;}
+  .main{flex:1;padding:22px 28px;overflow-x:auto;min-width:0;}
+  .topbar{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px;flex-wrap:wrap;gap:14px;}
+  .page-title{font-size:22px;font-weight:700;color:#0f172a;}
+  .breadcrumb{font-size:12.5px;color:var(--text-gray);margin-top:4px;}
+  .breadcrumb a{color:var(--blue);text-decoration:none;}
+  .topbar-actions{display:flex;gap:10px;flex-wrap:wrap;}
+  .btn{display:flex;align-items:center;gap:7px;padding:9px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:#fff;color:#334155;white-space:nowrap;}
+  .btn:hover{background:var(--bg);}
+  .btn-primary{background:var(--blue);color:#fff;border-color:var(--blue);}
+  .btn-primary:hover{background:#1d4ed8;}
+
+  .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+  .stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;}
+  .stat-top{display:flex;align-items:center;gap:10px;}
+  .stat-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .stat-icon svg{width:16px;height:16px;}
+  .stat-label{font-size:12px;color:var(--text-gray);font-weight:500;}
+  .stat-value{font-size:20px;font-weight:700;}
+  .stat-sub{font-size:10.5px;color:var(--text-light);margin-top:-4px;}
+  .ic-orange{background:var(--orange-bg);color:var(--orange);}
+  .ic-blue{background:var(--blue-bg);color:var(--blue);}
+  .ic-green{background:var(--green-bg);color:var(--green);}
+  .ic-red{background:var(--red-bg);color:var(--red);}
+  .ic-purple{background:var(--purple-bg);color:var(--purple);}
+  .ic-pink{background:var(--pink-bg);color:var(--pink);}
+
+  .filter-bar{display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap;}
+  .search-box{flex:1;min-width:260px;position:relative;}
+  .search-box input{width:100%;padding:10px 14px 10px 36px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:#fff;outline:none;}
+  .search-box input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1);}
+  .search-box svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--text-light);}
+  .filter-group{display:flex;flex-direction:column;gap:3px;}
+  .filter-group label{font-size:11.5px;color:var(--text-gray);font-weight:500;}
+  .filter-select{padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:#fff;min-width:120px;color:#334155;}
+
+  .table-card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+  .table-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;flex-wrap:wrap;gap:10px;}
+  .table-title{font-size:15px;font-weight:700;}
+  .table-actions{display:flex;gap:8px;align-items:center;}
+  .view-toggle{display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+  .view-toggle .vbtn{border:none;border-radius:0;width:34px;height:34px;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-gray);}
+  .view-toggle .vbtn.active{background:var(--blue-bg);color:var(--blue);}
+
+  .table-scroll{overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;}
+  thead tr{border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:#fafbfc;}
+  th{text-align:left;padding:11px 12px;font-size:11px;color:var(--text-light);font-weight:700;text-transform:uppercase;letter-spacing:.02em;white-space:nowrap;}
+  td{padding:11px 12px;font-size:13px;border-bottom:1px solid var(--border);white-space:nowrap;color:#334155;}
+  tbody tr{cursor:pointer;transition:background .1s, transform .18s ease, box-shadow .18s ease;}
+  tbody tr:hover{background:#f8fafc;transform:translateY(-2px) scale(1.005);box-shadow:0 4px 12px rgba(0,0,0,0.06);}
+
+  .queue-num{font-weight:800;color:var(--navy);font-size:12px;}
+  .patient-cell{display:flex;align-items:center;gap:10px;}
+  .avatar{width:32px;height:32px;border-radius:50%;overflow:hidden;flex-shrink:0;}
+  .avatar img{width:100%;height:100%;object-fit:cover;}
+  .patient-name{font-weight:700;color:var(--text-dark);font-size:13px;}
+  .patient-email{font-size:11px;color:var(--text-light);}
+
+  .priority-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:10.5px;font-weight:700;}
+  .priority-routine{background:var(--blue-bg);color:var(--blue);}
+  .priority-urgent{background:var(--orange-bg);color:var(--orange);}
+  .priority-emergency{background:var(--red-bg);color:var(--red);}
+
+  .badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:10.5px;font-weight:700;}
+  .badge .dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
+  .badge-waiting{background:var(--orange-bg);color:#c56c05;}
+  .badge-progress{background:var(--blue-bg);color:var(--blue);}
+  .badge-recorded{background:var(--green-bg);color:#0a8a52;}
+  .badge-flagged{background:var(--red-bg);color:#c1362b;}
+
+  .vital-cell .vital-value{font-weight:700;font-size:12.5px;}
+  .vital-cell .vital-value.flag{color:var(--red);}
+  .vital-dash{color:var(--text-light);}
+
+  .row-actions{display:flex;gap:6px;align-items:center;}
+  .icon-btn{width:28px;height:28px;border-radius:8px;border:1px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;color:var(--text-gray);font-size:12px;cursor:pointer;}
+  .icon-btn:hover{color:var(--blue);border-color:var(--blue-bg);background:var(--blue-bg);}
+
+  .table-footer{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;flex-wrap:wrap;gap:10px;}
+  .footer-text{font-size:12.5px;color:var(--text-gray);}
+  .pagination{display:flex;gap:6px;align-items:center;}
+  .page-btn{min-width:32px;height:32px;padding:0 8px;border:1px solid var(--border);border-radius:7px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;color:#334155;cursor:pointer;}
+  .page-btn:hover{background:var(--bg);}
+  .page-btn.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+  .page-btn.disabled{opacity:.4;cursor:not-allowed;}
+  .per-page{padding:7px 10px;border:1px solid var(--border);border-radius:7px;font-size:12.5px;color:#334155;}
+
+  .queue-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;padding:16px 20px;}
+  .queue-card{border:1px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;}
+  .queue-card:hover{transform:translateY(-4px) scale(1.015);box-shadow:0 8px 24px rgba(0,0,0,0.08);border-color:var(--blue-bg);}
+  .queue-card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
+  .queue-card-vitals{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0;}
+  .qcv-item{display:flex;flex-direction:column;}
+  .qcv-label{font-size:10px;color:var(--text-light);font-weight:600;text-transform:uppercase;}
+  .qcv-val{font-size:13px;font-weight:700;}
+  .qcv-val.flag{color:var(--red);}
+  .queue-card-footer{display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);}
+
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,0.45);align-items:center;justify-content:center;z-index:2000;padding:16px;}
+  .modal-overlay.open{display:flex;}
+  .modal-box{background:#fff;border-radius:12px;width:100%;max-width:400px;box-shadow:0 20px 40px rgba(15,23,42,0.2);overflow:hidden;}
+  .modal-header{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;border-bottom:1px solid var(--border);}
+  .modal-title{font-size:15px;font-weight:700;color:#0f172a;}
+  .modal-close{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-gray);font-size:18px;}
+  .modal-close:hover{background:var(--bg);}
+  .modal-body{padding:18px;display:flex;flex-direction:column;gap:14px;}
+  .modal-footer{display:flex;justify-content:flex-end;gap:10px;padding:14px 18px;border-top:1px solid var(--border);}
+
+  .action-menu{position:fixed;min-width:200px;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:0 10px 28px rgba(15,23,42,0.16);padding:6px;z-index:300;display:none;}
+  .action-menu.open{display:block;}
+  .action-menu-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:7px;font-size:13px;color:#334155;cursor:pointer;white-space:nowrap;}
+  .action-menu-item:hover{background:var(--blue-bg);color:var(--blue);}
+  .action-menu-item.danger{color:var(--red);}
+  .action-menu-item.danger:hover{background:var(--red-bg);}
+  .action-menu-sep{height:1px;background:var(--border);margin:5px 3px;}
+
+  .dropdown-menu{position:absolute;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(15,23,42,0.12);padding:6px;z-index:60;display:none;}
+  .dropdown-menu.open{display:block;}
+  .column-toggle-row{display:flex;align-items:center;gap:8px;padding:7px 10px;font-size:13px;color:#334155;}
+  .column-toggle-row input{cursor:pointer;}
+
+  .toast{position:fixed;bottom:24px;right:24px;background:#0f172a;color:#fff;padding:12px 18px;border-radius:9px;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,0.2);z-index:1200;opacity:0;transform:translateY(10px);transition:all .2s ease;pointer-events:none;}
+  .toast.show{opacity:1;transform:translateY(0);}
+
+  @media(max-width:1200px){.stats-row{grid-template-columns:repeat(3,1fr);}}
+  @media(max-width:720px){.stats-row{grid-template-columns:repeat(2,1fr);}}
+</style>
+</head>
+<body>
+
+<div id="sidebarPlaceholder"></div>
+
+<main class="main">
+  <div class="topbar">
+    <div><div class="page-title">Nursing Station</div><div class="breadcrumb"><a href="dashboard.html">Dashboard</a> / Nursing / Patient Queue</div></div>
+    <div class="topbar-actions">
+      <div class="btn" id="topExportBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><path d="M12 3v12M7 8l5-5 5 5M5 21h14"/></svg>Export</div>
+      <div class="btn btn-primary" id="recordVitalsTopBtn"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:15px;height:15px"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Record Vitals</div>
+    </div>
+  </div>
+
+  <div class="stats-row" id="statsRow"></div>
+
+  <div class="filter-bar">
+    <div class="search-box"><input type="text" id="searchInput" placeholder="Search by patient name, hospital no. or queue #..."><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg></div>
+    <div class="filter-group"><select class="filter-select" id="priorityFilter"><option value="All">All Priorities</option><option value="routine">Routine</option><option value="urgent">Urgent</option><option value="emergency">Emergency</option></select></div>
+    <div class="filter-group"><select class="filter-select" id="statusFilter"><option value="All">All Statuses</option><option value="waiting">Waiting</option><option value="progress">In Progress</option><option value="recorded">Recorded</option><option value="flagged">Flagged</option></select></div>
+    <div class="filter-group"><select class="filter-select" id="nurseFilter"><option value="All">All Nurses</option></select></div>
+    <div class="icon-btn" id="resetFiltersBtn" title="Reset filters"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.5 9a9 9 0 0114.5-3.5L23 10M1 14l5 4.5A9 9 0 0020.5 15"/></svg></div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-header">
+      <div class="table-title" id="tableTitle">Nursing Queue (0)</div>
+      <div class="table-actions">
+        <div class="view-toggle">
+          <div class="vbtn active" id="listBtn" onclick="setView('list')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M3 6h18M3 12h18M3 18h18"/></svg></div>
+          <div class="vbtn" id="gridBtn" onclick="setView('grid')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></div>
+        </div>
+        <div class="icon-btn" id="columnSettingsBtn" title="Columns" style="position:relative;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.9l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1 1.6V21a2 2 0 11-4 0v-.2a1.7 1.7 0 00-1-1.5 1.7 1.7 0 00-1.9.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.9 1.7 1.7 0 00-1.6-1H3a2 2 0 110-4h.2a1.7 1.7 0 001.5-1 1.7 1.7 0 00-.3-1.9l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.9.3H9a1.7 1.7 0 001-1.6V3a2 2 0 114 0v.2a1.7 1.7 0 001 1.5 1.7 1.7 0 001.9-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.9V9a1.7 1.7 0 001.6 1H21a2 2 0 110 4h-.2a1.7 1.7 0 00-1.6 1z"/></svg></div>
+        <div class="dropdown-menu" id="columnMenu"></div>
+      </div>
+    </div>
+
+    <div class="table-scroll" id="listView">
+      <table><thead><tr><th>#</th><th>Patient</th><th data-col="hosp">Hospital No.</th><th data-col="priority">Priority</th><th>BP</th><th>Temp</th><th>Pulse</th><th>SpO2</th><th data-col="weight">Weight</th><th data-col="nurse">Nurse</th><th>Status</th><th></th></tr></thead><tbody id="nursingTable"></tbody></table>
+    </div>
+    <div class="queue-grid" id="gridView" style="display:none"></div>
+
+    <div class="table-footer">
+      <div class="footer-text" id="footerText">Showing 0 of 0</div>
+      <div class="pagination" id="pagination"></div>
+    </div>
+  </div>
+</main>
+
+<!-- ROW ACTION MENU -->
+<div class="action-menu" id="rowActionMenu"></div>
+
+<div class="toast" id="toast"></div>
+
+<script src="shiloh-sidebar.js"></script>
+<script src="../services/api.js"></script>
+<script src="../services/nursing-service.js"></script>
+<script>
+const AVATAR_COLORS = ['#2563eb','#7c3aed','#ec4899','#059669','#d97706','#dc2626','#0891b2','#4f46e5'];
+const STATUS_ORDER = ['waiting','progress','recorded'];
+const priorityLabels = {routine:{label:'Routine',cls:'priority-routine'},urgent:{label:'Urgent',cls:'priority-urgent'},emergency:{label:'Emergency',cls:'priority-emergency'}};
+const statusLabels = {waiting:{label:'Waiting',cls:'badge-waiting'},progress:{label:'In Progress',cls:'badge-progress'},recorded:{label:'Recorded',cls:'badge-recorded'},flagged:{label:'Flagged',cls:'badge-flagged'},completed:{label:'Completed',cls:'badge-recorded'},active:{label:'In Progress',cls:'badge-progress'},'Waiting':{label:'Waiting',cls:'badge-waiting'},'In Consultation':{label:'In Progress',cls:'badge-progress'},'Completed':{label:'Completed',cls:'badge-recorded'}};
+const hiddenColKeys = [];
+
+function esc(s) { return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._tm); t._tm = setTimeout(() => t.classList.remove('show'), 2400); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function goToProfile() { window.location.href = 'patient-profile.html'; }
+function goToRecordVitals(id) { window.location.href = 'register-vitals.html?queue=' + encodeURIComponent(id); }
+
+function vitalCell(value, flag) { if (!value) return '<span class="vital-dash">&mdash;</span>'; return '<div class="vital-cell"><span class="vital-value'+(flag?' flag':'')+'">'+esc(value)+'</span></div>'; }
+
+document.addEventListener('DOMContentLoaded', async () => {
+  ShilohSidebar.attach('#sidebarPlaceholder', { activeFile: 'nursing.html', user: { name: 'Nurse Adaeze', role: 'Nursing Station', avatar: 'https://i.pravatar.cc/64?img=47' } });
+  await NursingService.init();
+  renderStats();
+  renderTable();
+  bindEvents();
+  renderColumnMenu();
+  populateNurseFilter();
+});
+
+function renderStats() {
+  const s = NursingService.getStats();
+  document.getElementById('statsRow').innerHTML = `
+    <div class="stat-card"><div class="stat-top"><div class="stat-icon ic-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><path d="M2 20c0-4 3-6 7-6s7 2 7 6"/></svg></div><div class="stat-label">In Queue</div></div><div class="stat-value">${s.waiting}</div></div>
+    <div class="stat-card"><div class="stat-top"><div class="stat-icon ic-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div><div class="stat-label">In Progress</div></div><div class="stat-value">${s.inProgress}</div></div>
+    <div class="stat-card"><div class="stat-top"><div class="stat-icon ic-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></div><div class="stat-label">Completed</div></div><div class="stat-value">${s.recorded}</div></div>
+    <div class="stat-card"><div class="stat-top"><div class="stat-icon ic-red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg></div><div class="stat-label">Flagged</div></div><div class="stat-value">${s.flagged}</div></div>`;
+}
+
+function applyFilters() {
+  NursingService.search(document.getElementById('searchInput').value);
+  NursingService.filterByPriority(document.getElementById('priorityFilter').value);
+  NursingService.filterByStatus(document.getElementById('statusFilter').value);
+  NursingService.filterByNurse(document.getElementById('nurseFilter').value);
+  renderTable();
+}
+
+function renderTable() {
+  const filtered = NursingService.getFiltered();
+  const page = NursingService.getPage(NursingService.state.currentPage);
+  const total = filtered.length;
+  const totalPages = NursingService.getTotalPages();
+
+  document.getElementById('tableTitle').textContent = 'Nursing Queue (' + total + ')';
+  document.getElementById('footerText').textContent = total ? 'Showing ' + (NursingService.state.currentPage-1)*NursingService.state.perPage+1 + ' to ' + Math.min(NursingService.state.currentPage*NursingService.state.perPage, total) + ' of ' + total : 'No patients found';
+
+  const tbody = document.getElementById('nursingTable');
+  const grid = document.getElementById('gridView');
+  if (!page.length) { tbody.innerHTML = '<tr><td colspan="12" style="text-align:center;padding:40px;color:var(--text-light);">No patients found</td></tr>'; grid.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-light);">No patients found</div>'; document.getElementById('pagination').innerHTML = ''; return; }
+
+  tbody.innerHTML = page.map((p, i) => {
+    const pr = priorityLabels[p.priority];
+    const s = statusLabels[p.status];
+    return `<tr onclick="goToRecordVitals('${p.id}')">
+      <td><div class="queue-num">${p.q}</div></td>
+      <td><div class="patient-cell"><div class="avatar"><img src="https://i.pravatar.cc/80?img=${p.img}" alt=""></div><div><div class="patient-name">${esc(p.name)}</div></div></div></td>
+      <td data-col="hosp">${esc(p.hosp)}</td>
+      <td data-col="priority"><span class="priority-chip ${pr.cls}">${pr.label}</span></td>
+      <td>${vitalCell(p.bp, p.flag)}</td>
+      <td>${vitalCell(p.temp, p.flag)}</td>
+      <td>${vitalCell(p.pulse, p.flag)}</td>
+      <td>${vitalCell(p.spo2, p.flag)}</td>
+      <td data-col="weight">${vitalCell(p.weight, false)}</td>
+      <td data-col="nurse">${esc(p.nurse || '—')}</td>
+      <td><span class="badge ${s.cls}"><span class="dot"></span>${s.label}</span></td>
+      <td><div class="row-actions"><div class="icon-btn" onclick="event.stopPropagation();openActionMenu('${p.id}',this)" title="More">&#8943;</div></div></td>
+    </tr>`;
+  }).join('');
+
+  grid.innerHTML = page.map(p => {
+    const pr = priorityLabels[p.priority];
+    const s = statusLabels[p.status];
+    return `<div class="queue-card" onclick="goToRecordVitals('${p.id}')">
+      <div class="queue-card-top"><div class="patient-cell"><div class="avatar"><img src="https://i.pravatar.cc/80?img=${p.img}" alt=""></div><div><div class="patient-name">${esc(p.name)}</div></div></div><span class="priority-chip ${pr.cls}">${pr.label}</span></div>
+      <div class="queue-card-vitals"><div class="qcv-item"><span class="qcv-label">BP</span><span class="qcv-val${p.flag?' flag':''}">${p.bp||'—'}</span></div><div class="qcv-item"><span class="qcv-label">Temp</span><span class="qcv-val${p.flag?' flag':''}">${p.temp||'—'}</span></div><div class="qcv-item"><span class="qcv-label">Pulse</span><span class="qcv-val${p.flag?' flag':''}">${p.pulse||'—'}</span></div><div class="qcv-item"><span class="qcv-label">SpO2</span><span class="qcv-val${p.flag?' flag':''}">${p.spo2||'—'}</span></div></div>
+      <div class="queue-card-footer"><div style="font-size:11.5px;color:var(--text-light);">${esc(p.hosp)} &middot; ${esc(p.nurse||'Unassigned')}</div><div><span class="badge ${s.cls}"><span class="dot"></span>${s.label}</span></div></div>
+    </div>`;
+  }).join('');
+
+  renderPagination(totalPages);
+  applyColumnVisibility();
+}
+
+function renderPagination(totalPages) {
+  const el = document.getElementById('pagination');
+  if (totalPages <= 1) { el.innerHTML = ''; return; }
+  const cp = NursingService.state.currentPage;
+  let html = '<div class="page-btn '+(cp===1?'disabled':'')+'" onclick="goPage('+(cp-1)+')">&lt;</div>';
+  let pages = [];
+  if (totalPages <= 7) { pages = Array.from({length:totalPages},(_,i)=>i+1); }
+  else { pages.push(1); if(cp>3) pages.push('...'); const s=Math.max(2,cp-1), e=Math.min(totalPages-1,cp+1); for(let p=s;p<=e;p++) pages.push(p); if(cp<totalPages-2) pages.push('...'); pages.push(totalPages); }
+  pages.forEach(p => { if(p==='...') html+='<div class="page-btn" style="pointer-events:none;opacity:.4">...</div>'; else html+='<div class="page-btn '+(p===cp?'active':'')+'" onclick="goPage('+p+')">'+p+'</div>'; });
+  html += '<div class="page-btn '+(cp===totalPages?'disabled':'')+'" onclick="goPage('+(cp+1)+')">&gt;</div>';
+  html += '<select class="per-page" onchange="changePerPage(this.value)"><option value="10" '+(NursingService.state.perPage===10?'selected':'')+'>10 / page</option><option value="25" '+(NursingService.state.perPage===25?'selected':'')+'>25 / page</option></select>';
+  el.innerHTML = html;
+}
+
+function goPage(p) { NursingService.setPage(p); renderTable(); }
+function changePerPage(v) { NursingService.setPerPage(parseInt(v)); renderTable(); }
+function setView(v) { document.getElementById('listView').style.display=v==='list'?'':'none'; document.getElementById('gridView').style.display=v==='grid'?'grid':'none'; document.getElementById('listBtn').classList.toggle('active',v==='list'); document.getElementById('gridBtn').classList.toggle('active',v==='grid'); }
+
+const ACTION_ICONS = {profile:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>',vitals:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>',advance:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',remove:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg>'};
+let menuPatientId = null;
+
+function openActionMenu(patientId, anchorEl) {
+  const p = NursingService.getById(patientId);
+  if (!p) return;
+  menuPatientId = patientId;
+  const idx = STATUS_ORDER.indexOf(p.status);
+  const nextLabel = (idx !== -1 && idx < STATUS_ORDER.length-1) ? statusLabels[STATUS_ORDER[idx+1]].label : null;
+  const menu = document.getElementById('rowActionMenu');
+  menu.innerHTML = `<div class="action-menu-item" onclick="handleMenuAction('vitals')">${ACTION_ICONS.vitals}Record Vitals</div><div class="action-menu-item" onclick="handleMenuAction('profile')">${ACTION_ICONS.profile}View Profile</div>${nextLabel ? '<div class="action-menu-item" onclick="handleMenuAction(\'advance\')">'+ACTION_ICONS.advance+'Mark as '+nextLabel+'</div>' : ''}<div class="action-menu-sep"></div><div class="action-menu-item danger" onclick="handleMenuAction('remove')">${ACTION_ICONS.remove}Remove</div>`;
+  const rect = anchorEl.getBoundingClientRect();
+  menu.style.display = 'block';
+  let left = rect.right - (menu.offsetWidth || 210);
+  if (left < 8) left = 8;
+  let top = rect.bottom + 6;
+  if (top + 200 > window.innerHeight) top = rect.top - 6 - 200;
+  menu.style.left = left + 'px';
+  menu.style.top = top + 'px';
+  menu.classList.add('open');
+}
+
+function handleMenuAction(action) {
+  const p = NursingService.getById(menuPatientId);
+  if (!p) return closeActionMenu();
+  if (action === 'vitals') goToRecordVitals(p.id);
+  else if (action === 'profile') goToProfile();
+  else if (action === 'advance') { NursingService.advanceStatus(p.id); showToast(p.name+' marked as '+statusLabels[NursingService.getById(p.id).status].label); applyFilters(); }
+  else if (action === 'remove') { if(confirm('Remove '+p.name+'?')){ NursingService.removeFromQueue(p.id); showToast(p.name+' removed'); populateNurseFilter(); applyFilters(); } }
+  closeActionMenu();
+}
+
+function closeActionMenu() { document.getElementById('rowActionMenu').classList.remove('open'); document.getElementById('rowActionMenu').style.display = 'none'; }
+
+const COLUMNS = [{key:'hosp',label:'Hospital No.'},{key:'priority',label:'Priority'},{key:'weight',label:'Weight'},{key:'nurse',label:'Nurse'}];
+function renderColumnMenu() {
+  document.getElementById('columnMenu').innerHTML = COLUMNS.map(c => '<label class="column-toggle-row"><input type="checkbox" data-col-key="'+c.key+'" '+(hiddenColKeys.includes(c.key)?'':'checked')+'>'+c.label+'</label>').join('');
+  document.getElementById('columnMenu').querySelectorAll('input[type="checkbox"]').forEach(cb => { cb.addEventListener('change', () => { const k = cb.dataset.colKey; if(cb.checked) { const i = hiddenColKeys.indexOf(k); if(i>-1) hiddenColKeys.splice(i,1); } else if(!hiddenColKeys.includes(k)) hiddenColKeys.push(k); applyColumnVisibility(); }); });
+}
+function applyColumnVisibility() { COLUMNS.forEach(c => { const hidden = hiddenColKeys.includes(c.key); document.querySelectorAll('[data-col="'+c.key+'"]').forEach(n => { n.style.display = hidden ? 'none' : ''; }); }); }
+
+function exportCsv() {
+  const rows = [['Queue #','Patient','Hospital No','Priority','BP','Temp','Pulse','SpO2','Weight','Nurse','Status']];
+  NursingService.getFiltered().forEach(p => { const pr = priorityLabels[p.priority]; const s = statusLabels[p.status]; rows.push([p.q,p.name,p.hosp,pr.label,p.bp||'',p.temp||'',p.pulse||'',p.spo2||'',p.weight||'',p.nurse||'Unassigned',s.label]); });
+  const csv = rows.map(r => r.map(c => '"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const blob = new Blob([csv],{type:'text/csv'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'nursing-queue.csv'; a.click();
+  showToast('Exported '+NursingService.getFiltered().length+' patients');
+}
+
+function populateNurseFilter() {
+  const nurses = Array.from(new Set(NursingService.getAll().map(p => p.nurse).filter(Boolean))).sort();
+  document.getElementById('nurseFilter').innerHTML = '<option value="All">All Nurses</option>' + nurses.map(n => '<option value="'+esc(n)+'">'+esc(n)+'</option>').join('') + '<option value="__unassigned">Unassigned</option>';
+}
+
+function bindEvents() {
+  let debounce;
+  document.getElementById('searchInput').addEventListener('input', () => { clearTimeout(debounce); debounce = setTimeout(applyFilters, 300); });
+  document.getElementById('priorityFilter').addEventListener('change', applyFilters);
+  document.getElementById('statusFilter').addEventListener('change', applyFilters);
+  document.getElementById('nurseFilter').addEventListener('change', applyFilters);
+  document.getElementById('resetFiltersBtn').addEventListener('click', () => { NursingService.resetFilters(); document.getElementById('searchInput').value=''; document.getElementById('priorityFilter').value='All'; document.getElementById('statusFilter').value='All'; document.getElementById('nurseFilter').value='All'; applyFilters(); showToast('Filters reset'); });
+  document.getElementById('topExportBtn').addEventListener('click', exportCsv);
+  document.getElementById('recordVitalsTopBtn').addEventListener('click', () => { const next = NursingService.getAll().find(p => p.status === 'waiting'); if(next) goToRecordVitals(next.id); else window.location.href = 'register-vitals.html'; });
+  document.getElementById('columnSettingsBtn').addEventListener('click', e => { e.stopPropagation(); document.getElementById('columnMenu').classList.toggle('open'); });
+  document.addEventListener('click', e => { if (!e.target.closest('#rowActionMenu')) closeActionMenu(); if (!e.target.closest('#columnMenu') && !e.target.closest('#columnSettingsBtn')) document.getElementById('columnMenu').classList.remove('open'); });
+}
+</script>
+</body>
+</html>

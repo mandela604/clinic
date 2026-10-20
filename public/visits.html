@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Shiloh Clinic & Maternity - Visits</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root{
+    --navy:#0d1b4c;--blue:#2563eb;--blue-light:#eef2ff;
+    --text-dark:#1e293b;--text-gray:#64748b;--border:#e5e7eb;--bg:#f5f6f8;
+    --green:#16a34a;--green-bg:#dcfce7;--orange:#f97316;--orange-bg:#fff1e6;
+    --purple:#8b5cf6;--purple-bg:#f1eaff;--pink:#ec4899;--pink-bg:#fde8f2;
+    --red:#ef4444;--red-bg:#fee2e2;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text-dark);display:flex;min-height:100vh;}
+  .main{flex:1;padding:22px 28px;overflow-x:auto;min-width:0;}
+  .topbar{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px;flex-wrap:wrap;gap:14px;}
+  .page-title{font-size:22px;font-weight:700;color:#0f172a;}
+  .breadcrumb{font-size:12.5px;color:var(--text-gray);margin-top:4px;}
+  .breadcrumb a{color:var(--blue);text-decoration:none;}
+  .topbar-actions{display:flex;gap:10px;flex-wrap:wrap;}
+  .btn{display:flex;align-items:center;gap:7px;padding:9px 16px;border-radius:8px;font-size:13.5px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:#fff;color:#334155;white-space:nowrap;}
+  .btn:hover{background:var(--bg);}
+  .btn-primary{background:var(--blue);color:#fff;border:1px solid var(--blue);}
+  .btn-primary:hover{background:#1d4ed8;}
+
+  .stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:20px;}
+  .stat-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;}
+  .stat-top{display:flex;align-items:center;gap:10px;}
+  .stat-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;}
+  .stat-label{font-size:12px;color:var(--text-gray);font-weight:500;}
+  .stat-value{font-size:20px;font-weight:700;color:#0f172a;}
+  .stat-sub{font-size:10.5px;color:#94a3b8;margin-top:-4px;}
+  .icon-blue{background:var(--blue-light);color:var(--blue);}
+  .icon-green{background:var(--green-bg);color:var(--green);}
+  .icon-orange{background:var(--orange-bg);color:var(--orange);}
+  .icon-purple{background:var(--purple-bg);color:var(--purple);}
+  .icon-pink{background:var(--pink-bg);color:var(--pink);}
+
+  .filter-bar{display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap;}
+  .search-box{flex:1;min-width:260px;position:relative;}
+  .search-box input{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:#fff;outline:none;}
+  .search-box input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1);}
+  .search-box i{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#94a3b8;font-size:14px;}
+  .filter-group{display:flex;flex-direction:column;gap:3px;}
+  .filter-group label{font-size:11.5px;color:var(--text-gray);font-weight:500;}
+  .filter-select{padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:#fff;min-width:100px;color:#334155;}
+
+  .table-card{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+  .table-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;}
+  .table-title{font-size:15px;font-weight:700;color:#0f172a;}
+  .table-actions{display:flex;gap:8px;align-items:center;}
+  .view-toggle{display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+  .view-btn{width:34px;height:34px;border:none;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#64748b;font-size:13px;transition:all .1s;}
+  .view-btn.active{background:var(--blue-light);color:var(--blue);}
+
+  table{width:100%;border-collapse:collapse;}
+  thead tr{border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:#fafbfc;}
+  th{text-align:left;padding:11px 12px;font-size:11.5px;color:#64748b;font-weight:600;white-space:nowrap;}
+  td{padding:11px 12px;font-size:13px;border-bottom:1px solid var(--border);white-space:nowrap;color:#334155;}
+  tbody tr{cursor:pointer;transition:background .1s;}
+  tbody tr:hover{background:#f8fafc;}
+  .patient-cell{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;}
+  .avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:800;flex-shrink:0;}
+  .patient-name{font-weight:600;color:#0f172a;font-size:13px;}
+  .patient-email{font-size:11.5px;color:#94a3b8;}
+  .visit-id{font-weight:700;color:var(--blue);font-size:12.5px;}
+  .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11.5px;font-weight:600;}
+  .badge-waiting{background:var(--orange-bg);color:#c56c05;}
+  .badge-active{background:var(--blue-light);color:var(--blue);}
+  .badge-completed{background:var(--green-bg);color:#16a34a;}
+  .badge-cancelled{background:var(--red-bg);color:#ef4444;}
+  .row-actions{display:flex;gap:6px;align-items:center;}
+  .icon-btn{width:30px;height:30px;border:1px solid var(--border);border-radius:6px;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#64748b;font-size:12px;transition:all .1s;}
+  .icon-btn:hover{background:var(--bg);color:var(--blue);}
+
+  .visits-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;padding:16px 20px;}
+  .visit-card{border:1px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;transition:all .15s;}
+  .visit-card:hover{border-color:var(--blue);box-shadow:0 4px 12px rgba(37,99,235,0.08);}
+  .visit-card-top{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  .visit-card-row{display:flex;justify-content:space-between;font-size:12px;color:var(--text-gray);margin-top:6px;}
+  .visit-card-row b{color:var(--text-dark);font-weight:600;}
+
+  .table-footer{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;}
+  .footer-text{font-size:12.5px;color:var(--text-gray);}
+  .pagination{display:flex;gap:6px;align-items:center;}
+  .page-btn{width:32px;height:32px;border:1px solid var(--border);border-radius:7px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;color:#334155;cursor:pointer;}
+  .page-btn:hover{background:var(--bg);}
+  .page-btn.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+  .per-page{padding:7px 10px;border:1px solid var(--border);border-radius:7px;font-size:12.5px;color:#334155;}
+
+  .empty-state{text-align:center;padding:40px;color:var(--text-gray);font-size:13px;}
+  .empty-state i{font-size:28px;display:block;margin-bottom:8px;color:var(--border);}
+
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;padding:11px 20px;border-radius:10px;font-size:12.5px;font-weight:600;box-shadow:0 10px 30px rgba(10,15,40,0.3);opacity:0;pointer-events:none;transition:.22s;z-index:300;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  @media(max-width:1200px){.stats-row{grid-template-columns:repeat(3,1fr);}}
+  @media(max-width:768px){.stats-row{grid-template-columns:repeat(2,1fr);}.filter-bar{flex-direction:column;}.search-box{min-width:100%;}}
+  .btn.loading{pointer-events:none;opacity:.7;}
+  .btn.loading::after{content:'';width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:phspin .6s linear infinite;margin-left:6px;display:inline-block;vertical-align:middle;}
+  .btn:not(.btn-primary).loading::after{border-color:rgba(0,0,0,.15);border-top-color:var(--blue);}
+  @keyframes phspin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+
+<div id="sidebarPlaceholder"></div>
+
+<div class="main">
+  <div class="topbar">
+    <div>
+      <div class="page-title">Visits</div>
+      <div class="breadcrumb"><a href="dashboard.html">Dashboard</a> / Visits / All Visits</div>
+    </div>
+    <div class="topbar-actions">
+      <div class="btn" onclick="exportCSV()"><i class="fa-solid fa-download"></i> Export CSV</div>
+      <div class="btn btn-primary" onclick="newVisit()"><i class="fa-solid fa-plus"></i> New Visit</div>
+    </div>
+  </div>
+
+  <div class="stats-row" id="statsRow"></div>
+
+  <div class="filter-bar">
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Search by name, visit ID, hospital no...">
+      <i class="fa-solid fa-magnifying-glass"></i>
+    </div>
+    <div class="filter-group"><label>Status</label><select class="filter-select" id="filterStatus">
+      <option value="all">All</option><option value="completed">Completed</option><option value="in-progress">In Progress</option>
+    </select></div>
+    <div class="filter-group"><label>Department</label><select class="filter-select" id="filterDept"><option value="all">All</option></select></div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-header">
+      <div class="table-title" id="tableTitle">All Visits</div>
+      <div class="table-actions">
+        <div class="view-toggle">
+          <div class="view-btn active" data-view="list" onclick="setView('list')"><i class="fa-solid fa-list"></i></div>
+          <div class="view-btn" data-view="grid" onclick="setView('grid')"><i class="fa-solid fa-grip"></i></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="listView">
+      <table>
+        <thead><tr>
+          <th>#</th><th>Visit ID</th><th>Patient</th><th>Department</th><th>Doctor</th><th>Date</th><th>Reason</th><th>Status</th><th></th>
+        </tr></thead>
+        <tbody id="visitTable"></tbody>
+      </table>
+    </div>
+
+    <div id="gridView" style="display:none;" class="visits-grid"></div>
+
+    <div class="table-footer">
+      <div class="footer-text" id="footerText">Showing 0 visits</div>
+      <div class="pagination" id="pagination"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="shiloh-sidebar.js"></script>
+<script src="../services/api.js"></script>
+<script src="../services/visit-service.js"></script>
+<script src="visit-form.js"></script>
+<script>
+  const AVATAR_COLORS = ['#2563eb','#7c3aed','#db2777','#059669','#d97706','#dc2626','#0891b2','#4f46e5'];
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    ShilohSidebar.attach('#sidebarPlaceholder', { activeFile: 'visits.html', user: { name: 'Receptionist', role: 'Front Desk', avatar: 'https://i.pravatar.cc/64?img=47' } });
+    await VisitService.init();
+    populateDeptFilter();
+    renderStats();
+    renderTable();
+    bindEvents();
+  });
+
+  /* ── Populate Dept Filter ──────────────────────────────────────────── */
+  function populateDeptFilter() {
+    const depts = [...new Set(VisitService.getAll().map(v => v.department))].sort();
+    const sel = document.getElementById('filterDept');
+    depts.forEach(d => { const o = document.createElement('option'); o.value = d; o.textContent = d; sel.appendChild(o); });
+  }
+
+  function renderStats() {
+    const s = VisitService.getStats();
+    document.getElementById('statsRow').innerHTML = `
+      <div class="stat-card"><div class="stat-top"><div class="stat-icon icon-blue"><i class="fa-solid fa-clipboard-list"></i></div><div class="stat-label">Total Visits</div></div><div class="stat-value">${s.total}</div></div>
+      <div class="stat-card"><div class="stat-top"><div class="stat-icon icon-green"><i class="fa-solid fa-circle-check"></i></div><div class="stat-label">Completed</div></div><div class="stat-value">${s.completed}</div></div>
+      <div class="stat-card"><div class="stat-top"><div class="stat-icon icon-orange"><i class="fa-solid fa-clock"></i></div><div class="stat-label">In Progress</div></div><div class="stat-value">${s.inProgress}</div></div>
+      <div class="stat-card"><div class="stat-top"><div class="stat-icon icon-purple"><i class="fa-solid fa-calendar-check"></i></div><div class="stat-label">From Appointments</div></div><div class="stat-value">${s.withAppointment}</div></div>
+      <div class="stat-card"><div class="stat-top"><div class="stat-icon icon-pink"><i class="fa-solid fa-user-doctor"></i></div><div class="stat-label">Consultation Requested</div></div><div class="stat-value">${s.consultationRequested}</div></div>`;
+  }
+
+  function applyFilters() {
+    VisitService.search(document.getElementById('searchInput').value);
+    VisitService.filterByStatus(document.getElementById('filterStatus').value);
+    VisitService.filterByDepartment(document.getElementById('filterDept').value);
+    renderTable();
+  }
+
+  function renderTable() {
+    const filtered = VisitService.getFiltered();
+    const page = VisitService.getPage(VisitService.state.currentPage);
+    const total = filtered.length;
+    const totalPages = VisitService.getTotalPages();
+
+    document.getElementById('tableTitle').textContent = `All Visits (${total})`;
+    document.getElementById('footerText').textContent = `Showing ${total?(VisitService.state.currentPage-1)*VisitService.state.perPage+1:0} to ${Math.min(VisitService.state.currentPage*VisitService.state.perPage,total)} of ${total} visits`;
+
+    const tbody = document.getElementById('visitTable');
+    if (!page.length) { tbody.innerHTML = '<tr><td colspan="9" class="empty-state"><i class="fa-solid fa-clipboard-list"></i>No visits found</td></tr>'; document.getElementById('pagination').innerHTML = ''; return; }
+
+    tbody.innerHTML = page.map((v, i) => {
+      const idx = (VisitService.state.currentPage-1)*VisitService.state.perPage + i + 1;
+      const colorIdx = (v.patientId || '').charCodeAt((v.patientId||'').length - 1) % AVATAR_COLORS.length;
+      const initials = v.patientName.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+      const badgeClass = v.status === 'completed' ? 'badge-completed' : v.status === 'in-progress' ? 'badge-active' : 'badge-waiting';
+      const statusLabel = v.status === 'completed' ? 'Completed' : v.status === 'in-progress' ? 'In Progress' : v.status;
+      const apptBadge = v.appointmentId ? '<span style="display:inline-block;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:600;background:#dcfce7;color:#16a34a;margin-left:6px;">APPT</span>' : '';
+      const consultBadge = v.consultationRequested ? '<span style="display:inline-block;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:600;background:#f1eaff;color:#8b5cf6;margin-left:4px;">CONSULT</span>' : '';
+      return `<tr onclick="goToProfile('${v.hospitalNo}')">
+        <td>${idx}</td>
+        <td><span class="visit-id">${v.id}</span></td>
+        <td><div class="patient-cell"><div class="avatar" style="background:${AVATAR_COLORS[colorIdx]};">${initials}</div><div><div class="patient-name">${v.patientName}</div><div class="patient-email">${v.hospitalNo}</div></div></div></td>
+        <td>${v.department}</td>
+        <td>${v.doctor}</td>
+        <td>${v.date}</td>
+        <td>${v.reason.slice(0,30)}${v.reason.length>30?'...':''}</td>
+        <td><span class="badge ${badgeClass}">${statusLabel}</span>${apptBadge}${consultBadge}</td>
+        <td><div class="row-actions"><div class="icon-btn" onclick="event.stopPropagation();goToProfile('${v.hospitalNo}')" title="View"><i class="fa-solid fa-eye"></i></div></div></td>
+      </tr>`;
+    }).join('');
+
+    renderPagination(totalPages);
+  }
+
+  function renderPagination(totalPages) {
+    const el = document.getElementById('pagination');
+    if (totalPages <= 1) { el.innerHTML = ''; return; }
+    const cp = VisitService.state.currentPage;
+    let html = `<div class="page-btn" onclick="goPage(${cp-1})" ${cp===1?'style="opacity:0.4;pointer-events:none;"':''}><i class="fa-solid fa-chevron-left" style="font-size:10px;"></i></div>`;
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || (i >= cp-1 && i <= cp+1)) html += `<div class="page-btn ${i===cp?'active':''}" onclick="goPage(${i})">${i}</div>`;
+      else if (i === cp-2 || i === cp+2) html += '<div class="page-btn" style="pointer-events:none;opacity:.4;">...</div>';
+    }
+    html += `<div class="page-btn" onclick="goPage(${cp+1})" ${cp===totalPages?'style="opacity:0.4;pointer-events:none;"':''}><i class="fa-solid fa-chevron-right" style="font-size:10px;"></i></div>`;
+    html += `<select class="per-page" onchange="changePerPage(this.value)"><option value="10" ${VisitService.state.perPage===10?'selected':''}>10</option><option value="25" ${VisitService.state.perPage===25?'selected':''}>25</option><option value="50" ${VisitService.state.perPage===50?'selected':''}>50</option></select>`;
+    el.innerHTML = html;
+  }
+
+  function goPage(p) { VisitService.setPage(p); renderTable(); }
+  function changePerPage(v) { VisitService.setPerPage(parseInt(v)); renderTable(); }
+
+  function setView(view) {
+    document.querySelectorAll('.view-btn').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+    document.getElementById('listView').style.display = view === 'list' ? '' : 'none';
+    document.getElementById('gridView').style.display = view === 'grid' ? '' : 'none';
+    renderTable();
+  }
+
+  function goToProfile(hospNo) { if (hospNo) window.location.href = 'patient-profile.html?hosp=' + encodeURIComponent(hospNo); }
+  function newVisit() {
+    VisitForm.open({
+      onCreated: (visit) => {
+        renderStats();
+        renderTable();
+        showToast('Visit ' + visit.id + ' created');
+      }
+    });
+  }
+  function exportCSV() { showToast('Export CSV — coming soon'); }
+  function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(showToast._tm); showToast._tm = setTimeout(() => t.classList.remove('show'), 2400); }
+
+  function bindEvents() {
+    let debounce;
+    document.getElementById('searchInput').addEventListener('input', () => { clearTimeout(debounce); debounce = setTimeout(applyFilters, 300); });
+    document.getElementById('filterStatus').addEventListener('change', applyFilters);
+    document.getElementById('filterDept').addEventListener('change', applyFilters);
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shiloh Clinic & Maternity — Lab Results</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root{
+    --navy:#0b1a4d; --blue-accent:#2f6fed; --bg:#f4f6fb; --card:#ffffff; --border:#eef0f6;
+    --text-dark:#1c2440; --text-mid:#6b7280; --text-light:#9aa1b3;
+    --green:#12b76a; --green-bg:#e9f9f0;
+    --blue:#2f6fed; --blue-bg:#eaf1ff;
+    --purple:#8b5cf6; --purple-bg:#f4efff;
+    --orange:#f79009; --orange-bg:#fff4e5;
+    --red:#f04438; --red-bg:#feecec;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif;
+    background:var(--bg); color:var(--text-dark); font-size:13px; padding:26px;
+    display:flex; justify-content:center;
+  }
+
+  .page-wrap{width:100%; max-width:1100px;}
+
+  .back-btn{
+    display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border);border-radius:10px;
+    padding:9px 14px;font-size:12.5px;font-weight:700;color:var(--text-dark);white-space:nowrap;cursor:pointer;
+    margin-bottom:16px;max-width:fit-content;
+  }
+  .back-btn:hover{background:var(--bg);}
+  .back-btn i{color:var(--text-mid);font-size:11px;}
+
+  .panel{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px;}
+
+  .lr-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px;flex-wrap:wrap;}
+  .lr-title{font-size:15px;font-weight:800;color:var(--text-dark);}
+  .lr-sub{font-size:11.5px;color:var(--text-light);font-weight:600;margin-top:2px;}
+  .btn-primary{
+    display:flex;align-items:center;gap:8px;background:var(--blue-accent);border:1px solid var(--blue-accent);
+    border-radius:10px;padding:10px 16px;font-size:12.5px;font-weight:700;color:#fff;white-space:nowrap;cursor:pointer;
+    box-shadow:0 4px 10px rgba(47,111,237,0.28);
+  }
+  .btn-primary:hover{background:#2660d6;}
+  .btn-primary:disabled{opacity:.5;cursor:not-allowed;box-shadow:none;}
+  .btn-secondary{
+    display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border);
+    border-radius:10px;padding:9px 14px;font-size:12px;font-weight:700;color:var(--text-mid);white-space:nowrap;cursor:pointer;
+  }
+  .btn-secondary:hover{background:var(--bg);color:var(--text-dark);}
+
+  /* stat chips */
+  .lr-stats{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
+  .lr-stat{flex:1;min-width:130px;border:1px solid var(--border);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;}
+  .lr-stat-ic{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+  .lr-stat-label{font-size:10.5px;color:var(--text-mid);font-weight:700;}
+  .lr-stat-value{font-size:16px;font-weight:800;color:var(--text-dark);}
+
+  /* filters */
+  .lr-filters{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
+  .lr-search{display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:9px 12px;flex:1;min-width:200px;}
+  .lr-search i{color:var(--text-light);font-size:12px;}
+  .lr-search input{border:none;background:transparent;outline:none;font-size:12.5px;color:var(--text-dark);width:100%;font-family:inherit;}
+  .lr-search input::placeholder{color:var(--text-light);}
+  .lr-select{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:9px 12px;font-size:12.5px;font-weight:600;color:var(--text-dark);cursor:pointer;font-family:inherit;}
+
+  /* results list — expandable rows */
+  .lr-item{border:1px solid var(--border);border-radius:12px;margin-bottom:10px;overflow:hidden;}
+  .lr-item:last-child{margin-bottom:0;}
+  .lr-item-head{display:flex;align-items:center;gap:12px;padding:13px 14px;cursor:pointer;}
+  .lr-item-ic{width:36px;height:36px;border-radius:9px;background:var(--blue-bg);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+  .lr-item-body{flex:1;min-width:0;}
+  .lr-item-name{font-size:12.5px;font-weight:800;color:var(--text-dark);}
+  .lr-item-meta{font-size:11px;color:var(--text-light);font-weight:600;margin-top:1px;}
+  .lr-item-right{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+  .lr-flag{font-size:10.5px;font-weight:700;padding:4px 10px;border-radius:20px;white-space:nowrap;}
+  .lr-flag-normal{background:var(--green-bg);color:#0a8a52;}
+  .lr-flag-review{background:var(--orange-bg);color:#c56c05;}
+  .lr-flag-pending{background:var(--blue-bg);color:#1d54c9;}
+  .lr-chevron{color:var(--text-light);font-size:11px;transition:transform .2s;}
+  .lr-item.open .lr-chevron{transform:rotate(180deg);}
+
+  .lr-item-detail{display:none;border-top:1px solid var(--border);padding:14px;}
+  .lr-item.open .lr-item-detail{display:block;}
+
+  table.lr-table{width:100%;border-collapse:collapse;}
+  table.lr-table thead th{text-align:left;font-size:10.5px;letter-spacing:.03em;color:var(--text-light);text-transform:uppercase;font-weight:700;padding:7px 6px;border-bottom:1px solid var(--border);}
+  table.lr-table tbody td{padding:9px 6px;border-bottom:1px solid var(--border);font-size:12px;color:var(--text-dark);font-weight:600;}
+  table.lr-table tbody tr:last-child td{border-bottom:none;}
+  .lr-value-flagged{color:var(--red);font-weight:800;}
+  .lr-value-normal{color:var(--text-dark);}
+  .lr-range{color:var(--text-light);font-weight:600;}
+
+  .lr-detail-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+  .lr-detail-btn{display:flex;align-items:center;gap:7px;border:1px solid var(--border);background:#fff;border-radius:9px;padding:8px 13px;font-size:11.5px;font-weight:700;color:var(--text-dark);cursor:pointer;}
+  .lr-detail-btn:hover{border-color:var(--blue-bg);color:var(--blue);}
+  .lr-detail-btn.action{border-color:var(--blue-bg);background:var(--blue-bg);color:var(--blue);}
+
+  .lr-notes{background:var(--bg);border-radius:9px;padding:10px 12px;font-size:11.5px;color:var(--text-mid);font-weight:600;margin-top:10px;line-height:1.5;}
+  .lr-notes b{color:var(--text-dark);}
+
+  .lr-pending-note{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-mid);font-weight:600;}
+  .lr-pending-note i{color:var(--orange);}
+
+  .empty-state{padding:40px 10px;text-align:center;color:var(--text-light);}
+  .empty-state i{font-size:26px;margin-bottom:10px;display:block;color:var(--text-light);}
+  .empty-state div{font-size:12.5px;font-weight:600;}
+
+  /* pagination */
+  .lr-pagination{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:16px;padding-top:16px;border-top:1px solid var(--border);flex-wrap:wrap;}
+  .lr-page-info{font-size:11.5px;color:var(--text-light);font-weight:600;}
+  .lr-page-controls{display:flex;align-items:center;gap:6px;}
+  .lr-page-btn{
+    width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:#fff;color:var(--text-mid);
+    font-size:11.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  }
+  .lr-page-btn:hover:not(:disabled){border-color:var(--blue-accent);color:var(--blue-accent);}
+  .lr-page-btn:disabled{opacity:.4;cursor:not-allowed;}
+  .lr-page-btn.active{background:var(--blue-accent);border-color:var(--blue-accent);color:#fff;}
+
+  /* modal shared */
+  .modal-overlay{
+    position:fixed;inset:0;background:rgba(15,20,40,0.45);display:none;align-items:center;justify-content:center;
+    z-index:200;padding:20px;
+  }
+  .modal-overlay.open{display:flex;}
+  .modal-box{background:#fff;border-radius:16px;max-width:480px;width:100%;padding:22px;box-shadow:0 20px 60px rgba(10,15,40,0.25);max-height:90vh;overflow-y:auto;}
+  .modal-box.wide{max-width:620px;}
+  .modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+  .modal-title{font-size:15px;font-weight:800;color:var(--text-dark);}
+  .modal-close{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text-mid);cursor:pointer;font-size:13px;flex-shrink:0;}
+  .modal-close:hover{background:var(--bg);}
+  .modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px;}
+
+  /* forms */
+  .form-group{margin-bottom:14px;}
+  .form-label{font-size:11px;font-weight:800;color:var(--text-mid);text-transform:uppercase;letter-spacing:.03em;margin-bottom:6px;display:block;}
+  .form-input, .form-select{
+    width:100%;border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-family:inherit;
+    font-size:12.5px;color:var(--text-dark);outline:none;background:#fff;
+  }
+  .form-input:focus, .form-select:focus{border-color:var(--blue-accent);}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .param-row{display:grid;grid-template-columns:1.6fr 1fr 1.2fr 0.8fr auto;gap:8px;margin-bottom:8px;align-items:center;}
+  .param-row input{border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;}
+  .param-row input:focus{border-color:var(--blue-accent);}
+  .param-remove{width:28px;height:28px;border-radius:8px;border:1px solid var(--border);background:#fff;color:var(--red);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+  .param-remove:hover{background:var(--red-bg);}
+  .add-param-btn{display:flex;align-items:center;gap:7px;font-size:11.5px;font-weight:700;color:var(--blue-accent);cursor:pointer;margin-top:4px;}
+  .add-param-btn:hover{text-decoration:underline;}
+
+  /* full report preview / print doc */
+  .lr-doc{border:1px solid var(--border);border-radius:12px;padding:20px;}
+  .lr-doc-head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid var(--navy);padding-bottom:14px;margin-bottom:14px;}
+  .lr-doc-clinic{font-size:15px;font-weight:800;color:var(--navy);}
+  .lr-doc-clinic-sub{font-size:10.5px;color:var(--text-light);font-weight:600;margin-top:2px;}
+  .lr-doc-no{text-align:right;font-size:11px;color:var(--text-mid);font-weight:700;}
+  .lr-doc-no b{color:var(--text-dark);font-size:13px;}
+  .lr-doc-meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+  .lr-doc-meta-item{font-size:11.5px;}
+  .lr-doc-meta-item span{display:block;font-size:9.5px;color:var(--text-light);text-transform:uppercase;font-weight:800;letter-spacing:.03em;margin-bottom:2px;}
+  .lr-doc-sign{margin-top:22px;display:flex;justify-content:space-between;align-items:flex-end;}
+  .lr-doc-sign-line{border-top:1px solid var(--text-light);padding-top:6px;font-size:11px;font-weight:700;color:var(--text-mid);min-width:180px;text-align:center;}
+
+  .toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;
+    padding:11px 20px;border-radius:10px;font-size:12.5px;font-weight:700;box-shadow:0 10px 30px rgba(10,15,40,0.3);
+    opacity:0;pointer-events:none;transition:.22s; z-index:300; display:flex; align-items:center; gap:9px;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .toast i{color:var(--green);}
+
+  /* print handling */
+  #printArea{display:none;}
+  body.print-mode > *:not(#printArea){display:none !important;}
+  body.print-mode{display:block;}
+  body.print-mode #printArea{display:block !important; padding:30px;}
+
+  @media (max-width:720px){
+    body{padding:14px;}
+    .lr-stats{flex-direction:column;}
+    .lr-item-meta{display:none;}
+    .form-row, .lr-doc-meta{grid-template-columns:1fr;}
+    .param-row{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <div class="back-btn" id="backBtn"><i class="fa-solid fa-arrow-left"></i> Back</div>
+
+  <div class="panel">
+
+    <div class="lr-head">
+      <div>
+        <div class="lr-title">Lab Results</div>
+        <div class="lr-sub" id="patientSub">Test orders and results for this patient</div>
+      </div>
+      <div class="btn-primary" id="orderTestBtn"><i class="fa-solid fa-flask"></i> Order Test</div>
+    </div>
+
+    <!-- stat chips -->
+    <div class="lr-stats" id="statsRow"></div>
+
+    <!-- filters -->
+    <div class="lr-filters">
+      <div class="lr-search"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="searchInput" placeholder="Search test name or lab no…"></div>
+      <select class="lr-select" id="categoryFilter">
+        <option value="all">All Categories</option>
+        <option value="Hematology">Hematology</option>
+        <option value="Chemistry">Chemistry</option>
+        <option value="Microbiology">Microbiology</option>
+        <option value="Serology">Serology</option>
+      </select>
+      <select class="lr-select" id="statusFilter">
+        <option value="all">All Statuses</option>
+        <option value="normal">Normal</option>
+        <option value="review">Needs Review</option>
+        <option value="pending">Pending</option>
+      </select>
+    </div>
+
+    <!-- expandable results list -->
+    <div id="lrList"></div>
+
+    <div class="empty-state" id="emptyState" style="display:none;">
+      <i class="fa-solid fa-prescription-bottle"></i>
+      <div>No tests match your filters</div>
+    </div>
+
+    <!-- pagination -->
+    <div class="lr-pagination" id="paginationBar">
+      <div class="lr-page-info" id="pageInfo"></div>
+      <div class="lr-page-controls" id="pageControls"></div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- order test modal -->
+<div class="modal-overlay" id="orderTestModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title">Order a lab test</div>
+      <div class="modal-close" id="orderTestClose"><i class="fa-solid fa-xmark"></i></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Test name</label>
+      <input class="form-input" id="fTestName" placeholder="e.g. Liver Function Test">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <select class="form-select" id="fCategory">
+          <option>Hematology</option>
+          <option>Chemistry</option>
+          <option>Microbiology</option>
+          <option>Serology</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Ordering doctor</label>
+        <select class="form-select" id="fDoctor">
+          <option>Dr. Samuel O.</option>
+          <option>Dr. Amaka N.</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <div class="btn-secondary" id="orderTestCancel">Cancel</div>
+      <div class="btn-primary" id="orderTestSubmit"><i class="fa-solid fa-check"></i> Order Test</div>
+    </div>
+  </div>
+</div>
+
+<!-- enter results modal -->
+<div class="modal-overlay" id="resultsModal">
+  <div class="modal-box wide">
+    <div class="modal-head">
+      <div class="modal-title" id="resultsModalTitle">Enter results</div>
+      <div class="modal-close" id="resultsModalClose"><i class="fa-solid fa-xmark"></i></div>
+    </div>
+
+    <label class="form-label">Parameters</label>
+    <div id="paramRowsHead" class="param-row" style="margin-bottom:4px;">
+      <span style="font-size:9.5px;color:var(--text-light);font-weight:800;text-transform:uppercase;">Parameter</span>
+      <span style="font-size:9.5px;color:var(--text-light);font-weight:800;text-transform:uppercase;">Result</span>
+      <span style="font-size:9.5px;color:var(--text-light);font-weight:800;text-transform:uppercase;">Reference Range</span>
+      <span style="font-size:9.5px;color:var(--text-light);font-weight:800;text-transform:uppercase;">Unit</span>
+      <span></span>
+    </div>
+    <div id="paramRows"></div>
+    <div class="add-param-btn" id="addParamBtn"><i class="fa-solid fa-plus"></i> Add another parameter</div>
+
+    <div class="form-row" style="margin-top:14px;">
+      <div class="form-group">
+        <label class="form-label">Overall status</label>
+        <select class="form-select" id="fOverallStatus">
+          <option value="normal">Normal</option>
+          <option value="review">Needs Review</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes (optional)</label>
+        <input class="form-input" id="fResultNotes" placeholder="Any observations for the doctor…">
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <div class="btn-secondary" id="resultsModalCancel">Cancel</div>
+      <div class="btn-primary" id="resultsModalSubmit"><i class="fa-solid fa-check"></i> Save Results</div>
+    </div>
+  </div>
+</div>
+
+<!-- full report view modal -->
+<div class="modal-overlay" id="viewReportModal">
+  <div class="modal-box wide">
+    <div class="modal-head">
+      <div class="modal-title">Full Lab Report</div>
+      <div class="modal-close" id="viewReportClose"><i class="fa-solid fa-xmark"></i></div>
+    </div>
+    <div class="lr-doc" id="lrDocPreview"></div>
+    <div class="modal-actions">
+      <div class="btn-secondary" id="viewReportPrint"><i class="fa-solid fa-print"></i> Print</div>
+    </div>
+  </div>
+</div>
+
+<!-- hidden printable area -->
+<div id="printArea"></div>
+
+<div class="toast" id="toast"><i class="fa-solid fa-circle-check"></i><span id="toastText">Saved</span></div>
+
+<script src="../services/api.js"></script>
+<script src="../services/lab-service.js"></script>
+<script src="../services/patient-service.js"></script>
+<script>
+(async function(){
+  const STATUS_META = {
+    normal: { label:'Normal', cls:'lr-flag-normal' },
+    review: { label:'Needs Review', cls:'lr-flag-review' },
+    pending: { label:'Pending', cls:'lr-flag-pending' }
+  };
+  const CATEGORY_MAP = {
+    'Full Blood Count': 'Hematology', 'Urinalysis': 'Chemistry', 'Lipid Profile': 'Chemistry',
+    'HbA1c': 'Chemistry', 'Blood Pressure Monitoring': 'Hematology', 'Blood Glucose': 'Chemistry',
+    'Dental X-Ray': 'Microbiology', 'Malaria Parasite': 'Microbiology'
+  };
+  const CATEGORY_ICON = { Hematology:'fa-droplet', Chemistry:'fa-vial', Microbiology:'fa-bacteria', Serology:'fa-vial-circle-check' };
+  const PARAM_DEFAULTS = {
+    'Full Blood Count': [
+      {name:'Hemoglobin', result:'13.5', range:'13.0 – 17.0', unit:'g/dL'},
+      {name:'White Blood Cells', result:'6.8', range:'4.0 – 11.0', unit:'×10⁹/L'},
+      {name:'Platelets', result:'245', range:'150 – 400', unit:'×10⁹/L'}
+    ],
+    'Urinalysis': [{name:'Specific Gravity', result:'1.015', range:'1.005 – 1.030', unit:''},{name:'pH', result:'6.0', range:'4.5 – 8.0', unit:''}],
+    'Lipid Profile': [{name:'Total Cholesterol', result:'240', range:'< 200', unit:'mg/dL'},{name:'LDL', result:'160', range:'< 100', unit:'mg/dL'},{name:'HDL', result:'45', range:'> 40', unit:'mg/dL'}],
+    'HbA1c': [{name:'HbA1c', result:'8.2', range:'< 5.7', unit:'%'}],
+    'Blood Pressure Monitoring': [{name:'Systolic', result:'140', range:'< 120', unit:'mmHg'},{name:'Diastolic', result:'90', range:'< 80', unit:'mmHg'}],
+    'Blood Glucose': [{name:'Glucose (Fasting)', result:'89', range:'70 – 100', unit:'mg/dL'}],
+    'Dental X-Ray': [{name:'Finding', result:'No caries detected', range:'—', unit:'—'}],
+    'Malaria Parasite': [{name:'Plasmodium Species', result:'Not Detected', range:'Not Detected', unit:'—'}]
+  };
+  const PAGE_SIZE = 10;
+  const el = id => document.getElementById(id);
+
+  let tests = [];
+  let patientName = '';
+  let state = { search:'', category:'all', status:'all', page:1 };
+  let paramRowCount = 0;
+  let resultsTargetId = null;
+
+  async function loadData(){
+    try { await LabService.init(); } catch (e) { window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error'); }
+    try { await PatientService.init(); } catch (e) { window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error'); }
+    let labTests = [];
+    try { labTests = LabService.getAll(); } catch (e) { window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error'); labTests = []; }
+    const params = new URLSearchParams(window.location.search);
+    const orderId = params.get('order');
+    if(!orderId){ tests = []; return; }
+    const order = labTests.find(t => t.id === orderId);
+    if(!order){
+      window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error');
+      tests = []; return;
+    }
+    patientName = order.patientName;
+    el('patientSub').textContent = 'Lab results for ' + patientName;
+    const patientId = order.patientId;
+    let allForPatient = [];
+    try {
+      allForPatient = await PatientService.getPatientLabTests(patientId);
+      if(!allForPatient.length) allForPatient = labTests.filter(t => t.patientId === patientId);
+    } catch (e) { window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error'); allForPatient = labTests.filter(t => t.patientId === patientId); }
+    tests = allForPatient.map((t, i) => ({
+      id: i + 1,
+      labNo: t.id,
+      name: t.test,
+      category: CATEGORY_MAP[t.test] || 'Chemistry',
+      doctor: t.orderedBy,
+      date: t.date,
+      status: t.status === 'Completed' ? (t.result && t.result !== 'Normal' && !t.result.includes('Normal') ? 'review' : 'normal') : 'pending',
+      open: t.id === orderId,
+      params: (PARAM_DEFAULTS[t.test] || []).map(p => ({...p, flagged: t.result && t.result !== 'Normal' && !t.result.includes('Normal')})),
+      result: t.result || '',
+      notes: ''
+    }));
+  }
+
+  function showToast(msg){
+    el('toastText').textContent = msg;
+    const t = el('toast');
+    t.classList.add('show');
+    clearTimeout(showToast._tm);
+    showToast._tm = setTimeout(()=>t.classList.remove('show'), 1800);
+  }
+  function escapeHtml(s){
+    return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function getFiltered(){
+    const q = state.search.trim().toLowerCase();
+    return tests.filter(t=>{
+      if(state.category !== 'all' && t.category !== state.category) return false;
+      if(state.status !== 'all' && t.status !== state.status) return false;
+      if(q && !(t.name.toLowerCase().includes(q) || t.labNo.toLowerCase().includes(q))) return false;
+      return true;
+    }).sort((a,b)=> (b.date+b.id).localeCompare(a.date+a.id));
+  }
+
+  function renderStats(){
+    const total = tests.length;
+    const normal = tests.filter(t=>t.status==='normal').length;
+    const review = tests.filter(t=>t.status==='review').length;
+    const pending = tests.filter(t=>t.status==='pending').length;
+    el('statsRow').innerHTML = `
+      <div class="lr-stat"><div class="lr-stat-ic" style="background:var(--blue-bg);color:var(--blue);"><i class="fa-solid fa-flask"></i></div><div><div class="lr-stat-label">Total Tests</div><div class="lr-stat-value">${total}</div></div></div>
+      <div class="lr-stat"><div class="lr-stat-ic" style="background:var(--green-bg);color:var(--green);"><i class="fa-solid fa-circle-check"></i></div><div><div class="lr-stat-label">Normal</div><div class="lr-stat-value">${normal}</div></div></div>
+      <div class="lr-stat"><div class="lr-stat-ic" style="background:var(--orange-bg);color:var(--orange);"><i class="fa-solid fa-triangle-exclamation"></i></div><div><div class="lr-stat-label">Needs Review</div><div class="lr-stat-value">${review}</div></div></div>
+      <div class="lr-stat"><div class="lr-stat-ic" style="background:var(--blue-bg);color:var(--blue);"><i class="fa-solid fa-hourglass-half"></i></div><div><div class="lr-stat-label">Pending</div><div class="lr-stat-value">${pending}</div></div></div>
+    `;
+  }
+
+  function renderItem(t){
+    const meta = STATUS_META[t.status];
+    const icon = CATEGORY_ICON[t.category] || 'fa-vial';
+    let body;
+    if(t.status === 'pending'){
+      body = `<div class="lr-pending-note"><i class="fa-solid fa-hourglass-half"></i> Sample collection pending — results have not been entered yet.</div>
+              <div class="lr-detail-actions">
+                <div class="lr-detail-btn action" data-action="enter-results" data-id="${t.id}"><i class="fa-solid fa-pen"></i> Enter Results</div>
+              </div>`;
+    } else {
+      const rows = t.params.map(p=>`
+        <tr><td>${escapeHtml(p.name)}</td><td class="${p.flagged?'lr-value-flagged':'lr-value-normal'}">${escapeHtml(p.result)}${p.flagged?' ↓':''}</td><td class="lr-range">${escapeHtml(p.range)}</td><td>${escapeHtml(p.unit)}</td></tr>
+      `).join('');
+      let actions = `<div class="lr-detail-btn" data-action="view" data-id="${t.id}"><i class="fa-regular fa-file-pdf"></i> View Full Report</div>
+                      <div class="lr-detail-btn" data-action="print" data-id="${t.id}"><i class="fa-solid fa-print"></i> Print</div>`;
+      if(t.status === 'review'){
+        actions = `<div class="lr-detail-btn action" data-action="mark-reviewed" data-id="${t.id}"><i class="fa-solid fa-check-double"></i> Mark as Reviewed</div>` + actions;
+      }
+      body = `<table class="lr-table">
+                <thead><tr><th>Parameter</th><th>Result</th><th>Reference Range</th><th>Unit</th></tr></thead>
+                <tbody>${rows}</tbody>
+              </table>
+              ${t.notes ? `<div class="lr-notes"><b>Notes:</b> ${escapeHtml(t.notes)}</div>` : ''}
+              <div class="lr-detail-actions">${actions}</div>`;
+    }
+    return `
+      <div class="lr-item ${t.open?'open':''}" data-id="${t.id}">
+        <div class="lr-item-head" data-toggle="${t.id}">
+          <div class="lr-item-ic"><i class="fa-solid ${icon}"></i></div>
+          <div class="lr-item-body">
+            <div class="lr-item-name">${escapeHtml(t.name)}</div>
+            <div class="lr-item-meta">${t.labNo} · Ordered by ${escapeHtml(t.doctor)} · ${t.date}</div>
+          </div>
+          <div class="lr-item-right">
+            <span class="lr-flag ${meta.cls}">${meta.label}</span>
+            <i class="fa-solid fa-chevron-down lr-chevron"></i>
+          </div>
+        </div>
+        <div class="lr-item-detail">${body}</div>
+      </div>`;
+  }
+
+  function render(){
+    renderStats();
+    const all = getFiltered();
+    const totalPages = Math.max(1, Math.ceil(all.length / PAGE_SIZE));
+    if(state.page > totalPages) state.page = totalPages;
+    if(state.page < 1) state.page = 1;
+    const start = (state.page-1)*PAGE_SIZE;
+    const pageItems = all.slice(start, start+PAGE_SIZE);
+    el('lrList').innerHTML = pageItems.map(renderItem).join('');
+    el('emptyState').style.display = all.length ? 'none' : 'block';
+    if(all.length === 0){
+      el('paginationBar').style.display = 'none';
+    } else {
+      el('paginationBar').style.display = 'flex';
+      const from = start+1, to = Math.min(start+PAGE_SIZE, all.length);
+      el('pageInfo').textContent = `Showing ${from}–${to} of ${all.length} test${all.length===1?'':'s'}`;
+      let btns = `<div class="lr-page-btn" id="prevPage" ${state.page===1?'disabled':''}><i class="fa-solid fa-chevron-left"></i></div>`;
+      for(let p=1;p<=totalPages;p++) btns += `<div class="lr-page-btn ${p===state.page?'active':''}" data-page="${p}">${p}</div>`;
+      btns += `<div class="lr-page-btn" id="nextPage" ${state.page===totalPages?'disabled':''}><i class="fa-solid fa-chevron-right"></i></div>`;
+      el('pageControls').innerHTML = btns;
+    }
+    attachListeners();
+  }
+
+  function attachListeners(){
+    document.querySelectorAll('[data-toggle]').forEach(head=>{
+      head.addEventListener('click', ()=>{
+        const id = Number(head.dataset.toggle);
+        const t = tests.find(x=>x.id===id);
+        t.open = !t.open;
+        render();
+      });
+    });
+    document.querySelectorAll('[data-action="view"]').forEach(b=>{
+      b.addEventListener('click', e=>{ e.stopPropagation(); openViewReportModal(Number(b.dataset.id)); });
+    });
+    document.querySelectorAll('[data-action="print"]').forEach(b=>{
+      b.addEventListener('click', e=>{ e.stopPropagation(); printReport(Number(b.dataset.id)); });
+    });
+    document.querySelectorAll('[data-action="enter-results"]').forEach(b=>{
+      b.addEventListener('click', e=>{ e.stopPropagation(); openResultsModal(Number(b.dataset.id)); });
+    });
+    document.querySelectorAll('[data-action="mark-reviewed"]').forEach(b=>{
+      b.addEventListener('click', e=>{
+        e.stopPropagation();
+        const t = tests.find(x=>x.id===Number(b.dataset.id));
+        t.status = 'normal';
+        showToast(`${t.labNo} marked as reviewed`);
+        render();
+      });
+    });
+    document.querySelectorAll('#pageControls [data-page]').forEach(b=>{
+      b.addEventListener('click', ()=>{ state.page = Number(b.dataset.page); render(); window.scrollTo({top:0, behavior:'smooth'}); });
+    });
+    const prev = el('prevPage'), next = el('nextPage');
+    if(prev) prev.addEventListener('click', ()=>{ if(state.page>1){ state.page--; render(); } });
+    if(next) next.addEventListener('click', ()=>{ state.page++; render(); });
+  }
+
+  el('searchInput').addEventListener('input', e=>{ state.search = e.target.value; state.page=1; render(); });
+  el('categoryFilter').addEventListener('change', e=>{ state.category = e.target.value; state.page=1; render(); });
+  el('statusFilter').addEventListener('change', e=>{ state.status = e.target.value; state.page=1; render(); });
+
+  function openOrderTestModal(){
+    el('fTestName').value = '';
+    el('fCategory').value = 'Hematology';
+    el('fDoctor').value = 'Dr. Samuel O.';
+    el('orderTestModal').classList.add('open');
+  }
+  function closeOrderTestModal(){ el('orderTestModal').classList.remove('open'); }
+  el('orderTestBtn').addEventListener('click', openOrderTestModal);
+  el('orderTestClose').addEventListener('click', closeOrderTestModal);
+  el('orderTestCancel').addEventListener('click', closeOrderTestModal);
+  el('orderTestModal').addEventListener('click', e=>{ if(e.target.id==='orderTestModal') closeOrderTestModal(); });
+
+  el('orderTestSubmit').addEventListener('click', ()=>{
+    const name = el('fTestName').value.trim();
+    if(!name){ showToast('Please enter a test name'); return; }
+    const now = new Date();
+    tests.unshift({
+      id: tests.length + 1,
+      labNo: 'LAB-' + String(100 + tests.length).padStart(6,'0'),
+      name,
+      category: el('fCategory').value,
+      doctor: el('fDoctor').value,
+      date: now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),
+      status: 'pending',
+      open: true,
+      params: [],
+      notes: ''
+    });
+    closeOrderTestModal();
+    state.page = 1;
+    showToast('Test ordered');
+    render();
+  });
+
+  function paramRowHtml(idx){
+    return `
+      <div class="param-row" data-param-row="${idx}">
+        <input type="text" placeholder="e.g. Hemoglobin" data-field="name">
+        <input type="text" placeholder="e.g. 10.2" data-field="result">
+        <input type="text" placeholder="e.g. 13.0 – 17.0" data-field="range">
+        <input type="text" placeholder="e.g. g/dL" data-field="unit">
+        <div class="param-remove" data-remove="${idx}"><i class="fa-solid fa-trash"></i></div>
+      </div>`;
+  }
+  function addParamRow(){
+    paramRowCount++;
+    el('paramRows').insertAdjacentHTML('beforeend', paramRowHtml(paramRowCount));
+    el('paramRows').querySelector(`[data-remove="${paramRowCount}"]`).addEventListener('click', ()=>{
+      const row = el('paramRows').querySelector(`[data-param-row="${paramRowCount}"]`);
+      if(el('paramRows').children.length > 1) row.remove();
+      else showToast('At least one parameter is required');
+    });
+  }
+  function openResultsModal(id){
+    const t = tests.find(x=>x.id===id);
+    if(!t) return;
+    resultsTargetId = id;
+    el('resultsModalTitle').textContent = 'Enter Results — ' + t.name;
+    el('paramRows').innerHTML = '';
+    paramRowCount = 0;
+    addParamRow();
+    el('fOverallStatus').value = 'normal';
+    el('fResultNotes').value = '';
+    el('resultsModal').classList.add('open');
+  }
+  function closeResultsModal(){ el('resultsModal').classList.remove('open'); resultsTargetId = null; }
+  el('resultsModalClose').addEventListener('click', closeResultsModal);
+  el('resultsModalCancel').addEventListener('click', closeResultsModal);
+  el('resultsModal').addEventListener('click', e=>{ if(e.target.id==='resultsModal') closeResultsModal(); });
+  el('addParamBtn').addEventListener('click', addParamRow);
+
+  el('resultsModalSubmit').addEventListener('click', ()=>{
+    const t = tests.find(x=>x.id===resultsTargetId);
+    if(!t) return;
+    const rows = [...el('paramRows').querySelectorAll('[data-param-row]')];
+    const overall = el('fOverallStatus').value;
+    const params = rows.map(r=>{
+      return {
+        name: r.querySelector('[data-field="name"]').value.trim(),
+        result: r.querySelector('[data-field="result"]').value.trim(),
+        range: r.querySelector('[data-field="range"]').value.trim(),
+        unit: r.querySelector('[data-field="unit"]').value.trim(),
+        flagged: overall === 'review'
+      };
+    }).filter(p=>p.name);
+    if(params.length === 0){ showToast('Add at least one parameter with a name'); return; }
+    t.params = params;
+    t.status = overall;
+    t.notes = el('fResultNotes').value.trim();
+    t.open = true;
+    closeResultsModal();
+    showToast('Results saved');
+    render();
+  });
+
+  function lrDocHtml(t){
+    const meta = STATUS_META[t.status];
+    const rows = t.params.map(p=>`
+      <tr><td>${escapeHtml(p.name)}</td><td class="${p.flagged?'lr-value-flagged':'lr-value-normal'}">${escapeHtml(p.result)}${p.flagged?' ↓':''}</td><td class="lr-range">${escapeHtml(p.range)}</td><td>${escapeHtml(p.unit)}</td></tr>
+    `).join('');
+    return `
+      <div class="lr-doc-head">
+        <div>
+          <div class="lr-doc-clinic">Shiloh Clinic &amp; Maternity</div>
+          <div class="lr-doc-clinic-sub">12 Aba Road, Port Harcourt, Rivers State · +234 800 000 0000</div>
+        </div>
+        <div class="lr-doc-no">Lab No.<br><b>${t.labNo}</b></div>
+      </div>
+      <div class="lr-doc-meta">
+        <div class="lr-doc-meta-item"><span>Patient</span>${escapeHtml(patientName)}</div>
+        <div class="lr-doc-meta-item"><span>Date issued</span>${t.date}</div>
+        <div class="lr-doc-meta-item"><span>Ordering doctor</span>${escapeHtml(t.doctor)}</div>
+        <div class="lr-doc-meta-item"><span>Status</span><span class="lr-flag ${meta.cls}">${meta.label}</span></div>
+      </div>
+      <table class="lr-table">
+        <thead><tr><th>Parameter</th><th>Result</th><th>Reference Range</th><th>Unit</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      ${t.notes ? `<div class="lr-notes"><b>Notes:</b> ${escapeHtml(t.notes)}</div>` : ''}
+      <div class="lr-doc-sign">
+        <div class="lr-doc-sign-line">${escapeHtml(t.doctor)}</div>
+        <div class="lr-doc-sign-line">Lab Scientist signature</div>
+      </div>`;
+  }
+
+  let currentViewId = null;
+  function openViewReportModal(id){
+    const t = tests.find(x=>x.id===id);
+    if(!t) return;
+    currentViewId = id;
+    el('lrDocPreview').innerHTML = lrDocHtml(t);
+    el('viewReportModal').classList.add('open');
+  }
+  function closeViewReportModal(){ el('viewReportModal').classList.remove('open'); }
+  el('viewReportClose').addEventListener('click', closeViewReportModal);
+  el('viewReportModal').addEventListener('click', e=>{ if(e.target.id==='viewReportModal') closeViewReportModal(); });
+  el('viewReportPrint').addEventListener('click', ()=> printReport(currentViewId));
+
+  function printReport(id){
+    const t = tests.find(x=>x.id===id);
+    if(!t) return;
+    el('printArea').innerHTML = `<div class="lr-doc" style="border:none;">${lrDocHtml(t)}</div>`;
+    document.body.classList.add('print-mode');
+    window.print();
+  }
+  window.addEventListener('afterprint', ()=>{
+    document.body.classList.remove('print-mode');
+    el('printArea').innerHTML = '';
+  });
+
+  el('backBtn').addEventListener('click', ()=> { if (window.history.length > 1) window.history.back(); else window.location.href = 'laboratory.html'; });
+
+  await loadData();
+  render();
+})();
+</script>
+</body>
+</html>

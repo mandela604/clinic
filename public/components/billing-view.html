@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shiloh Clinic &amp; Maternity — Billing</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root{
+    --navy:#0b1a4d; --blue-accent:#2f6fed; --bg:#f4f6fb; --card:#ffffff; --border:#eef0f6;
+    --text-dark:#1c2440; --text-mid:#6b7280; --text-light:#9aa1b3;
+    --green:#12b76a; --green-bg:#e9f9f0;
+    --blue:#2f6fed; --blue-bg:#eaf1ff;
+    --purple:#8b5cf6; --purple-bg:#f4efff;
+    --orange:#f79009; --orange-bg:#fff4e5;
+    --red:#f04438; --red-bg:#feecec;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif;
+    background:var(--bg); color:var(--text-dark); font-size:13px; padding:26px;
+    display:flex; justify-content:center;
+  }
+  .page-wrap{width:100%;max-width:1100px;}
+
+  .back-btn{
+    display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border);border-radius:10px;
+    padding:9px 14px;font-size:12.5px;font-weight:700;color:var(--text-dark);white-space:nowrap;cursor:pointer;
+    margin-bottom:16px;max-width:fit-content;
+  }
+  .back-btn:hover{background:var(--bg);}
+  .back-btn i{color:var(--text-mid);font-size:11px;}
+
+  .bl-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:18px;flex-wrap:wrap;}
+  .bl-title{font-size:18px;font-weight:800;color:var(--text-dark);}
+  .bl-sub{font-size:11.5px;color:var(--text-light);font-weight:600;margin-top:2px;}
+  .btn-primary{
+    display:flex;align-items:center;gap:8px;background:var(--blue-accent);border:1px solid var(--blue-accent);
+    border-radius:10px;padding:10px 16px;font-size:12.5px;font-weight:700;color:#fff;white-space:nowrap;cursor:pointer;
+    box-shadow:0 4px 10px rgba(47,111,237,0.28);
+  }
+  .btn-primary:hover{background:#2660d6;}
+  .btn-primary:disabled{opacity:.5;cursor:not-allowed;box-shadow:none;}
+  .btn-outline{
+    display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border);border-radius:10px;
+    padding:10px 16px;font-size:12.5px;font-weight:700;color:var(--text-dark);white-space:nowrap;cursor:pointer;
+  }
+  .btn-outline:hover{background:var(--bg);}
+  .btn-secondary{
+    display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border);
+    border-radius:10px;padding:10px 16px;font-size:12.5px;font-weight:700;color:var(--text-mid);white-space:nowrap;cursor:pointer;
+  }
+  .btn-secondary:hover{background:var(--bg);color:var(--text-dark);}
+
+  .bl-layout{display:grid;grid-template-columns:1fr 300px;gap:16px;align-items:start;}
+  .bl-left{display:flex;flex-direction:column;gap:16px;min-width:0;}
+  .bl-right{display:flex;flex-direction:column;gap:16px;}
+
+  .panel{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px;}
+  .panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:10px;}
+  .panel-title{font-size:14px;font-weight:800;color:var(--text-dark);}
+  .view-all-link{font-size:11.5px;font-weight:700;color:var(--blue);background:none;border:none;padding:0;cursor:pointer;}
+  .panel-icon-btn{width:26px;height:26px;border-radius:7px;border:1px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;color:var(--text-mid);font-size:11px;cursor:pointer;}
+  .panel-icon-btn:hover{color:var(--blue);border-color:var(--blue-bg);background:var(--blue-bg);}
+
+  /* balance summary cards */
+  .bl-summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
+  .bl-summary-card{border:1px solid var(--border);border-radius:12px;padding:14px 16px;}
+  .bl-summary-card.highlight{background:var(--red-bg);border-color:var(--red-bg);}
+  .bl-summary-label{font-size:10.5px;color:var(--text-mid);font-weight:700;margin-bottom:6px;}
+  .bl-summary-card.highlight .bl-summary-label{color:#c1362b;}
+  .bl-summary-value{font-size:20px;font-weight:800;color:var(--text-dark);}
+  .bl-summary-card.highlight .bl-summary-value{color:#c1362b;}
+
+  /* filters */
+  .bl-filters{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
+  .bl-search{display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:9px 12px;flex:1;min-width:180px;}
+  .bl-search i{color:var(--text-light);font-size:12px;}
+  .bl-search input{border:none;background:transparent;outline:none;font-size:12.5px;color:var(--text-dark);width:100%;font-family:inherit;}
+  .bl-search input::placeholder{color:var(--text-light);}
+  .bl-select{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:9px 12px;font-size:12.5px;font-weight:600;color:var(--text-dark);cursor:pointer;font-family:inherit;}
+
+  /* invoice table */
+  table{width:100%;border-collapse:collapse;}
+  thead th{text-align:left;font-size:10.5px;letter-spacing:.03em;color:var(--text-light);text-transform:uppercase;font-weight:700;padding:9px 6px;border-bottom:1px solid var(--border);white-space:nowrap;}
+  tbody td{padding:11px 6px;border-bottom:1px solid var(--border);font-size:12.5px;vertical-align:middle;color:var(--text-dark);font-weight:600;}
+  tbody tr:last-child td{border-bottom:none;}
+  .bl-inv-no{color:var(--blue);font-weight:800;cursor:pointer;}
+  .bl-inv-no:hover{text-decoration:underline;}
+  .bl-amount{font-weight:800;}
+
+  .bl-status{font-size:10.5px;font-weight:700;padding:4px 11px;border-radius:20px;white-space:nowrap;display:inline-block;}
+  .bl-status-paid{background:var(--green-bg);color:#0a8a52;}
+  .bl-status-partial{background:var(--orange-bg);color:#c56c05;}
+  .bl-status-unpaid{background:var(--red-bg);color:#c1362b;}
+
+  .bl-row-actions{display:flex;align-items:center;gap:6px;}
+  .bl-icon-btn{width:28px;height:28px;border-radius:8px;border:1px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;color:var(--text-mid);font-size:11px;cursor:pointer;}
+  .bl-icon-btn:hover{color:var(--blue);border-color:var(--blue-bg);background:var(--blue-bg);}
+
+  .empty-state{padding:36px 10px;text-align:center;color:var(--text-light);}
+  .empty-state i{font-size:24px;margin-bottom:8px;display:block;color:var(--text-light);}
+  .empty-state div{font-size:12.5px;font-weight:600;}
+
+  /* pagination */
+  .bl-pagination{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);flex-wrap:wrap;}
+  .bl-page-info{font-size:11.5px;color:var(--text-light);font-weight:600;}
+  .bl-page-controls{display:flex;align-items:center;gap:6px;}
+  .bl-page-btn{
+    width:28px;height:28px;border-radius:8px;border:1px solid var(--border);background:#fff;color:var(--text-mid);
+    font-size:11.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  }
+  .bl-page-btn:hover:not(:disabled){border-color:var(--blue-accent);color:var(--blue-accent);}
+  .bl-page-btn:disabled{opacity:.4;cursor:not-allowed;}
+  .bl-page-btn.active{background:var(--blue-accent);border-color:var(--blue-accent);color:#fff;}
+
+  /* right column */
+  .bl-insurance-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);gap:10px;}
+  .bl-insurance-row:last-child{border-bottom:none;}
+  .bl-insurance-label{font-size:11.5px;color:var(--text-mid);font-weight:600;}
+  .bl-insurance-value{font-size:12px;color:var(--text-dark);font-weight:700;text-align:right;}
+
+  .bl-payment-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);gap:10px;}
+  .bl-payment-row:last-child{border-bottom:none;padding-bottom:0;}
+  .bl-payment-method{font-size:12px;color:var(--text-dark);font-weight:700;}
+  .bl-payment-date{font-size:10.5px;color:var(--text-light);font-weight:600;margin-top:1px;}
+  .bl-payment-amount{font-size:12.5px;color:var(--green);font-weight:800;}
+  .bl-payment-empty{font-size:12px;color:var(--text-light);font-weight:600;padding:6px 0;}
+
+  /* modal */
+  .modal-overlay{
+    position:fixed;inset:0;background:rgba(15,20,40,0.45);display:none;align-items:center;justify-content:center;
+    z-index:200;padding:20px;
+  }
+  .modal-overlay.open{display:flex;}
+  .modal-box{background:#fff;border-radius:16px;max-width:480px;width:100%;padding:22px;box-shadow:0 20px 60px rgba(10,15,40,0.25);max-height:90vh;overflow-y:auto;}
+  .modal-box.wide{max-width:600px;}
+  .modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+  .modal-title{font-size:15px;font-weight:800;color:var(--text-dark);}
+  .modal-close{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text-mid);cursor:pointer;font-size:13px;flex-shrink:0;}
+  .modal-close:hover{background:var(--bg);}
+  .modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px;}
+
+  .form-group{margin-bottom:14px;}
+  .form-label{font-size:11px;font-weight:800;color:var(--text-mid);text-transform:uppercase;letter-spacing:.03em;margin-bottom:6px;display:block;}
+  .form-input, .form-select{
+    width:100%;border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-family:inherit;
+    font-size:12.5px;color:var(--text-dark);outline:none;background:#fff;
+  }
+  .form-input:focus, .form-select:focus{border-color:var(--blue-accent);}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .form-err{font-size:10.5px;color:var(--red);font-weight:700;margin-top:4px;display:none;}
+  .form-group.invalid .form-input,.form-group.invalid .form-select{border-color:var(--red);}
+  .form-group.invalid .form-err{display:block;}
+  .form-hint{font-size:10.5px;color:var(--text-light);font-weight:600;margin-top:4px;}
+
+  /* printable invoice doc */
+  .bl-doc{border:1px solid var(--border);border-radius:12px;padding:20px;}
+  .bl-doc-head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid var(--navy);padding-bottom:14px;margin-bottom:14px;}
+  .bl-doc-clinic{font-size:15px;font-weight:800;color:var(--navy);}
+  .bl-doc-clinic-sub{font-size:10.5px;color:var(--text-light);font-weight:600;margin-top:2px;}
+  .bl-doc-no{text-align:right;font-size:11px;color:var(--text-mid);font-weight:700;}
+  .bl-doc-no b{color:var(--text-dark);font-size:13px;}
+  .bl-doc-meta{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+  .bl-doc-meta-item{font-size:11.5px;}
+  .bl-doc-meta-item span{display:block;font-size:9.5px;color:var(--text-light);text-transform:uppercase;font-weight:800;letter-spacing:.03em;margin-bottom:2px;}
+  .bl-doc-totals{margin-top:14px;border-top:1px solid var(--border);padding-top:12px;}
+  .bl-doc-total-row{display:flex;justify-content:space-between;font-size:12.5px;font-weight:700;color:var(--text-mid);padding:4px 0;}
+  .bl-doc-total-row.grand{font-size:14px;color:var(--text-dark);font-weight:800;border-top:1px solid var(--border);margin-top:6px;padding-top:10px;}
+  .bl-doc-history{margin-top:14px;}
+  .bl-doc-history-title{font-size:10.5px;text-transform:uppercase;letter-spacing:.03em;color:var(--text-light);font-weight:800;margin-bottom:8px;}
+
+  #printArea{display:none;}
+  body.print-mode > *:not(#printArea){display:none !important;}
+  body.print-mode{display:block;}
+  body.print-mode #printArea{display:block !important; padding:30px;}
+
+  .toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;
+    padding:11px 20px;border-radius:10px;font-size:12.5px;font-weight:700;box-shadow:0 10px 30px rgba(10,15,40,0.3);
+    opacity:0;pointer-events:none;transition:.22s; z-index:300; display:flex; align-items:center; gap:9px;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .toast i{color:var(--green);}
+
+  @media (max-width:1000px){
+    .bl-layout{grid-template-columns:1fr;}
+    .bl-summary-grid{grid-template-columns:1fr;}
+  }
+  @media (max-width:720px){
+    body{padding:14px;}
+    .form-row,.bl-doc-meta{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <div class="back-btn" id="backBtn"><i class="fa-solid fa-arrow-left"></i> Back to Profile</div>
+
+  <div class="bl-head">
+    <div>
+      <div class="bl-title">Billing</div>
+      <div class="bl-sub">Invoices, payments &amp; insurance for this patient</div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <div class="btn-outline" id="newInvoiceBtn"><i class="fa-solid fa-file-invoice"></i> New Invoice</div>
+      <div class="btn-primary" id="recordPaymentBtn"><i class="fa-solid fa-money-bill-wave"></i> Record Payment</div>
+    </div>
+  </div>
+
+  <!-- balance summary -->
+  <div class="bl-summary-grid" id="summaryGrid"></div>
+
+  <div class="bl-layout">
+
+    <div class="bl-left">
+
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Invoices</div>
+          <button class="view-all-link" id="viewAllBtn">View All</button>
+        </div>
+
+        <div class="bl-filters">
+          <div class="bl-search"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="searchInput" placeholder="Search invoice no. or description…"></div>
+          <select class="bl-select" id="statusFilter">
+            <option value="all">All Statuses</option>
+            <option value="paid">Paid</option>
+            <option value="partial">Partial</option>
+            <option value="unpaid">Unpaid</option>
+          </select>
+        </div>
+
+        <div style="overflow-x:auto;">
+          <table>
+            <thead><tr><th>Invoice No.</th><th>Date</th><th>Description</th><th>Amount</th><th>Status</th><th></th></tr></thead>
+            <tbody id="invoiceRows"></tbody>
+          </table>
+        </div>
+
+        <div class="empty-state" id="emptyState" style="display:none;">
+          <i class="fa-regular fa-file-invoice"></i>
+          <div>No invoices match your filters</div>
+        </div>
+
+        <div class="bl-pagination" id="paginationBar">
+          <div class="bl-page-info" id="pageInfo"></div>
+          <div class="bl-page-controls" id="pageControls"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="bl-right">
+
+      <!-- insurance info -->
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Insurance / HMO</div>
+          <div class="panel-icon-btn" id="editInsuranceBtn" title="Edit"><i class="fa-solid fa-pen"></i></div>
+        </div>
+        <div id="insuranceRows"></div>
+      </div>
+
+      <!-- recent payments -->
+      <div class="panel">
+        <div class="panel-head"><div class="panel-title">Recent Payments</div></div>
+        <div id="paymentRows"></div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- new invoice modal -->
+<div class="modal-overlay" id="invoiceModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title">Create a new invoice</div>
+      <div class="modal-close" data-close="invoiceModal"><i class="fa-solid fa-xmark"></i></div>
+    </div>
+    <div class="form-group" id="fDescGroup">
+      <label class="form-label">Description</label>
+      <input class="form-input" id="fDesc" placeholder="e.g. Consultation + Lab Tests">
+      <div class="form-err">Please enter a description</div>
+    </div>
+    <div class="form-row">
+      <div class="form-group" id="fAmountGroup">
+        <label class="form-label">Amount (₦)</label>
+        <input type="number" min="0" step="1" class="form-input" id="fAmount" placeholder="0">
+        <div class="form-err">Enter a valid amount</div>
+      </div>
+      <div class="form-group" id="fDateGroup">
+        <label class="form-label">Invoice date</label>
+        <input type="date" class="form-input" id="fDate">
+        <div class="form-err">Please choose a date</div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <div class="btn-secondary" data-close="invoiceModal">Cancel</div>
+      <div class="btn-primary" id="invoiceSubmit"><i class="fa-solid fa-check"></i> Create Invoice</div>
+    </div>
+  </div>
+</div>
+
+<!-- record payment modal -->
+<div class="modal-overlay" id="paymentModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title">Record a payment</div>
+      <div class="modal-close" data-close="paymentModal"><i class="fa-solid fa-xmark"></i></div>
+    </div>
+    <div class="form-group" id="pInvoiceGroup">
+      <label class="form-label">Invoice</label>
+      <select class="form-select" id="pInvoice"></select>
+      <div class="form-hint" id="pInvoiceHint"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group" id="pAmountGroup">
+        <label class="form-label">Amount (₦)</label>
+        <input type="number" min="0" step="1" class="form-input" id="pAmount" placeholder="0">
+        <div class="form-err">Enter a valid amount</div>
+      </div>
+      <div class="form-group" id="pDateGroup">
+        <label class="form-label">Payment date</label>
+        <input type="date" class="form-input" id="pDate">
+        <div class="form-err">Please choose a date</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Payment method</label>
+      <select class="form-select" id="pMethod">
+        <option>Card Payment</option>
+        <option>Cash</option>
+        <option>Bank Transfer</option>
+        <option>HMO / Insurance</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <div class="btn-secondary" data-close="paymentModal">Cancel</div>
+      <div class="btn-primary" id="paymentSubmit"><i class="fa-solid fa-check"></i> Record Payment</div>
+    </div>
+  </div>
+</div>
+
+<!-- edit insurance modal -->
+<div class="modal-overlay" id="insuranceModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title">Edit insurance / HMO</div>
+      <div class="modal-close" data-close="insuranceModal"><i class="fa-solid fa-xmark"></i></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Provider</label>
+      <input class="form-input" id="iProvider">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Plan</label>
+        <input class="form-input" id="iPlan">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Policy no.</label>
+        <input class="form-input" id="iPolicy">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Coverage</label>
+        <input class="form-input" id="iCoverage" placeholder="e.g. 80% Outpatient">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Expiry date</label>
+        <input type="date" class="form-input" id="iExpiry">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <div class="btn-secondary" data-close="insuranceModal">Cancel</div>
+      <div class="btn-primary" id="insuranceSubmit"><i class="fa-solid fa-check"></i> Save Changes</div>
+    </div>
+  </div>
+</div>
+
+<!-- invoice view / print modal -->
+<div class="modal-overlay" id="viewInvoiceModal">
+  <div class="modal-box wide">
+    <div class="modal-head">
+      <div class="modal-title">Invoice</div>
+      <div class="modal-close" data-close="viewInvoiceModal"><i class="fa-solid fa-xmark"></i></div>
+    </div>
+    <div class="bl-doc" id="blDocPreview"></div>
+    <div class="modal-actions">
+      <div class="btn-secondary" id="viewInvoicePrint"><i class="fa-solid fa-print"></i> Print</div>
+    </div>
+  </div>
+</div>
+
+<div id="printArea"></div>
+
+<div class="toast" id="toast"><i class="fa-solid fa-circle-check"></i><span id="toastText">Saved</span></div>
+
+<script>
+(function(){
+  const STATUS_META = {
+    paid:    { label:'Paid',    cls:'bl-status-paid' },
+    partial: { label:'Partial', cls:'bl-status-partial' },
+    unpaid:  { label:'Unpaid',  cls:'bl-status-unpaid' }
+  };
+  const PAGE_SIZE = 4;
+  const el = id => document.getElementById(id);
+  const PATIENT_NAME = 'Emeka Johnson';
+
+  function naira(n){ return '₦' + Number(n).toLocaleString('en-NG', {maximumFractionDigits:0}); }
+  function fmtDate(iso){ return new Date(iso+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }
+  function todayISO(){ return new Date(2025,4,17).toISOString().slice(0,10); } // "today" in this demo = May 17, 2025
+  function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function statusFor(inv){
+    if(inv.paid <= 0) return 'unpaid';
+    if(inv.paid >= inv.amount) return 'paid';
+    return 'partial';
+  }
+
+  let invoices = [
+    { id:1, invNo:'INV-000112', date:'2025-05-16', description:'Consultation + Lab Tests', amount:12500, paid:12500 },
+    { id:2, invNo:'INV-000108', date:'2025-05-09',  description:'Consultation + Medication', amount:8200,  paid:8200 },
+    { id:3, invNo:'INV-000099', date:'2025-04-28', description:'Antenatal Package',          amount:18000, paid:12000 },
+    { id:4, invNo:'INV-000087', date:'2025-04-12', description:'Malaria Test + Medication',  amount:6500,  paid:0 }
+  ];
+  let nextInvId = 5;
+  let nextInvNum = 113;
+
+  let payments = [
+    { id:1, invNo:'INV-000112', method:'Card Payment', date:'2025-05-16', amount:12500 },
+    { id:2, invNo:'INV-000108', method:'Cash', date:'2025-05-09', amount:8200 },
+    { id:3, invNo:'INV-000099', method:'Bank Transfer', date:'2025-04-28', amount:12000 }
+  ];
+  let nextPayId = 4;
+
+  let insurance = {
+    provider:'Hygeia HMO', plan:'Family Silver', policy:'HYG-2291874',
+    coverage:'80% Outpatient', expiry:'2025-12-31'
+  };
+
+  let state = { search:'', status:'all', page:1 };
+
+  function showToast(msg){
+    el('toastText').textContent = msg;
+    const t = el('toast');
+    t.classList.add('show');
+    clearTimeout(showToast._tm);
+    showToast._tm = setTimeout(()=>t.classList.remove('show'), 1800);
+  }
+
+  /* ============ SUMMARY ============ */
+  function renderSummary(){
+    const totalBilled = invoices.reduce((s,i)=>s+i.amount,0);
+    const totalPaid = invoices.reduce((s,i)=>s+i.paid,0);
+    const outstanding = totalBilled - totalPaid;
+    el('summaryGrid').innerHTML = `
+      <div class="bl-summary-card">
+        <div class="bl-summary-label">Total Billed</div>
+        <div class="bl-summary-value">${naira(totalBilled)}</div>
+      </div>
+      <div class="bl-summary-card">
+        <div class="bl-summary-label">Total Paid</div>
+        <div class="bl-summary-value">${naira(totalPaid)}</div>
+      </div>
+      <div class="bl-summary-card ${outstanding>0?'highlight':''}">
+        <div class="bl-summary-label">Outstanding Balance</div>
+        <div class="bl-summary-value">${naira(outstanding)}</div>
+      </div>
+    `;
+  }
+
+  /* ============ INVOICES TABLE ============ */
+  function getFiltered(){
+    const q = state.search.trim().toLowerCase();
+    return invoices.filter(i=>{
+      const status = statusFor(i);
+      if(state.status !== 'all' && status !== state.status) return false;
+      if(q && !(i.invNo.toLowerCase().includes(q) || i.description.toLowerCase().includes(q))) return false;
+      return true;
+    }).sort((a,b)=> b.date.localeCompare(a.date) || b.id-a.id);
+  }
+
+  function renderInvoices(){
+    const filtered = getFiltered();
+    const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+    if(state.page > totalPages) state.page = totalPages;
+    if(state.page < 1) state.page = 1;
+    const start = (state.page-1)*PAGE_SIZE;
+    const pageItems = filtered.slice(start, start+PAGE_SIZE);
+
+    el('invoiceRows').innerHTML = pageItems.map(inv=>{
+      const status = statusFor(inv);
+      const meta = STATUS_META[status];
+      return `
+        <tr>
+          <td class="bl-inv-no" data-action="view" data-id="${inv.id}">${inv.invNo}</td>
+          <td>${fmtDate(inv.date)}</td>
+          <td>${escapeHtml(inv.description)}</td>
+          <td class="bl-amount">${naira(inv.amount)}</td>
+          <td><span class="bl-status ${meta.cls}">${meta.label}</span></td>
+          <td>
+            <div class="bl-row-actions">
+              <div class="bl-icon-btn" data-action="view" data-id="${inv.id}" title="View"><i class="fa-regular fa-eye"></i></div>
+              <div class="bl-icon-btn" data-action="print" data-id="${inv.id}" title="Print"><i class="fa-solid fa-print"></i></div>
+            </div>
+          </td>
+        </tr>`;
+    }).join('');
+
+    el('emptyState').style.display = filtered.length ? 'none' : 'block';
+
+    if(filtered.length === 0){
+      el('paginationBar').style.display = 'none';
+    } else {
+      el('paginationBar').style.display = 'flex';
+      const from = start+1, to = Math.min(start+PAGE_SIZE, filtered.length);
+      el('pageInfo').textContent = `Showing ${from}–${to} of ${filtered.length} invoice${filtered.length===1?'':'s'}`;
+      let btns = `<div class="bl-page-btn" id="prevPage" ${state.page===1?'disabled':''}><i class="fa-solid fa-chevron-left"></i></div>`;
+      for(let p=1;p<=totalPages;p++) btns += `<div class="bl-page-btn ${p===state.page?'active':''}" data-page="${p}">${p}</div>`;
+      btns += `<div class="bl-page-btn" id="nextPage" ${state.page===totalPages?'disabled':''}><i class="fa-solid fa-chevron-right"></i></div>`;
+      el('pageControls').innerHTML = btns;
+    }
+
+    document.querySelectorAll('[data-action="view"]').forEach(b=>{
+      b.addEventListener('click', ()=>openViewInvoice(Number(b.dataset.id)));
+    });
+    document.querySelectorAll('[data-action="print"]').forEach(b=>{
+      b.addEventListener('click', ()=>printInvoice(Number(b.dataset.id)));
+    });
+    document.querySelectorAll('#pageControls [data-page]').forEach(b=>{
+      b.addEventListener('click', ()=>{ state.page = Number(b.dataset.page); renderInvoices(); });
+    });
+    const prev = el('prevPage'), next = el('nextPage');
+    if(prev) prev.addEventListener('click', ()=>{ if(state.page>1){ state.page--; renderInvoices(); } });
+    if(next) next.addEventListener('click', ()=>{ state.page++; renderInvoices(); });
+  }
+
+  el('searchInput').addEventListener('input', e=>{ state.search = e.target.value; state.page=1; renderInvoices(); });
+  el('statusFilter').addEventListener('change', e=>{ state.status = e.target.value; state.page=1; renderInvoices(); });
+  el('viewAllBtn').addEventListener('click', ()=>{
+    state.search=''; state.status='all'; state.page=1;
+    el('searchInput').value=''; el('statusFilter').value='all';
+    renderInvoices();
+    showToast('Showing all invoices');
+  });
+
+  /* ============ INSURANCE PANEL ============ */
+  function renderInsurance(){
+    el('insuranceRows').innerHTML = `
+      <div class="bl-insurance-row"><span class="bl-insurance-label">Provider</span><span class="bl-insurance-value">${escapeHtml(insurance.provider)}</span></div>
+      <div class="bl-insurance-row"><span class="bl-insurance-label">Plan</span><span class="bl-insurance-value">${escapeHtml(insurance.plan)}</span></div>
+      <div class="bl-insurance-row"><span class="bl-insurance-label">Policy No.</span><span class="bl-insurance-value">${escapeHtml(insurance.policy)}</span></div>
+      <div class="bl-insurance-row"><span class="bl-insurance-label">Coverage</span><span class="bl-insurance-value">${escapeHtml(insurance.coverage)}</span></div>
+      <div class="bl-insurance-row"><span class="bl-insurance-label">Expiry</span><span class="bl-insurance-value">${fmtDate(insurance.expiry)}</span></div>
+    `;
+  }
+
+  /* ============ PAYMENTS PANEL ============ */
+  function renderPayments(){
+    const sorted = payments.slice().sort((a,b)=> b.date.localeCompare(a.date) || b.id-a.id).slice(0,6);
+    if(sorted.length === 0){
+      el('paymentRows').innerHTML = `<div class="bl-payment-empty">No payments recorded yet.</div>`;
+      return;
+    }
+    el('paymentRows').innerHTML = sorted.map(p=>`
+      <div class="bl-payment-row">
+        <div><div class="bl-payment-method">${escapeHtml(p.method)}${p.invNo?' · '+p.invNo:''}</div><div class="bl-payment-date">${fmtDate(p.date)}</div></div>
+        <div class="bl-payment-amount">+ ${naira(p.amount)}</div>
+      </div>
+    `).join('');
+  }
+
+  function renderAll(){
+    renderSummary();
+    renderInvoices();
+    renderInsurance();
+    renderPayments();
+  }
+
+  /* ============ MODAL PLUMBING ============ */
+  function openOverlay(id){ el(id).classList.add('open'); }
+  function closeOverlay(id){ el(id).classList.remove('open'); }
+  document.querySelectorAll('[data-close]').forEach(b=>{
+    b.addEventListener('click', ()=>closeOverlay(b.dataset.close));
+  });
+  document.querySelectorAll('.modal-overlay').forEach(ov=>{
+    ov.addEventListener('click', e=>{ if(e.target===ov) closeOverlay(ov.id); });
+  });
+  document.addEventListener('keydown', e=>{
+    if(e.key==='Escape') document.querySelectorAll('.modal-overlay.open').forEach(ov=>closeOverlay(ov.id));
+  });
+
+  /* ============ NEW INVOICE ============ */
+  function clearInvoiceErrors(){
+    ['fDescGroup','fAmountGroup','fDateGroup'].forEach(id=>el(id).classList.remove('invalid'));
+  }
+  el('newInvoiceBtn').addEventListener('click', ()=>{
+    el('fDesc').value=''; el('fAmount').value=''; el('fDate').value=todayISO();
+    clearInvoiceErrors();
+    openOverlay('invoiceModal');
+  });
+  el('invoiceSubmit').addEventListener('click', ()=>{
+    clearInvoiceErrors();
+    let ok = true;
+    if(!el('fDesc').value.trim()){ el('fDescGroup').classList.add('invalid'); ok=false; }
+    if(!el('fAmount').value || Number(el('fAmount').value) <= 0){ el('fAmountGroup').classList.add('invalid'); ok=false; }
+    if(!el('fDate').value){ el('fDateGroup').classList.add('invalid'); ok=false; }
+    if(!ok){ showToast('Please fix the highlighted fields'); return; }
+
+    nextInvNum++;
+    invoices.unshift({
+      id: nextInvId++,
+      invNo: 'INV-' + String(nextInvNum).padStart(6,'0'),
+      date: el('fDate').value,
+      description: el('fDesc').value.trim(),
+      amount: Number(el('fAmount').value),
+      paid: 0
+    });
+    closeOverlay('invoiceModal');
+    state.page = 1;
+    renderAll();
+    showToast('Invoice created');
+  });
+
+  /* ============ RECORD PAYMENT ============ */
+  function populatePaymentInvoiceSelect(){
+    const sel = el('pInvoice');
+    const openInvoices = invoices.filter(i=>statusFor(i)!=='paid');
+    sel.innerHTML = '<option value="">General payment (not tied to an invoice)</option>' +
+      openInvoices.map(i=>`<option value="${i.id}">${i.invNo} — ${escapeHtml(i.description)} (due ${naira(i.amount-i.paid)})</option>`).join('');
+  }
+  function updatePaymentHint(){
+    const id = Number(el('pInvoice').value);
+    const hint = el('pInvoiceHint');
+    if(!id){ hint.textContent = 'This payment will be added to Recent Payments without affecting an invoice balance.'; return; }
+    const inv = invoices.find(i=>i.id===id);
+    if(inv){
+      hint.textContent = `Balance due: ${naira(inv.amount - inv.paid)} of ${naira(inv.amount)}`;
+      el('pAmount').value = inv.amount - inv.paid;
+    }
+  }
+  el('recordPaymentBtn').addEventListener('click', ()=>{
+    populatePaymentInvoiceSelect();
+    el('pAmount').value=''; el('pDate').value=todayISO(); el('pMethod').value='Card Payment';
+    ['pInvoiceGroup','pAmountGroup','pDateGroup'].forEach(id=>el(id).classList.remove('invalid'));
+    updatePaymentHint();
+    openOverlay('paymentModal');
+  });
+  el('pInvoice').addEventListener('change', updatePaymentHint);
+
+  el('paymentSubmit').addEventListener('click', ()=>{
+    ['pAmountGroup','pDateGroup'].forEach(id=>el(id).classList.remove('invalid'));
+    let ok = true;
+    const amt = Number(el('pAmount').value);
+    if(!amt || amt <= 0){ el('pAmountGroup').classList.add('invalid'); ok=false; }
+    if(!el('pDate').value){ el('pDateGroup').classList.add('invalid'); ok=false; }
+    if(!ok){ showToast('Please fix the highlighted fields'); return; }
+
+    const invId = Number(el('pInvoice').value) || null;
+    let invNo = null;
+    if(invId){
+      const inv = invoices.find(i=>i.id===invId);
+      if(inv){
+        inv.paid = Math.min(inv.amount, inv.paid + amt);
+        invNo = inv.invNo;
+      }
+    }
+    payments.unshift({
+      id: nextPayId++,
+      invNo,
+      method: el('pMethod').value,
+      date: el('pDate').value,
+      amount: amt
+    });
+    closeOverlay('paymentModal');
+    renderAll();
+    showToast('Payment recorded');
+  });
+
+  /* ============ EDIT INSURANCE ============ */
+  el('editInsuranceBtn').addEventListener('click', ()=>{
+    el('iProvider').value = insurance.provider;
+    el('iPlan').value = insurance.plan;
+    el('iPolicy').value = insurance.policy;
+    el('iCoverage').value = insurance.coverage;
+    el('iExpiry').value = insurance.expiry;
+    openOverlay('insuranceModal');
+  });
+  el('insuranceSubmit').addEventListener('click', ()=>{
+    insurance = {
+      provider: el('iProvider').value.trim() || insurance.provider,
+      plan: el('iPlan').value.trim() || insurance.plan,
+      policy: el('iPolicy').value.trim() || insurance.policy,
+      coverage: el('iCoverage').value.trim() || insurance.coverage,
+      expiry: el('iExpiry').value || insurance.expiry
+    };
+    closeOverlay('insuranceModal');
+    renderInsurance();
+    showToast('Insurance details updated');
+  });
+
+  /* ============ VIEW / PRINT INVOICE ============ */
+  function blDocHtml(inv){
+    const status = statusFor(inv);
+    const meta = STATUS_META[status];
+    const hist = payments.filter(p=>p.invNo===inv.invNo).sort((a,b)=>a.date.localeCompare(b.date));
+    const histRows = hist.length ? hist.map(p=>`
+      <div class="bl-doc-total-row"><span>${fmtDate(p.date)} — ${escapeHtml(p.method)}</span><span>${naira(p.amount)}</span></div>
+    `).join('') : `<div class="bl-doc-total-row"><span>No payments recorded</span><span>—</span></div>`;
+
+    return `
+      <div class="bl-doc-head">
+        <div>
+          <div class="bl-doc-clinic">Shiloh Clinic &amp; Maternity</div>
+          <div class="bl-doc-clinic-sub">12 Aba Road, Port Harcourt, Rivers State · +234 800 000 0000</div>
+        </div>
+        <div class="bl-doc-no">Invoice No.<br><b>${inv.invNo}</b></div>
+      </div>
+      <div class="bl-doc-meta">
+        <div class="bl-doc-meta-item"><span>Patient</span>${PATIENT_NAME}</div>
+        <div class="bl-doc-meta-item"><span>Status</span><span class="bl-status ${meta.cls}">${meta.label}</span></div>
+        <div class="bl-doc-meta-item"><span>Invoice date</span>${fmtDate(inv.date)}</div>
+        <div class="bl-doc-meta-item"><span>Description</span>${escapeHtml(inv.description)}</div>
+      </div>
+      <div class="bl-doc-totals">
+        <div class="bl-doc-total-row"><span>Amount billed</span><span>${naira(inv.amount)}</span></div>
+        <div class="bl-doc-total-row"><span>Amount paid</span><span>${naira(inv.paid)}</span></div>
+        <div class="bl-doc-total-row grand"><span>Balance due</span><span>${naira(inv.amount - inv.paid)}</span></div>
+      </div>
+      <div class="bl-doc-history">
+        <div class="bl-doc-history-title">Payment history</div>
+        ${histRows}
+      </div>
+    `;
+  }
+
+  let currentViewId = null;
+  function openViewInvoice(id){
+    const inv = invoices.find(i=>i.id===id);
+    if(!inv) return;
+    currentViewId = id;
+    el('blDocPreview').innerHTML = blDocHtml(inv);
+    openOverlay('viewInvoiceModal');
+  }
+  el('viewInvoicePrint').addEventListener('click', ()=> printInvoice(currentViewId));
+
+  function printInvoice(id){
+    const inv = invoices.find(i=>i.id===id);
+    if(!inv) return;
+    el('printArea').innerHTML = `<div class="bl-doc" style="border:none;">${blDocHtml(inv)}</div>`;
+    document.body.classList.add('print-mode');
+    window.print();
+  }
+  window.addEventListener('afterprint', ()=>{
+    document.body.classList.remove('print-mode');
+    el('printArea').innerHTML = '';
+  });
+
+  el('backBtn').addEventListener('click', ()=> showToast('Back to profile (demo)'));
+
+  renderAll();
+})();
+</script>
+</body>
+</html>

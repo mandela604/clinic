@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Shiloh Clinic &amp; Maternity — Users</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  :root{--navy:#0d1b4c;--blue:#2563eb;--blue-light:#eaf1ff;--bg:#f4f6fb;--card:#fff;--border:#eef0f6;--text-dark:#1e293b;--text-gray:#64748b;--text-light:#94a3b8;--green:#16a34a;--green-bg:#dcfce7;--orange:#f97316;--orange-bg:#fff1e6;--purple:#8b5cf6;--purple-bg:#f1eaff;--red:#ef4444;--red-bg:#fee2e2;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text-dark);display:flex;min-height:100vh;}
+  .main{flex:1;padding:22px 28px;overflow-x:auto;min-width:0;}
+  .topbar{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px;flex-wrap:wrap;gap:14px;}
+  .page-title{font-size:22px;font-weight:700;}
+  .breadcrumb{font-size:12.5px;color:var(--text-gray);margin-top:4px;}
+  .breadcrumb a{color:var(--blue);text-decoration:none;}
+  .topbar-actions{display:flex;gap:10px;flex-wrap:wrap;}
+  .btn{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:#fff;color:#334155;white-space:nowrap;}
+  .btn:hover{background:var(--bg);}
+  .btn-primary{background:var(--blue);color:#fff;border-color:var(--blue);}
+  .btn-primary:hover{background:#1d4ed8;}
+  .btn-danger{background:var(--red);color:#fff;border-color:var(--red);}
+
+  .stats-row{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-bottom:20px;}
+  .stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;}
+  .stat-top{display:flex;align-items:center;gap:10px;}
+  .stat-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .stat-icon svg{width:16px;height:16px;}
+  .stat-label{font-size:12px;color:var(--text-gray);font-weight:500;}
+  .stat-value{font-size:20px;font-weight:700;}
+  .stat-sub{font-size:10.5px;color:var(--text-light);margin-top:-4px;}
+  .ic-blue{background:var(--blue-light);color:var(--blue);}
+  .ic-green{background:var(--green-bg);color:var(--green);}
+  .ic-orange{background:var(--orange-bg);color:var(--orange);}
+  .ic-red{background:var(--red-bg);color:var(--red);}
+  .ic-purple{background:var(--purple-bg);color:var(--purple);}
+
+  .filter-bar{display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap;}
+  .search-box{flex:1;min-width:260px;position:relative;}
+  .search-box input{width:100%;padding:10px 14px 10px 36px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:#fff;outline:none;}
+  .search-box input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1);}
+  .search-box svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--text-light);}
+  .filter-group{display:flex;flex-direction:column;gap:3px;}
+  .filter-group label{font-size:11.5px;color:var(--text-gray);font-weight:500;}
+  .filter-select{padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:#fff;min-width:120px;color:#334155;}
+
+  .table-card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+  .table-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;flex-wrap:wrap;gap:10px;}
+  .table-title{font-size:15px;font-weight:700;}
+
+  .table-scroll{overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;}
+  thead tr{border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:#fafbfc;}
+  th{text-align:left;padding:11px 12px;font-size:11px;color:var(--text-light);font-weight:700;text-transform:uppercase;letter-spacing:.02em;white-space:nowrap;}
+  td{padding:11px 12px;font-size:13px;border-bottom:1px solid var(--border);white-space:nowrap;color:#334155;}
+  tbody tr{transition:background .1s;}
+  tbody tr:hover{background:#fafbfc;}
+
+  .user-cell{display:flex;align-items:center;gap:10px;}
+  .avatar{width:32px;height:32px;border-radius:50%;overflow:hidden;flex-shrink:0;}
+  .avatar img{width:100%;height:100%;object-fit:cover;}
+  .user-fullname{font-weight:700;cursor:pointer;}
+  .user-fullname:hover{color:var(--blue);}
+  .user-email{font-size:11px;color:var(--text-light);}
+  .user-id{font-weight:700;color:var(--blue);font-size:12px;}
+
+  .role-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:10.5px;font-weight:700;}
+  .role-admin{background:#dbeafe;color:#1e40af;}
+  .role-doctor{background:#f0fdf4;color:#166534;}
+  .role-nurse{background:#fef3c7;color:#92400e;}
+  .role-labtech{background:#ede9fe;color:#5b21b6;}
+  .role-pharmacist{background:#fce7f3;color:#9d174d;}
+  .role-receptionist{background:#e0f2fe;color:#0369a1;}
+  .role-cashier{background:#fff7ed;color:#9a3412;}
+
+  .badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:10.5px;font-weight:700;}
+  .badge .dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
+  .badge-active{background:var(--green-bg);color:#0a8a52;}
+  .badge-inactive{background:#f1f5f9;color:#64748b;}
+  .badge-suspended{background:var(--red-bg);color:#c1362b;}
+  .badge-invited{background:#fef3c7;color:#92400e;}
+
+  .last-login .login-time{font-weight:700;display:block;}
+  .last-login .login-date{font-size:11px;color:var(--text-light);}
+  .login-dash{color:var(--text-light);}
+
+  .toggle-switch{width:36px;height:20px;border-radius:10px;background:#d1d5db;cursor:pointer;position:relative;transition:.2s;}
+  .toggle-switch.on{background:var(--blue);}
+  .toggle-switch.locked{opacity:.5;cursor:not-allowed;}
+  .toggle-knob{position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,0.15);}
+  .toggle-switch.on .toggle-knob{left:18px;}
+
+  .row-actions{display:flex;gap:6px;align-items:center;}
+  .icon-btn{width:28px;height:28px;border-radius:8px;border:1px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;color:var(--text-gray);font-size:12px;cursor:pointer;}
+  .icon-btn:hover{color:var(--blue);border-color:var(--blue-light);background:var(--blue-light);}
+  .icon-btn.danger:hover{color:var(--red);border-color:var(--red-bg);background:var(--red-bg);}
+
+  .table-footer{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;flex-wrap:wrap;gap:10px;}
+  .footer-text{font-size:12.5px;color:var(--text-gray);}
+  .pagination{display:flex;gap:6px;align-items:center;}
+  .page-btn{min-width:32px;height:32px;padding:0 8px;border:1px solid var(--border);border-radius:7px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;color:#334155;cursor:pointer;}
+  .page-btn:hover{background:var(--bg);}
+  .page-btn.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+  .page-btn.disabled{opacity:.4;cursor:not-allowed;}
+  .per-page{padding:7px 10px;border:1px solid var(--border);border-radius:7px;font-size:12.5px;color:#334155;}
+
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,0.45);align-items:center;justify-content:center;z-index:2000;padding:16px;}
+  .modal-overlay.open{display:flex;}
+  .modal-box{background:#fff;border-radius:12px;width:100%;max-width:520px;box-shadow:0 20px 40px rgba(15,23,42,0.2);overflow:hidden;}
+  .modal-head{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;border-bottom:1px solid var(--border);}
+  .modal-title{font-size:15px;font-weight:700;color:#0f172a;}
+  .modal-subtitle{font-size:12px;color:var(--text-gray);margin-top:3px;}
+  .modal-close{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-gray);border:none;background:none;}
+  .modal-close:hover{background:var(--bg);}
+  .modal-body{padding:18px;}
+  .modal-foot{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-top:1px solid var(--border);}
+  .modal-foot-right{display:flex;gap:8px;}
+
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:11px;font-weight:700;color:var(--text-gray);text-transform:uppercase;letter-spacing:.03em;margin-bottom:5px;}
+  .field input,.field select{width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;color:var(--text-dark);outline:none;}
+  .field input:focus,.field select:focus{border-color:var(--blue);}
+  .field-error{display:none;font-size:10.5px;color:var(--red);font-weight:700;margin-top:3px;}
+  .field.invalid input,.field.invalid select{border-color:var(--red);}
+  .field.invalid .field-error{display:block;}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .pw-toggle{display:flex;align-items:center;gap:8px;cursor:pointer;padding:8px 0;color:var(--blue);font-size:12.5px;font-weight:600;}
+  .pw-fields{max-height:0;overflow:hidden;transition:.25s;}
+  .pw-fields.open{max-height:200px;margin-top:8px;}
+
+  .view-profile-head{display:flex;align-items:center;gap:14px;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border);}
+  .view-avatar{width:56px;height:56px;border-radius:50%;background-size:cover;background-position:center;}
+  .view-name{font-size:16px;font-weight:800;}
+  .view-username{font-size:12px;color:var(--text-gray);margin-top:2px;}
+  .view-badges{display:flex;gap:8px;margin-top:6px;}
+  .view-info-grid{display:flex;flex-direction:column;gap:0;}
+  .view-info-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px;}
+  .view-info-row:last-child{border-bottom:none;}
+  .view-info-label{color:var(--text-gray);font-weight:600;}
+
+  .confirm-icon{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
+  .confirm-icon svg{width:22px;height:22px;}
+  .confirm-text{font-size:13px;color:#334155;line-height:1.5;}
+  .confirm-text b{color:#0f172a;}
+  .confirm-warn{margin-top:10px;padding:10px 12px;background:var(--orange-bg);border-radius:8px;font-size:11.5px;color:#c56c05;font-weight:600;display:flex;align-items:flex-start;gap:8px;}
+  .confirm-warn svg{width:14px;height:14px;flex-shrink:0;margin-top:1px;}
+  .generated-pw-box{margin-top:10px;padding:12px 14px;background:var(--bg);border:1px dashed var(--border);border-radius:8px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+  .generated-pw{font-family:monospace;font-size:14px;font-weight:700;color:#0f172a;letter-spacing:.5px;}
+  .copy-btn{display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;color:var(--blue);cursor:pointer;background:var(--blue-light);padding:6px 10px;border-radius:6px;flex-shrink:0;}
+
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;padding:11px 20px;border-radius:10px;font-size:12.5px;font-weight:700;box-shadow:0 10px 30px rgba(10,15,40,0.3);opacity:0;pointer-events:none;transition:.22s;z-index:400;display:flex;align-items:center;gap:9px;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .toast svg{width:15px;height:15px;color:var(--green);flex-shrink:0;}
+
+  @media(max-width:1200px){.stats-row{grid-template-columns:repeat(3,1fr);}}
+  @media(max-width:720px){.stats-row{grid-template-columns:repeat(2,1fr);}.field-row{grid-template-columns:1fr;}}
+
+  .btn.loading{pointer-events:none;opacity:.7;}
+  .btn.loading::after{content:'';width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:phspin .6s linear infinite;margin-left:6px;display:inline-block;vertical-align:middle;}
+  .btn:not(.btn-primary).loading::after{border-color:rgba(0,0,0,.15);border-top-color:var(--blue);}
+  @keyframes phspin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+
+<div id="sidebarPlaceholder"></div>
+
+<main class="main">
+  <div class="topbar">
+    <div><div class="page-title">Users</div><div class="breadcrumb"><a href="dashboard.html">Dashboard</a> / Administration / Users</div></div>
+    <div class="topbar-actions">
+      <div class="btn" id="exportBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><path d="M12 3v12M7 8l5-5 5 5M5 21h14"/></svg>Export CSV</div>
+      <div class="btn btn-primary" id="addUserBtn"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:15px;height:15px"><path d="M12 5v14M5 12h14"/></svg>Add New User</div>
+    </div>
+  </div>
+
+  <div class="stats-row" id="statsRow"></div>
+
+  <div class="filter-bar">
+    <div class="search-box"><input type="text" id="searchInput" placeholder="Search by name, username, email or user ID..."><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg></div>
+    <div class="filter-group"><label>Role</label><select class="filter-select" id="roleFilter"><option value="all">All</option><option value="admin">Admin</option><option value="doctor">Doctor</option><option value="nurse">Nurse</option><option value="labtech">Lab Technician</option><option value="pharmacist">Pharmacist</option><option value="receptionist">Receptionist</option><option value="cashier">Cashier</option></select></div>
+    <div class="filter-group"><label>Department</label><select class="filter-select" id="deptFilter"><option value="all">All</option><option>General OPD</option><option>Maternity</option><option>Nursing</option><option>Laboratory</option><option>Pharmacy</option><option>Front Desk</option><option>Billing</option><option>Administration</option></select></div>
+    <div class="filter-group"><label>Status</label><select class="filter-select" id="statusFilter"><option value="all">All</option><option value="active">Active</option><option value="inactive">Inactive</option><option value="suspended">Suspended</option><option value="invited">Invited</option></select></div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-header"><div class="table-title" id="tableTitle">All Users (0)</div></div>
+    <div class="table-scroll">
+      <table><thead><tr><th>#</th><th>User</th><th>User ID</th><th>Role</th><th>Department</th><th>Last Login</th><th>Status</th><th>Active</th><th>Actions</th></tr></thead><tbody id="usersTable"></tbody></table>
+    </div>
+    <div class="table-footer"><div class="footer-text" id="footerText">Showing 0 of 0</div><div class="pagination" id="pageControls"></div></div>
+  </div>
+</main>
+
+<!-- ADD/EDIT USER MODAL -->
+<div class="modal-overlay" id="userModal">
+  <div class="modal-box">
+    <div class="modal-head"><div><div class="modal-title" id="userModalTitle">Add New User</div><div class="modal-subtitle" id="userModalSubtitle">Create a new staff account</div></div><button class="modal-close" onclick="closeModal('userModal')">&times;</button></div>
+    <div class="modal-body">
+      <div class="field-row"><div class="field" id="uNameGroup"><label>Full Name *</label><input type="text" id="uName" placeholder="e.g. Dr. Samuel Okonkwo"><div class="field-error">Required</div></div><div class="field" id="uUsernameGroup"><label>Username *</label><input type="text" id="uUsername" placeholder="e.g. samuel.okonkwo"><div class="field-error">Required</div></div></div>
+      <div class="field-row"><div class="field" id="uEmailGroup"><label>Email *</label><input type="email" id="uEmail" placeholder="e.g. samuel@shiloh.clinic"><div class="field-error">Valid email required</div></div><div class="field" id="uPhoneGroup"><label>Phone *</label><input type="tel" id="uPhone" placeholder="e.g. 0803 123 4567"><div class="field-error">Required</div></div></div>
+      <div class="field-row"><div class="field"><label>Role</label><select class="filter-select" id="uRole"><option value="receptionist">Receptionist</option><option value="doctor">Doctor</option><option value="nurse">Nurse</option><option value="labtech">Lab Technician</option><option value="pharmacist">Pharmacist</option><option value="cashier">Cashier</option><option value="admin">Admin</option></select></div><div class="field"><label>Department</label><select class="filter-select" id="uDept"><option>Front Desk</option><option>General OPD</option><option>Maternity</option><option>Nursing</option><option>Laboratory</option><option>Pharmacy</option><option>Billing</option><option>Administration</option></select></div></div>
+      <div class="field"><label>Status</label><select class="filter-select" id="uStatus"><option value="active">Active</option><option value="inactive">Inactive</option><option value="suspended">Suspended</option><option value="invited">Invited</option></select></div>
+      <div class="pw-toggle" id="pwToggleRow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg><span><span id="pwToggleText">Set a password for this user</span><br><small style="color:var(--text-gray);font-weight:400;" id="pwToggleSub">Click to add password fields</small></span></div>
+      <div class="pw-fields" id="pwFields">
+        <div class="field-row"><div class="field" id="uPassGroup"><label>Password *</label><input type="password" id="uPass" placeholder="Min. 6 characters"><div class="field-error">Min. 6 characters</div></div><div class="field" id="uPassConfirmGroup"><label>Confirm Password *</label><input type="password" id="uPassConfirm" placeholder="Re-enter password"><div class="field-error">Passwords don't match</div></div></div>
+      </div>
+    </div>
+    <div class="modal-foot"><div class="btn" onclick="closeModal('userModal')">Cancel</div><div class="btn btn-primary" id="userSubmit"><span id="userSubmitText">Create User</span></div></div>
+  </div>
+</div>
+
+<!-- VIEW USER MODAL -->
+<div class="modal-overlay" id="viewModal">
+  <div class="modal-box">
+    <div class="modal-head"><div class="modal-title">User Profile</div><button class="modal-close" onclick="closeModal('viewModal')">&times;</button></div>
+    <div class="modal-body">
+      <div class="view-profile-head"><div class="view-avatar" id="viewAvatar"></div><div><div class="view-name" id="viewName"></div><div class="view-username" id="viewUsername"></div><div class="view-badges" id="viewBadges"></div></div></div>
+      <div class="view-info-grid" id="viewInfoGrid"></div>
+    </div>
+    <div class="modal-foot"><div class="btn" onclick="closeModal('viewModal')">Close</div><div class="btn btn-primary" id="viewEditBtn">Edit User</div></div>
+  </div>
+</div>
+
+<!-- RESET PASSWORD MODAL -->
+<div class="modal-overlay" id="resetModal">
+  <div class="modal-box">
+    <div class="modal-head"><div></div><button class="modal-close" onclick="closeModal('resetModal')">&times;</button></div>
+    <div class="modal-body" style="text-align:center;padding-top:20px;">
+      <div class="confirm-icon" style="background:var(--orange-bg);color:var(--orange);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2v6h-6M3 22v-6h6"/><path d="M3.5 9A9 9 0 0121 8.5M20.5 15A9 9 0 013 15.5"/></svg></div>
+      <div class="modal-title" style="margin-bottom:8px;">Reset password?</div>
+      <div class="confirm-text" id="resetConfirmText">This will generate a new temporary password.</div>
+      <div class="generated-pw-box" id="generatedPwBox" style="display:none;"><span class="generated-pw" id="generatedPw"></span><div class="copy-btn" id="copyPwBtn">Copy</div></div>
+    </div>
+    <div class="modal-foot"><div class="btn" id="resetCancelBtn" onclick="closeModal('resetModal')">Cancel</div><div class="btn btn-primary" id="confirmResetBtn">Generate New Password</div></div>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM MODAL -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal-box">
+    <div class="modal-head"><div></div><button class="modal-close" onclick="closeModal('deleteModal')">&times;</button></div>
+    <div class="modal-body" style="text-align:center;padding-top:20px;">
+      <div class="confirm-icon" style="background:var(--red-bg);color:var(--red);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z"/></svg></div>
+      <div class="modal-title" style="margin-bottom:8px;">Delete this user?</div>
+      <div class="confirm-text">Are you sure you want to delete <b id="deleteUserName"></b>? This will permanently remove their account.</div>
+      <div class="confirm-warn" id="deleteWarn" style="display:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg><span>This is the only Admin account. Deleting it may lock you out of system settings.</span></div>
+    </div>
+    <div class="modal-foot"><div class="btn" onclick="closeModal('deleteModal')">Cancel</div><div class="btn btn-danger" id="confirmDeleteBtn">Delete User</div></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><span id="toastText">Saved</span></div>
+
+<script src="shiloh-sidebar.js"></script>
+<script src="../services/api.js"></script>
+<script src="../services/user-service.js"></script>
+<script>
+const roleLabels = {admin:{label:'Admin',cls:'role-admin'},doctor:{label:'Doctor',cls:'role-doctor'},nurse:{label:'Nurse',cls:'role-nurse'},labtech:{label:'Lab Technician',cls:'role-labtech'},pharmacist:{label:'Pharmacist',cls:'role-pharmacist'},receptionist:{label:'Receptionist',cls:'role-receptionist'},cashier:{label:'Cashier',cls:'role-cashier'}};
+const statusLabels = {active:{label:'Active',cls:'badge-active'},inactive:{label:'Inactive',cls:'badge-inactive'},suspended:{label:'Suspended',cls:'badge-suspended'},invited:{label:'Invited',cls:'badge-invited'}};
+
+let editingId = null;
+let viewingId = null;
+let deletingId = null;
+let resettingId = null;
+let pwSectionOpen = false;
+
+function esc(s) { return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function isValidEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+function showToast(msg) { const t=document.getElementById('toast'); document.getElementById('toastText').textContent=msg; t.classList.add('show'); clearTimeout(t._tm); t._tm=setTimeout(()=>t.classList.remove('show'),2200); }
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.addEventListener('DOMContentLoaded', async () => {
+  ShilohSidebar.attach('#sidebarPlaceholder', { activeFile: 'users.html', user: { name: 'Admin Tolu', role: 'System Admin', avatar: 'https://i.pravatar.cc/64?img=47' } });
+  await UserService.init();
+  renderStats();
+  renderTable();
+  bindEvents();
+});
+
+function renderStats() {
+  const s = UserService.getStats();
+  document.getElementById('statsRow').innerHTML = `
+    <div class="stat-card"><div class="stat-top"><div class="stat-icon ic-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><path d="M2 20c0-4 3-6 7-6s7 2 7 6"/><circle cx="17" cy="8" r="2.5"/><path d="M16 14.5c2.5.3 4 2 4 5.5"/></svg></div><div class="stat-label">Total Users</div></div><div class="stat-value">${s.total}</div></div>
+    <div class="stat-card"><div class="stat-top"><div class="stat-icon ic-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></div><div class="stat-label">Active</div></div><div class="stat-value">${s.active}</div></div>
+    <div class="stat-card"><div class="stat-top"><div class="stat-icon ic-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><div class="stat-label">Invited</div></div><div class="stat-value">${s.invited}</div></div>
+    <div class="stat-card"><div class="stat-top"><div class="stat-icon ic-red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/></svg></div><div class="stat-label">Suspended</div></div><div class="stat-value">${s.suspended}</div></div>
+    <div class="stat-card"><div class="stat-top"><div class="stat-icon" style="background:var(--purple-bg);color:var(--purple);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 3v6c0 5-3.5 8.5-8 11-4.5-2.5-8-6-8-11V5z"/></svg></div><div class="stat-label">Admins</div></div><div class="stat-value">${s.admins}</div></div>
+    <div class="stat-card"><div class="stat-top"><div class="stat-icon" style="background:#fce7f3;color:#db2777;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><div class="stat-label">Logged Today</div></div><div class="stat-value">${s.loggedToday}</div></div>`;
+}
+
+function applyFilters() {
+  UserService.search(document.getElementById('searchInput').value);
+  UserService.filterByRole(document.getElementById('roleFilter').value);
+  UserService.filterByDept(document.getElementById('deptFilter').value);
+  UserService.filterByStatus(document.getElementById('statusFilter').value);
+  renderTable();
+}
+
+function renderTable() {
+  const filtered = UserService.getFiltered();
+  const page = UserService.getPage(UserService.state.currentPage);
+  const totalPages = UserService.getTotalPages();
+
+  document.getElementById('tableTitle').textContent = 'All Users (' + filtered.length + ')';
+  document.getElementById('footerText').textContent = filtered.length ? 'Showing '+(UserService.state.currentPage-1)*UserService.state.perPage+1+' to '+Math.min(UserService.state.currentPage*UserService.state.perPage,filtered.length)+' of '+filtered.length : 'Showing 0 of '+UserService.getAll().length;
+
+  const tbody = document.getElementById('usersTable');
+  if (!page.length) { tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-light);">No users found</td></tr>'; document.getElementById('pageControls').innerHTML=''; return; }
+
+  tbody.innerHTML = page.map((u, i) => {
+    const r = roleLabels[u.role]||{label:u.role,cls:''};
+    const s = statusLabels[u.status]||{label:u.status,cls:''};
+    const loginHtml = u.loginTime ? '<div class="last-login"><span class="login-time">'+esc(u.loginTime)+'</span><span class="login-date">'+esc(u.loginDate)+'</span></div>' : '<span class="login-dash">&mdash;</span>';
+    const toggleOn = u.status === 'active';
+    const isSpecial = u.status==='suspended'||u.status==='invited';
+    return `<tr>
+      <td>${(UserService.state.currentPage-1)*UserService.state.perPage+i+1}</td>
+      <td><div class="user-cell"><div class="avatar"><img src="https://i.pravatar.cc/80?img=${u.img}" alt=""></div><div><div class="user-fullname" onclick="openViewModal(${u.id})">${esc(u.name)}</div><div class="user-email">${esc(u.email)}</div></div></div></td>
+      <td><span class="user-id">${u.userId}</span></td>
+      <td><span class="role-chip ${r.cls}">${r.label}</span></td>
+      <td>${esc(u.dept)}</td>
+      <td>${loginHtml}</td>
+      <td><span class="badge ${s.cls}"><span class="dot"></span>${s.label}</span></td>
+      <td><div class="toggle-switch ${toggleOn?'on':''} ${isSpecial?'locked':''}" onclick="${isSpecial?'':'toggleStatus('+u.id+')'}"><div class="toggle-knob"></div></div></td>
+      <td><div class="row-actions"><div class="icon-btn" onclick="openViewModal(${u.id})" title="View"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></div><div class="icon-btn" onclick="openEditModal(${u.id})" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></div><div class="icon-btn" onclick="openResetModal(${u.id})" title="Reset Password"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M21 2v6h-6M3 22v-6h6"/><path d="M3.5 9A9 9 0 0121 8.5M20.5 15A9 9 0 013 15.5"/></svg></div><div class="icon-btn danger" onclick="openDeleteModal(${u.id})" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z"/></svg></div></div></td>
+    </tr>`;
+  }).join('');
+
+  let ph = '<div class="page-btn '+(UserService.state.currentPage===1?'disabled':'')+'" onclick="goPage('+(UserService.state.currentPage-1)+')">&lt;</div>';
+  let pages = [];
+  if (totalPages<=7) { pages=Array.from({length:totalPages},(_,i)=>i+1); }
+  else { pages.push(1); if(UserService.state.currentPage>3) pages.push('...'); const s=Math.max(2,UserService.state.currentPage-1),e=Math.min(totalPages-1,UserService.state.currentPage+1); for(let p=s;p<=e;p++) pages.push(p); if(UserService.state.currentPage<totalPages-2) pages.push('...'); pages.push(totalPages); }
+  pages.forEach(p => { if(p==='...') ph+='<div class="page-btn" style="pointer-events:none;opacity:.4">...</div>'; else ph+='<div class="page-btn '+(p===UserService.state.currentPage?'active':'')+'" onclick="goPage('+p+')">'+p+'</div>'; });
+  ph += '<div class="page-btn '+(UserService.state.currentPage===totalPages?'disabled':'')+'" onclick="goPage('+(UserService.state.currentPage+1)+')">&gt;</div>';
+  ph += '<select class="per-page" onchange="changePerPage(this.value)"><option value="10" '+(UserService.state.perPage===10?'selected':'')+'>10 / page</option><option value="25" '+(UserService.state.perPage===25?'selected':'')+'>25 / page</option></select>';
+  document.getElementById('pageControls').innerHTML = ph;
+}
+
+function goPage(p) { UserService.setPage(p); renderTable(); window.scrollTo({top:0,behavior:'smooth'}); }
+function changePerPage(v) { UserService.setPerPage(parseInt(v)); renderTable(); }
+
+function toggleStatus(id) {
+  const result = UserService.toggleStatus(id);
+  if(result && result.error) { showToast(result.error, true); return; }
+  renderStats(); renderTable();
+  showToast(result.name+' '+(result.status==='active'?'enabled':'disabled'));
+}
+
+function clearFormErrors() { ['uNameGroup','uUsernameGroup','uEmailGroup','uPhoneGroup','uPassGroup','uPassConfirmGroup'].forEach(id=>document.getElementById(id).classList.remove('invalid')); }
+
+function openAddModal() {
+  editingId = null;
+  document.getElementById('userModalTitle').textContent = 'Add New User';
+  document.getElementById('userModalSubtitle').textContent = 'Create a new staff account';
+  document.getElementById('userSubmitText').textContent = 'Create User';
+  clearFormErrors();
+  ['uName','uUsername','uEmail','uPhone','uPass','uPassConfirm'].forEach(id=>document.getElementById(id).value='');
+  setPwSection(true, true);
+  openModal('userModal');
+}
+
+function openEditModal(id) {
+  const u = UserService.getById(id);
+  if (!u) return;
+  editingId = id;
+  document.getElementById('userModalTitle').textContent = 'Edit User — '+u.name;
+  document.getElementById('userModalSubtitle').textContent = u.userId;
+  document.getElementById('userSubmitText').textContent = 'Save Changes';
+  clearFormErrors();
+  document.getElementById('uName').value=u.name;
+  document.getElementById('uUsername').value=u.username;
+  document.getElementById('uEmail').value=u.email;
+  document.getElementById('uPhone').value=u.phone;
+  document.getElementById('uRole').value=u.role;
+  document.getElementById('uDept').value=u.dept;
+  document.getElementById('uStatus').value=u.status;
+  document.getElementById('uPass').value='';
+  document.getElementById('uPassConfirm').value='';
+  setPwSection(false, false);
+  closeModal('viewModal');
+  openModal('userModal');
+}
+
+function setPwSection(open, isCreate) {
+  pwSectionOpen = open;
+  document.getElementById('pwFields').classList.toggle('open', open);
+  document.getElementById('pwToggleText').textContent = isCreate ? 'Set a password' : 'Change password';
+  document.getElementById('pwToggleSub').textContent = open ? (isCreate?'Required':'Enter new password') : (isCreate?'Click to add':'Leave unchanged');
+}
+
+function submitUserForm() {
+  clearFormErrors();
+  const data = {
+    name: document.getElementById('uName').value.trim(),
+    username: document.getElementById('uUsername').value.trim(),
+    email: document.getElementById('uEmail').value.trim(),
+    phone: document.getElementById('uPhone').value.trim(),
+    role: document.getElementById('uRole').value,
+    dept: document.getElementById('uDept').value,
+    status: document.getElementById('uStatus').value
+  };
+  let ok=true;
+  if(!data.name){document.getElementById('uNameGroup').classList.add('invalid');ok=false;}
+  if(!data.username){document.getElementById('uUsernameGroup').classList.add('invalid');ok=false;}
+  if(!data.email||!isValidEmail(data.email)){document.getElementById('uEmailGroup').classList.add('invalid');ok=false;}
+  if(!data.phone){document.getElementById('uPhoneGroup').classList.add('invalid');ok=false;}
+  if(!ok){showToast('Please fix the highlighted fields',true);return;}
+  const btn = document.getElementById('userSubmit');
+  setLoading(btn, true);
+  setTimeout(() => {
+    if(editingId){const result=UserService.updateUser(editingId, data); if(result && result.error){setLoading(btn,false);showToast(result.error,true);return;} showToast('User updated');}
+    else{UserService.addUser(data); showToast('User created');}
+    setLoading(btn, false);
+    closeModal('userModal');
+    renderStats(); renderTable();
+  }, 500);
+}
+
+function setLoading(btn, loading) { if (!btn) return; if (loading) { btn.classList.add('loading'); btn._oldHTML = btn.innerHTML; } else { btn.classList.remove('loading'); if (btn._oldHTML) btn.innerHTML = btn._oldHTML; } }
+
+function openViewModal(id) {
+  const u = UserService.getById(id);
+  if (!u) return;
+  viewingId = id;
+  const r = roleLabels[u.role]||{label:u.role,cls:''};
+  const s = statusLabels[u.status]||{label:u.status,cls:''};
+  document.getElementById('viewAvatar').style.backgroundImage = "url('https://i.pravatar.cc/120?img="+u.img+"')";
+  document.getElementById('viewName').textContent = u.name;
+  document.getElementById('viewUsername').textContent = '@'+u.username;
+  document.getElementById('viewBadges').innerHTML = '<span class="role-chip '+r.cls+'">'+r.label+'</span><span class="badge '+s.cls+'"><span class="dot"></span>'+s.label+'</span>';
+  document.getElementById('viewInfoGrid').innerHTML = `
+    <div class="view-info-row"><span class="view-info-label">User ID</span><span>'+u.userId+'</span></div>
+    <div class="view-info-row"><span class="view-info-label">Department</span><span>'+esc(u.dept)+'</span></div>
+    <div class="view-info-row"><span class="view-info-label">Email</span><span>'+esc(u.email)+'</span></div>
+    <div class="view-info-row"><span class="view-info-label">Phone</span><span>'+esc(u.phone||'—')+'</span></div>
+    <div class="view-info-row"><span class="view-info-label">Last Login</span><span>'+(u.loginTime?u.loginTime+' · '+u.loginDate:'—')+'</span></div>
+    <div class="view-info-row"><span class="view-info-label">Joined</span><span>'+u.joined+'</span></div>`;
+  openModal('viewModal');
+}
+
+function openResetModal(id) {
+  const u = UserService.getById(id);
+  if (!u) return;
+  resettingId = id;
+  document.getElementById('resetConfirmText').innerHTML = 'Reset password for <b>'+esc(u.name)+'</b>?';
+  document.getElementById('generatedPwBox').style.display='none';
+  document.getElementById('confirmResetBtn').style.display='flex';
+  document.getElementById('resetCancelBtn').textContent='Cancel';
+  openModal('resetModal');
+}
+
+function confirmReset() {
+  if (!resettingId) return;
+  const result = UserService.resetPassword(resettingId);
+  if(!result) return;
+  document.getElementById('generatedPw').textContent=result.tempPassword;
+  document.getElementById('generatedPwBox').style.display='flex';
+  document.getElementById('confirmResetBtn').style.display='none';
+  document.getElementById('resetCancelBtn').textContent='Done';
+  showToast('Password reset');
+}
+
+function openDeleteModal(id) {
+  const u = UserService.getById(id);
+  if (!u) return;
+  deletingId = id;
+  document.getElementById('deleteUserName').textContent = u.name;
+  document.getElementById('deleteWarn').style.display = (u.role==='admin'&&UserService.adminCount()<=1) ? 'flex' : 'none';
+  openModal('deleteModal');
+}
+
+function confirmDelete() {
+  if (!deletingId) return;
+  const result = UserService.deleteUser(deletingId);
+  if(result && result.error){showToast(result.error,true);closeModal('deleteModal');return;}
+  closeModal('deleteModal');
+  showToast('"'+result.name+'" deleted');
+  deletingId=null;
+  renderStats(); renderTable();
+}
+
+function exportCsv() {
+  const filtered = UserService.getFiltered();
+  const header=['User ID','Full Name','Username','Email','Role','Department','Status','Joined'];
+  const rows=filtered.map(u=>[u.userId,u.name,u.username,u.email,(roleLabels[u.role]||{}).label||u.role,u.dept,(statusLabels[u.status]||{}).label||u.status,u.joined]);
+  const csv=[header,...rows].map(r=>r.map(v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='shiloh-users.csv'; a.click();
+  showToast('Exported '+filtered.length+' users');
+}
+
+function bindEvents() {
+  let debounce;
+  document.getElementById('searchInput').addEventListener('input',()=>{clearTimeout(debounce);debounce=setTimeout(applyFilters,300);});
+  document.getElementById('roleFilter').addEventListener('change',applyFilters);
+  document.getElementById('deptFilter').addEventListener('change',applyFilters);
+  document.getElementById('statusFilter').addEventListener('change',applyFilters);
+  document.getElementById('addUserBtn').addEventListener('click',openAddModal);
+  document.getElementById('exportBtn').addEventListener('click',exportCsv);
+  document.getElementById('userSubmit').addEventListener('click',submitUserForm);
+  document.getElementById('viewEditBtn').addEventListener('click',()=>{if(viewingId)openEditModal(viewingId);});
+  document.getElementById('confirmResetBtn').addEventListener('click',confirmReset);
+  document.getElementById('confirmDeleteBtn').addEventListener('click',confirmDelete);
+  document.getElementById('copyPwBtn').addEventListener('click',()=>{const pw=document.getElementById('generatedPw').textContent;if(navigator.clipboard)navigator.clipboard.writeText(pw).catch(()=>{});showToast('Password copied');});
+  document.getElementById('pwToggleRow').addEventListener('click',()=>setPwSection(!pwSectionOpen,editingId===null));
+  document.querySelectorAll('.modal-overlay').forEach(ov=>ov.addEventListener('click',e=>{if(e.target===ov)ov.classList.remove('open');}));
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal-overlay.open').forEach(ov=>ov.classList.remove('open'));});
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shiloh Clinic & Maternity — Patient Profile (component demo)</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif;background:#f4f6fb;display:flex;min-height:100vh;font-size:13px;}
+
+  /* ---------- SIDEBAR (stays in the host page, NOT part of the component) ---------- */
+  .sidebar{width:220px;background:linear-gradient(180deg,#0a1848 0%,#0c1c58 100%);color:#c9cee6;display:flex;flex-direction:column;flex-shrink:0;padding:20px 14px;position:sticky;top:0;height:100vh;}
+  .brand{display:flex;align-items:center;gap:10px;padding:4px 8px 22px 8px;}
+  .brand-icon{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#3b6bf5,#7b4cf0);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;flex-shrink:0;}
+  .brand-name{font-size:14px;font-weight:700;color:#fff;line-height:1.25;}
+  nav.nav-group{margin-bottom:14px;}
+  .nav-label{font-size:10px;letter-spacing:.08em;color:#5f6890;padding:6px 10px 6px;font-weight:700;}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:9px;color:#aab0d0;text-decoration:none;font-size:13px;font-weight:500;margin-bottom:2px;cursor:pointer;}
+  .nav-item i{width:16px;text-align:center;font-size:14px;color:#8891bd;}
+  .nav-item:hover{background:rgba(255,255,255,0.06);color:#fff;}
+  .nav-item.active{background:#2f6fed;color:#fff;box-shadow:0 4px 10px rgba(47,111,237,0.4);}
+  .nav-item.active i{color:#fff;}
+  .sidebar-spacer{flex:1;}
+  .sidebar-footer{border-top:1px solid rgba(255,255,255,0.08);padding-top:14px;display:flex;flex-direction:column;gap:10px;}
+  .user-chip{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:10px;}
+  .user-chip img{width:34px;height:34px;border-radius:50%;object-fit:cover;}
+  .user-name{font-size:12.5px;font-weight:600;color:#fff;}
+  .user-role{font-size:11px;color:#8891bd;}
+  .logout{display:flex;align-items:center;gap:10px;color:#aab0d0;font-size:13px;font-weight:500;padding:8px;cursor:pointer;}
+  .logout:hover{color:#fff;}
+
+  /* ---------- MAIN ---------- */
+  .main{flex:1;min-width:0;padding:20px 26px 40px;}
+
+  @media (max-width:720px){ .sidebar{display:none;} }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-icon"><i class="fa-solid fa-heart-pulse"></i></div>
+    <div class="brand-name">Shiloh Clinic &amp;<br>Maternity</div>
+  </div>
+  <nav class="nav-group">
+    <div class="nav-label">MAIN</div>
+    <a class="nav-item"><i class="fa-solid fa-grip"></i> Dashboard</a>
+    <a class="nav-item active"><i class="fa-solid fa-user-group"></i> Patients</a>
+    <a class="nav-item"><i class="fa-regular fa-square-check"></i> Visits</a>
+    <a class="nav-item"><i class="fa-regular fa-calendar"></i> Appointments</a>
+    <a class="nav-item"><i class="fa-solid fa-plus-minus"></i> Nursing</a>
+    <a class="nav-item"><i class="fa-solid fa-flask"></i> Laboratory</a>
+    <a class="nav-item"><i class="fa-solid fa-pills"></i> Pharmacy</a>
+    <a class="nav-item"><i class="fa-regular fa-credit-card"></i> Billing</a>
+    <a class="nav-item"><i class="fa-regular fa-file-lines"></i> Reports</a>
+  </nav>
+  <div class="nav-group">
+    <div class="nav-label">ADMINISTRATION</div>
+    <a class="nav-item"><i class="fa-regular fa-user"></i> Users</a>
+    <a class="nav-item"><i class="fa-solid fa-user-shield"></i> Roles &amp; Permissions</a>
+    <a class="nav-item"><i class="fa-solid fa-gear"></i> Settings</a>
+    <a class="nav-item"><i class="fa-solid fa-clipboard-list"></i> Audit Logs</a>
+  </div>
+  <div class="sidebar-spacer"></div>
+  <div class="sidebar-footer">
+    <div class="user-chip">
+      <img src="https://i.pravatar.cc/64?img=47" alt="user">
+      <div><div class="user-name">Receptionist</div><div class="user-role">Front Desk</div></div>
+    </div>
+    <a class="logout"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a>
+  </div>
+</aside>
+
+<main class="main">
+  <div id="patientProfilePlaceholder"></div>
+</main>
+
+<script src="patient-profile.js"></script>
+<script>
+  const pp = ShilohPatientProfile.attach('#patientProfilePlaceholder', {
+    breadcrumb: 'Dashboard / Patients / All Patients / Patient Profile',
+    patient: {
+      photo: 'https://i.pravatar.cc/160?img=12',
+      name: 'John O. Adekunle',
+      status: 'Active Patient',
+      hospitalNo: 'SHC-000123',
+      age: '34 Years', gender: 'Male', dob: '15 / 06 / 1990', bloodGroup: 'O+',
+      phonePrimary: '0803 123 4567',
+      phoneSecondary: '0705 765 4321',
+      email: 'johnade@gmail.com',
+      address: '12 Mission Road, Uromi,\nEdo State, Nigeria',
+      lastVisit: 'May 16, 2025',
+      registeredOn: 'May 17, 2025 09:30 AM',
+      demographicLeft: [
+        { label: 'Full Name', value: 'John Oluwaseyi Adekunle' },
+        { label: 'Date of Birth', value: '15 / 06 / 1990' },
+        { label: 'Age', value: '34 Years' },
+        { label: 'Gender', value: 'Male' },
+        { label: 'Marital Status', value: 'Married' },
+        { label: 'Nationality', value: 'Nigerian' },
+        { label: 'State of Origin', value: 'Edo State' },
+        { label: 'LGA', value: 'Uromi' },
+        { label: 'Religion', value: 'Christianity' },
+      ],
+      demographicRight: [
+        { label: 'Occupation', value: 'Business' },
+        { label: 'Employer / Business', value: 'Adekunle Enterprises' },
+        { label: 'Blood Group', value: 'O+' },
+        { label: 'Genotype', value: 'AA' },
+        { label: 'Patient Type', value: 'Outpatient' },
+        { label: 'Preferred Language', value: 'English' },
+        { label: 'How did you hear about us?', value: 'Walk-in' },
+        { label: 'Registered By', value: 'Receptionist' },
+      ],
+      summary: [
+        { key: 'visits', icon: 'fa-solid fa-user-group', iconColor: 'var(--ppc-purple)', iconBg: 'var(--ppc-purple-bg)', label: 'Total Visits', value: '8', linkText: 'View all visits' },
+        { key: 'appointments', icon: 'fa-regular fa-calendar', iconColor: 'var(--ppc-blue)', iconBg: 'var(--ppc-blue-bg)', label: 'Appointments', value: '5', linkText: 'View all' },
+        { key: 'labs', icon: 'fa-solid fa-flask', iconColor: 'var(--ppc-blue)', iconBg: 'var(--ppc-blue-bg)', label: 'Lab Tests', value: '6', linkText: 'View results' },
+        { key: 'prescriptions', icon: 'fa-solid fa-prescription', iconColor: 'var(--ppc-red)', iconBg: 'var(--ppc-red-bg)', label: 'Prescriptions', value: '7', linkText: 'View all' },
+        { key: 'bills', icon: 'fa-solid fa-file-invoice', iconColor: 'var(--ppc-orange)', iconBg: 'var(--ppc-orange-bg)', label: 'Total Bills', value: '₦45,200', linkText: 'View billing' },
+        { key: 'payments', icon: 'fa-solid fa-sack-dollar', iconColor: 'var(--ppc-green)', iconBg: 'var(--ppc-green-bg)', label: 'Payments', value: '₦45,200', linkText: 'View payments' },
+      ],
+      allergies: 'No known allergies',
+      chronicConditions: 'No chronic conditions recorded',
+      emergencyContact: {
+        name: 'Mrs. Mary Adekunle',
+        relationship: 'Wife',
+        phone: '0803 222 3344',
+        address: '12 Mission Road, Uromi, Edo State, Nigeria',
+      },
+    },
+    visits: [
+      { no: 'VIS-000089', date: 'May 16, 2025', department: 'General OPD', doctor: 'Dr. Samuel O.', status: 'Completed' },
+      { no: 'VIS-000075', date: 'May 9, 2025', department: 'General OPD', doctor: 'Dr. Samuel O.', status: 'Completed' },
+      { no: 'VIS-000061', date: 'Apr 28, 2025', department: 'General OPD', doctor: 'Dr. Samuel O.', status: 'Completed' },
+      { no: 'VIS-000048', date: 'Apr 20, 2025', department: 'General OPD', doctor: 'Dr. Samuel O.', status: 'Completed' },
+      { no: 'VIS-000033', date: 'Apr 12, 2025', department: 'General OPD', doctor: 'Dr. Samuel O.', status: 'Completed' },
+    ],
+    prescriptions: [
+      { no: 'RX-000067', date: 'May 16, 2025', doctor: 'Dr. Samuel O.', status: 'Dispensed' },
+      { no: 'RX-000055', date: 'May 9, 2025', doctor: 'Dr. Samuel O.', status: 'Dispensed' },
+      { no: 'RX-000043', date: 'Apr 28, 2025', doctor: 'Dr. Samuel O.', status: 'Dispensed' },
+      { no: 'RX-000029', date: 'Apr 20, 2025', doctor: 'Dr. Samuel O.', status: 'Dispensed' },
+      { no: 'RX-000018', date: 'Apr 12, 2025', doctor: 'Dr. Samuel O.', status: 'Dispensed' },
+    ],
+    onTabChange: (tab) => console.log('tab changed to', tab),
+    onEditSection: (section) => console.log('edit', section),
+    onQuickAction: (action) => console.log('quick action', action),
+  });
+</script>
+
+</body>
+</html>

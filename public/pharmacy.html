@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Shiloh Clinic &amp; Maternity — Pharmacy</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  :root{--navy:#0d1b4c;--blue:#2563eb;--bg:#f5f6f8;--card:#fff;--border:#e5e7eb;--text-dark:#1e293b;--text-gray:#64748b;--text-light:#94a3b8;--green:#16a34a;--green-bg:#dcfce7;--orange:#f97316;--orange-bg:#fff1e6;--purple:#8b5cf6;--purple-bg:#f1eaff;--pink:#ec4899;--pink-bg:#fde8f2;--red:#ef4444;--red-bg:#fee2e2;--blue-bg:#eef2ff;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text-dark);display:flex;min-height:100vh;}
+  .main{flex:1;padding:22px 28px;overflow-x:auto;min-width:0;}
+  .topbar{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px;flex-wrap:wrap;gap:14px;}
+  .page-title{font-size:22px;font-weight:700;color:#0f172a;}
+  .breadcrumb{font-size:12.5px;color:var(--text-gray);margin-top:4px;}
+  .breadcrumb a{color:var(--blue);text-decoration:none;}
+  .topbar-actions{display:flex;gap:10px;flex-wrap:wrap;}
+  .btn{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:#fff;color:#334155;white-space:nowrap;}
+  .btn:hover{background:var(--bg);}
+  .btn-primary{background:var(--blue);color:#fff;border-color:var(--blue);}
+  .btn-primary:hover{background:#1d4ed8;}
+
+  .stats-row{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-bottom:20px;}
+  .stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;}
+  .stat-top{display:flex;align-items:center;gap:10px;}
+  .stat-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .stat-icon svg{width:16px;height:16px;}
+  .stat-label{font-size:12px;color:var(--text-gray);font-weight:500;}
+  .stat-value{font-size:20px;font-weight:700;}
+  .stat-sub{font-size:10.5px;color:var(--text-light);margin-top:-4px;}
+  .ic-blue{background:var(--blue-bg);color:var(--blue);}
+  .ic-green{background:var(--green-bg);color:var(--green);}
+  .ic-orange{background:var(--orange-bg);color:var(--orange);}
+  .ic-red{background:var(--red-bg);color:var(--red);}
+  .ic-purple{background:var(--purple-bg);color:var(--purple);}
+  .ic-pink{background:var(--pink-bg);color:var(--pink);}
+
+  .filter-bar{display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap;}
+  .search-box{flex:1;min-width:260px;position:relative;}
+  .search-box input{width:100%;padding:10px 14px 10px 36px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:#fff;outline:none;}
+  .search-box input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1);}
+  .search-box svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--text-light);}
+  .filter-group{display:flex;flex-direction:column;gap:3px;}
+  .filter-group label{font-size:11.5px;color:var(--text-gray);font-weight:500;}
+  .filter-select{padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:#fff;min-width:120px;color:#334155;}
+
+  .table-card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+  .table-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;flex-wrap:wrap;gap:10px;}
+  .table-title{font-size:15px;font-weight:700;}
+  .table-actions{display:flex;gap:8px;align-items:center;}
+
+  .table-scroll{overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;}
+  thead tr{border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:#fafbfc;}
+  th{text-align:left;padding:11px 12px;font-size:11px;color:var(--text-light);font-weight:700;text-transform:uppercase;letter-spacing:.02em;white-space:nowrap;}
+  td{padding:11px 12px;font-size:13px;border-bottom:1px solid var(--border);white-space:nowrap;color:#334155;}
+  tbody tr{transition:background .1s;}
+  tbody tr:hover{background:#fafbfc;}
+
+  .drug-cell .drug-name{font-weight:700;}
+  .drug-cell .drug-generic{font-size:11px;color:var(--text-light);}
+  .drug-code{font-weight:700;color:var(--blue);font-size:12px;}
+  .badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:10.5px;font-weight:700;}
+  .badge .dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
+  .badge-category{background:var(--purple-bg);color:var(--purple);}
+  .badge-instock{background:var(--green-bg);color:#0a8a52;}
+  .badge-lowstock{background:var(--orange-bg);color:#c56c05;}
+  .badge-outofstock{background:var(--red-bg);color:#c1362b;}
+  .badge-expired{background:var(--red-bg);color:#c1362b;}
+  .badge-expiring{background:var(--orange-bg);color:#c56c05;}
+  .stock-cell .stock-qty{font-weight:700;margin-right:4px;}
+  .expiry-date{font-size:12.5px;}
+  .expiry-warn{font-size:10.5px;color:var(--orange);font-weight:700;}
+  .expiry-expired{font-size:10.5px;color:var(--red);font-weight:700;}
+
+  .row-actions{display:flex;gap:6px;align-items:center;}
+  .icon-btn{width:28px;height:28px;border-radius:8px;border:1px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;color:var(--text-gray);font-size:12px;cursor:pointer;}
+  .icon-btn:hover{color:var(--blue);border-color:var(--blue-bg);background:var(--blue-bg);}
+
+  .table-footer{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;flex-wrap:wrap;gap:10px;}
+  .footer-text{font-size:12.5px;color:var(--text-gray);}
+  .pagination{display:flex;gap:6px;align-items:center;}
+  .page-btn{min-width:32px;height:32px;padding:0 8px;border:1px solid var(--border);border-radius:7px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;color:#334155;cursor:pointer;}
+  .page-btn:hover{background:var(--bg);}
+  .page-btn.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+  .page-btn.disabled{opacity:.4;cursor:not-allowed;}
+  .per-page{padding:7px 10px;border:1px solid var(--border);border-radius:7px;font-size:12.5px;color:#334155;}
+
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,0.45);align-items:center;justify-content:center;z-index:2000;padding:16px;}
+  .modal-overlay.open{display:flex;}
+  .modal-box{background:#fff;border-radius:12px;width:100%;max-width:520px;box-shadow:0 20px 40px rgba(15,23,42,0.2);overflow:hidden;}
+  .modal-box.narrow{max-width:380px;}
+  .modal-head{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;border-bottom:1px solid var(--border);}
+  .modal-title{font-size:15px;font-weight:700;color:#0f172a;}
+  .modal-close{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-gray);font-size:18px;border:none;background:none;}
+  .modal-close:hover{background:var(--bg);}
+  .modal-body{padding:18px;}
+  .modal-foot{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-top:1px solid var(--border);}
+  .modal-foot-right{display:flex;gap:8px;}
+
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:11px;font-weight:700;color:var(--text-gray);text-transform:uppercase;letter-spacing:.03em;margin-bottom:5px;}
+  .field input,.field select{width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;color:var(--text-dark);outline:none;}
+  .field input:focus,.field select:focus{border-color:var(--blue);}
+  .field-error{display:none;font-size:10.5px;color:var(--red);font-weight:700;margin-top:3px;}
+  .field.invalid input,.field.invalid select{border-color:var(--red);}
+  .field.invalid .field-error{display:block;}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+  .view-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;}
+  .view-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 16px;}
+  .view-item{padding:8px 0;border-bottom:1px solid var(--border);}
+  .view-item:last-child{border-bottom:none;}
+  .view-item-label{font-size:10px;color:var(--text-light);font-weight:700;text-transform:uppercase;letter-spacing:.03em;}
+  .view-item-value{font-size:13px;color:var(--text-dark);font-weight:700;margin-top:2px;}
+
+  .dispense-box{margin-top:14px;padding:14px;background:#fafbfc;border-radius:10px;border:1px solid var(--border);}
+  .dispense-box-title{font-size:13px;font-weight:800;margin-bottom:10px;}
+  .dispense-row{display:flex;gap:10px;align-items:flex-end;}
+  .dispense-row input{flex:1;}
+  .stock-remaining{font-size:11.5px;color:var(--text-gray);margin-top:6px;}
+
+  .toast{position:fixed;bottom:24px;right:24px;background:#0f172a;color:#fff;padding:12px 18px;border-radius:9px;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,0.2);z-index:1200;opacity:0;transform:translateY(10px);transition:all .2s ease;pointer-events:none;}
+  .toast.show{opacity:1;transform:translateY(0);}
+
+  /* ── Hover Micro-interactions ──────────────────────────────────────── */
+  tbody tr{transition:transform .15s ease,background .15s ease,box-shadow .15s ease;}
+  tbody tr:hover{transform:translateY(-2px) scale(1.005);box-shadow:0 4px 12px rgba(37,99,235,0.08);}
+
+  .stat-card{transition:transform .2s ease,box-shadow .2s ease;}
+  .stat-card:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 6px 18px rgba(0,0,0,0.07);}
+
+  .btn-primary{transition:transform .15s ease,box-shadow .15s ease,background .15s ease;}
+  .btn-primary:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 6px 16px rgba(37,99,235,0.25);}
+  .btn-primary:active{transform:translateY(0) scale(0.98);}
+
+  .btn{transition:transform .15s ease,box-shadow .15s ease,background .15s ease;}
+  .btn:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 4px 12px rgba(0,0,0,0.06);}
+
+  .icon-btn{transition:transform .15s ease,box-shadow .15s ease,color .15s ease,border-color .15s ease,background .15s ease;}
+  .icon-btn:hover{transform:scale(1.12);box-shadow:0 2px 8px rgba(37,99,235,0.15);}
+
+  .page-btn{transition:transform .15s ease,background .15s ease,color .15s ease;}
+  .page-btn:hover:not(.disabled):not(.active){transform:translateY(-2px) scale(1.08);box-shadow:0 3px 8px rgba(0,0,0,0.06);}
+  .page-btn.active{transform:scale(1.05);box-shadow:0 3px 10px rgba(37,99,235,0.25);}
+
+  .badge{transition:transform .15s ease;}
+  tbody tr:hover .badge{transform:scale(1.06);}
+
+  .drug-name{transition:color .15s ease;}
+  tbody tr:hover .drug-name{color:var(--blue);}
+
+  .drug-code{transition:transform .15s ease;}
+  tbody tr:hover .drug-code{transform:scale(1.04);}
+
+  .modal-close{transition:transform .15s ease,background .15s ease;}
+  .modal-close:hover{transform:rotate(90deg) scale(1.1);}
+
+  .filter-select{transition:border-color .15s ease,box-shadow .15s ease;}
+  .filter-select:focus{transform:scale(1.01);}
+
+  .search-box input{transition:border-color .15s ease,box-shadow .15s ease;}
+  .search-box input:focus{transform:scale(1.005);}
+
+  /* ── Loading Spinner ──────────────────────────────────────────────── */
+  .btn.loading{pointer-events:none;opacity:.7;position:relative;}
+  .btn.loading::after{content:'';width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;margin-left:6px;}
+  .btn:not(.btn-primary).loading::after{border-color:rgba(0,0,0,.15);border-top-color:var(--blue);}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* ── Category Manager ─────────────────────────────────────────────── */
+  .cat-list{display:flex;flex-direction:column;gap:6px;max-height:300px;overflow-y:auto;}
+  .cat-item{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-weight:600;}
+  .cat-item:hover{background:var(--bg);}
+  .cat-item-actions{display:flex;gap:4px;}
+  .cat-item-actions .icon-btn{width:26px;height:26px;}
+  .cat-add-row{display:flex;gap:8px;margin-top:10px;}
+  .cat-add-row input{flex:1;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;outline:none;}
+  .cat-add-row input:focus{border-color:var(--blue);}
+  .cat-add-row .btn{padding:8px 14px;}
+
+  @media(max-width:1200px){.stats-row{grid-template-columns:repeat(3,1fr);}}
+  @media(max-width:720px){.stats-row{grid-template-columns:repeat(2,1fr);}.field-row{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<div id="sidebarPlaceholder"></div>
+
+<main class="main">
+  <div class="topbar">
+    <div><div class="page-title">Pharmacy</div><div class="breadcrumb"><a href="dashboard.html">Dashboard</a> / Pharmacy / Drug Inventory</div></div>
+    <div class="topbar-actions">
+      <div class="btn" id="importBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><path d="M12 3v12M7 8l5-5 5 5M5 21h14"/></svg>Import</div>
+      <div class="btn" id="exportBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Export</div>
+      <div class="btn" id="printBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><path d="M6 9V2h12v7M6 18H4a1 1 0 01-1-1v-5a1 1 0 011-1h16a1 1 0 011 1v5a1 1 0 01-1 1h-2M6 14h12v8H6z"/></svg>Print</div>
+      <div class="btn" id="manageCategoriesBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>Categories</div>
+      <div class="btn btn-primary" id="addDrugBtn"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" style="width:15px;height:15px"><path d="M12 5v14M5 12h14"/></svg>Add New Drug</div>
+    </div>
+  </div>
+
+  <div class="stats-row" id="statsRow"></div>
+
+  <div class="filter-bar">
+    <div class="search-box"><input type="text" id="searchInput" placeholder="Search by drug name, generic name or code..."><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg></div>
+    <div class="filter-group"><label>Category</label><select class="filter-select" id="categoryFilter"><option value="All">All</option></select></div>
+    <div class="filter-group"><label>Stock Status</label><select class="filter-select" id="stockFilter"><option value="All">All</option><option value="In Stock">In Stock</option><option value="Low Stock">Low Stock</option><option value="Out of Stock">Out of Stock</option></select></div>
+    <div class="filter-group"><label>Dosage Form</label><select class="filter-select" id="formFilter"><option value="All">All</option></select></div>
+    <div class="icon-btn" id="resetFiltersBtn" title="Reset filters"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.5 9a9 9 0 0114.5-3.5L23 10M1 14l5 4.5A9 9 0 0020.5 15"/></svg></div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-header"><div class="table-title" id="tableTitle">Drug Inventory (0)</div></div>
+    <div class="table-scroll">
+      <table><thead><tr><th>#</th><th>Drug</th><th>Code</th><th>Category</th><th>Form</th><th>Stock</th><th>Unit Price</th><th>Expiry</th><th>Status</th><th>Actions</th></tr></thead><tbody id="drugTable"></tbody></table>
+    </div>
+    <div class="table-footer"><div class="footer-text" id="footerText">Showing 0 of 0</div><div class="pagination" id="pagination"></div></div>
+  </div>
+</main>
+
+<!-- ADD/EDIT DRUG MODAL -->
+<div class="modal-overlay" id="drugFormModal">
+  <div class="modal-box">
+    <div class="modal-head"><div class="modal-title" id="drugFormTitle">Add New Drug</div><button class="modal-close" onclick="closeModal('drugFormModal')">&times;</button></div>
+    <div class="modal-body">
+      <div class="field-row"><div class="field" id="f_name"><label>Drug Name *</label><input type="text" id="in_name" placeholder="e.g. Paracetamol 500mg"><div class="field-error">Required</div></div><div class="field"><label>Generic Name</label><input type="text" id="in_generic" placeholder="e.g. Acetaminophen"></div></div>
+      <div class="field-row"><div class="field"><label>Category</label><select class="filter-select" id="categoryInput"></select></div><div class="field"><label>Dosage Form</label><select class="filter-select" id="formInput"></select></div></div>
+      <div class="field-row"><div class="field"><label>Unit</label><select class="filter-select" id="unitInput"><option>Tabs</option><option>Caps</option><option>Bottles</option><option>Packs</option><option>Tubes</option><option>Sachets</option><option>Vials</option><option>Ampoules</option></select></div><div class="field" id="f_stock"><label>Stock Quantity *</label><input type="number" min="0" id="in_stock" placeholder="e.g. 420"><div class="field-error">Required</div></div></div>
+      <div class="field-row"><div class="field" id="f_price"><label>Unit Price (₦) *</label><input type="number" min="0" id="in_price" placeholder="e.g. 25"><div class="field-error">Required</div></div><div class="field" id="f_reorder"><label>Reorder Level *</label><input type="number" min="0" id="in_reorder" placeholder="e.g. 30"><div class="field-error">Required</div></div></div>
+      <div class="field-row"><div class="field" id="f_expiry"><label>Expiry Date *</label><input type="date" id="in_expiry"><div class="field-error">Required</div></div><div class="field"><label>Batch No.</label><input type="text" id="in_batch" placeholder="e.g. BN-2026-018"></div></div>
+      <div class="field" id="f_codeField" style="display:none;"><label>Drug Code</label><input type="text" id="in_code" disabled></div>
+    </div>
+    <div class="modal-foot"><div class="btn" onclick="closeModal('drugFormModal')">Cancel</div><div class="modal-foot-right"><div class="btn" id="drugFormDeleteBtn" style="display:none;color:var(--red);border-color:var(--red-bg);" onclick="deleteDrug()">Delete</div><div class="btn btn-primary" onclick="submitDrugForm()">Save Drug</div></div></div>
+  </div>
+</div>
+
+<!-- VIEW DRUG MODAL -->
+<div class="modal-overlay" id="drugViewModal">
+  <div class="modal-box">
+    <div class="modal-head"><div class="modal-title">Drug Details</div><button class="modal-close" onclick="closeModal('drugViewModal')">&times;</button></div>
+    <div class="modal-body" id="drugViewBody"></div>
+    <div class="modal-foot"><div class="btn" onclick="closeModal('drugViewModal')">Close</div><div class="modal-foot-right"><div class="btn" onclick="editFromView()">Edit Drug</div></div></div>
+  </div>
+</div>
+
+<!-- RESTOCK MODAL -->
+<div class="modal-overlay" id="restockModal">
+  <div class="modal-box narrow">
+    <div class="modal-head"><div class="modal-title">Restock Drug</div><button class="modal-close" onclick="closeModal('restockModal')">&times;</button></div>
+    <div class="modal-body">
+      <div id="restockInfo" style="font-size:13px;margin-bottom:10px;"></div>
+      <div class="field" id="f_restockQty"><label>Quantity to Add *</label><input type="number" min="1" id="in_restockQty" placeholder="e.g. 100"><div class="field-error">Enter a valid quantity</div></div>
+    </div>
+    <div class="modal-foot"><div class="btn" onclick="closeModal('restockModal')">Cancel</div><div class="btn btn-primary" onclick="submitRestock()">Confirm Restock</div></div>
+  </div>
+</div>
+
+<!-- CATEGORY MANAGEMENT MODAL -->
+<div class="modal-overlay" id="categoryModal">
+  <div class="modal-box narrow">
+    <div class="modal-head"><div class="modal-title">Manage Categories</div><button class="modal-close" onclick="closeModal('categoryModal')">&times;</button></div>
+    <div class="modal-body">
+      <div class="cat-list" id="catList"></div>
+      <div class="cat-add-row"><input type="text" id="newCatInput" placeholder="New category name..."><div class="btn btn-primary" onclick="addCategory()">Add</div></div>
+    </div>
+    <div class="modal-foot"><div class="btn" onclick="closeModal('categoryModal')">Done</div></div>
+  </div>
+</div>
+
+<!-- EDIT CATEGORY MODAL -->
+<div class="modal-overlay" id="editCatModal">
+  <div class="modal-box narrow">
+    <div class="modal-head"><div class="modal-title">Edit Category</div><button class="modal-close" onclick="closeModal('editCatModal')">&times;</button></div>
+    <div class="modal-body">
+      <div class="field"><label>Category Name</label><input type="text" id="editCatInput"></div>
+    </div>
+    <div class="modal-foot"><div class="btn" onclick="closeModal('editCatModal')">Cancel</div><div class="btn btn-primary" onclick="saveEditCategory()">Save</div></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<input type="file" id="importFileInput" accept=".csv" style="display:none">
+
+<script src="shiloh-sidebar.js"></script>
+<script src="../services/api.js"></script>
+<script src="../services/pharmacy-service.js"></script>
+<script>
+let editingId = null;
+let viewingId = null;
+let restockingId = null;
+let editingCatIdx = null;
+
+function esc(s) { return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function money(n) { return '\u20a6' + Number(n||0).toLocaleString('en-NG',{maximumFractionDigits:0}); }
+function showToast(msg) { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._tm); t._tm=setTimeout(()=>t.classList.remove('show'),2400); }
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function setLoading(btn, loading) {
+  if (!btn) return;
+  if (loading) { btn.classList.add('loading'); btn._oldText = btn.innerHTML; }
+  else { btn.classList.remove('loading'); if (btn._oldText) btn.innerHTML = btn._oldText; }
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  ShilohSidebar.attach('#sidebarPlaceholder', { activeFile: 'pharmacy.html', user: { name: 'Pharmacist Tunde', role: 'Pharmacy', avatar: 'https://i.pravatar.cc/64?img=47' } });
+  await PharmacyService.init();
+  populateSelects();
+  renderStats();
+  renderTable();
+  bindEvents();
+});
+
+function populateSelects() {
+  const cats = PharmacyService.CATEGORIES;
+  const forms = PharmacyService.FORMS;
+  const catFilter = document.getElementById('categoryFilter');
+  const formFilter = document.getElementById('formFilter');
+  const catInput = document.getElementById('categoryInput');
+  const formInput = document.getElementById('formInput');
+  catFilter.innerHTML = '<option value="All">All</option>' + cats.map(c => '<option value="'+esc(c)+'">'+esc(c)+'</option>').join('');
+  formFilter.innerHTML = '<option value="All">All</option>' + forms.map(f => '<option value="'+esc(f)+'">'+esc(f)+'</option>').join('');
+  catInput.innerHTML = cats.map(c => '<option value="'+esc(c)+'">'+esc(c)+'</option>').join('');
+  formInput.innerHTML = forms.map(f => '<option value="'+esc(f)+'">'+esc(f)+'</option>').join('');
+}
+
+function renderStats() {
+  const s = PharmacyService.getStats();
+  document.getElementById('statsRow').innerHTML = `
+    <div class="stat-card"><div class="stat-top"><div class="stat-icon ic-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2M3 13h18"/></svg></div><div class="stat-label">Total Drugs</div></div><div class="stat-value">${s.total}</div></div>
+    <div class="stat-card"><div class="stat-top"><div class="stat-icon ic-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></div><div class="stat-label">In Stock</div></div><div class="stat-value">${s.inStock}</div></div>
+    <div class="stat-card"><div class="stat-top"><div class="stat-icon ic-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg></div><div class="stat-label">Low Stock</div></div><div class="stat-value">${s.lowStock}</div></div>
+    <div class="stat-card"><div class="stat-top"><div class="stat-icon ic-red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></div><div class="stat-label">Out of Stock</div></div><div class="stat-value">${s.outOfStock}</div></div>
+    <div class="stat-card"><div class="stat-top"><div class="stat-icon ic-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><div class="stat-label">Expiring Soon</div></div><div class="stat-value">${s.expiringSoon}</div></div>
+    <div class="stat-card"><div class="stat-top"><div class="stat-icon ic-pink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg></div><div class="stat-label">Inventory Value</div></div><div class="stat-value" style="font-size:16px">${money(s.totalValue)}</div></div>`;
+}
+
+function applyFilters() {
+  PharmacyService.search(document.getElementById('searchInput').value);
+  PharmacyService.filterByCategory(document.getElementById('categoryFilter').value);
+  PharmacyService.filterByStock(document.getElementById('stockFilter').value);
+  PharmacyService.filterByForm(document.getElementById('formFilter').value);
+  renderTable();
+}
+
+function renderTable() {
+  const filtered = PharmacyService.getFiltered();
+  const page = PharmacyService.getPage(PharmacyService.state.currentPage);
+  const total = filtered.length;
+  const totalPages = PharmacyService.getTotalPages();
+
+  document.getElementById('tableTitle').textContent = 'Drug Inventory (' + PharmacyService.getAll().length + ')';
+  document.getElementById('footerText').textContent = total ? 'Showing '+(PharmacyService.state.currentPage-1)*PharmacyService.state.perPage+1+' to '+Math.min(PharmacyService.state.currentPage*PharmacyService.state.perPage,total)+' of '+total : 'No drugs found';
+
+  const tbody = document.getElementById('drugTable');
+  if (!page.length) { tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:40px;color:var(--text-light);">No drugs found</td></tr>'; document.getElementById('pagination').innerHTML = ''; return; }
+
+  tbody.innerHTML = page.map((d, i) => {
+    const status = PharmacyService.getStatus(d);
+    const scls = status==='In Stock'?'badge-instock':status==='Low Stock'?'badge-lowstock':'badge-outofstock';
+    const dd = PharmacyService.daysUntil(d.expiry);
+    let expiryNote = dd<0 ? '<div class="expiry-expired">Expired</div>' : dd<=60 ? '<div class="expiry-warn">Expires in '+dd+'d</div>' : '';
+    return `<tr>
+      <td>${(PharmacyService.state.currentPage-1)*PharmacyService.state.perPage+i+1}</td>
+      <td><div class="drug-cell"><div class="drug-name">${esc(d.name)}</div><div class="drug-generic">${esc(d.generic||'—')}</div></div></td>
+      <td><span class="drug-code">${d.code}</span></td>
+      <td><span class="badge badge-category">${esc(d.category)}</span></td>
+      <td>${esc(d.form)}</td>
+      <td><div class="stock-cell"><span class="stock-qty">${d.stock.toLocaleString()}</span> ${esc(d.unit)}</div></td>
+      <td>${money(d.unitPrice)}</td>
+      <td><div><span class="expiry-date">${PharmacyService.fmtDate(new Date(d.expiry))}</span>${expiryNote}</div></td>
+      <td><span class="badge ${scls}"><span class="dot"></span>${status}</span></td>
+      <td><div class="row-actions"><div class="icon-btn" onclick="openRestockModal('${d.id}')" title="Restock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M12 5v14M5 12h14"/></svg></div><div class="icon-btn" onclick="openViewModal('${d.id}')" title="View"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></div><div class="icon-btn" onclick="openEditModal('${d.id}')" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 013 3L12 15l-4 1 1-4z"/></svg></div></div></td>
+    </tr>`;
+  }).join('');
+
+  renderPagination(totalPages);
+}
+
+function renderPagination(totalPages) {
+  const el = document.getElementById('pagination');
+  if (totalPages <= 1) { el.innerHTML = ''; return; }
+  const cp = PharmacyService.state.currentPage;
+  let html = '<div class="page-btn '+(cp===1?'disabled':'')+'" onclick="goPage('+(cp-1)+')">&lt;</div>';
+  let pages = [];
+  if (totalPages <= 7) { pages = Array.from({length:totalPages},(_,i)=>i+1); }
+  else { pages.push(1); if(cp>3) pages.push('...'); const s=Math.max(2,cp-1), e=Math.min(totalPages-1,cp+1); for(let p=s;p<=e;p++) pages.push(p); if(cp<totalPages-2) pages.push('...'); pages.push(totalPages); }
+  pages.forEach(p => { if(p==='...') html+='<div class="page-btn" style="pointer-events:none;opacity:.4">...</div>'; else html+='<div class="page-btn '+(p===cp?'active':'')+'" onclick="goPage('+p+')">'+p+'</div>'; });
+  html += '<div class="page-btn '+(cp===totalPages?'disabled':'')+'" onclick="goPage('+(cp+1)+')">&gt;</div>';
+  html += '<select class="per-page" onchange="changePerPage(this.value)"><option value="10" '+(PharmacyService.state.perPage===10?'selected':'')+'>10 / page</option><option value="25" '+(PharmacyService.state.perPage===25?'selected':'')+'>25 / page</option></select>';
+  el.innerHTML = html;
+}
+
+function goPage(p) { PharmacyService.setPage(p); renderTable(); }
+function changePerPage(v) { PharmacyService.setPerPage(parseInt(v)); renderTable(); }
+
+function openAddModal() {
+  editingId = null;
+  document.getElementById('drugFormTitle').textContent = 'Add New Drug';
+  document.getElementById('in_name').value = '';
+  document.getElementById('in_generic').value = '';
+  document.getElementById('in_stock').value = '';
+  document.getElementById('in_price').value = '';
+  document.getElementById('in_reorder').value = '';
+  document.getElementById('in_expiry').value = '';
+  document.getElementById('in_batch').value = '';
+  document.getElementById('f_codeField').style.display = 'none';
+  document.getElementById('drugFormDeleteBtn').style.display = 'none';
+  populateSelects();
+  clearFormErrors();
+  openModal('drugFormModal');
+}
+
+function openEditModal(id) {
+  const d = PharmacyService.getById(id);
+  if (!d) return;
+  editingId = id;
+  document.getElementById('drugFormTitle').textContent = 'Edit Drug';
+  document.getElementById('in_name').value = d.name;
+  document.getElementById('in_generic').value = d.generic;
+  populateSelects();
+  document.getElementById('categoryInput').value = d.category;
+  document.getElementById('formInput').value = d.form;
+  document.getElementById('unitInput').value = d.unit;
+  document.getElementById('in_stock').value = d.stock;
+  document.getElementById('in_price').value = d.unitPrice;
+  document.getElementById('in_reorder').value = d.reorderLevel;
+  document.getElementById('in_expiry').value = d.expiry;
+  document.getElementById('in_batch').value = d.batch;
+  document.getElementById('in_code').value = d.code;
+  document.getElementById('f_codeField').style.display = '';
+  document.getElementById('drugFormDeleteBtn').style.display = '';
+  clearFormErrors();
+  openModal('drugFormModal');
+}
+
+function clearFormErrors() { ['f_name','f_stock','f_price','f_reorder','f_expiry','f_restockQty'].forEach(id=>{ const el=document.getElementById(id); if(el) el.classList.remove('invalid'); }); }
+
+function submitDrugForm() {
+  clearFormErrors();
+  const data = {
+    name: document.getElementById('in_name').value.trim(),
+    generic: document.getElementById('in_generic').value.trim(),
+    category: document.getElementById('categoryInput').value,
+    form: document.getElementById('formInput').value,
+    unit: document.getElementById('unitInput').value,
+    stock: document.getElementById('in_stock').value,
+    unitPrice: document.getElementById('in_price').value,
+    reorderLevel: document.getElementById('in_reorder').value,
+    expiry: document.getElementById('in_expiry').value,
+    batch: document.getElementById('in_batch').value.trim()
+  };
+  let valid = true;
+  if(!data.name){document.getElementById('f_name').classList.add('invalid');valid=false;}
+  if(data.stock===''||isNaN(data.stock)||data.stock<0){document.getElementById('f_stock').classList.add('invalid');valid=false;}
+  if(data.unitPrice===''||isNaN(data.unitPrice)||data.unitPrice<0){document.getElementById('f_price').classList.add('invalid');valid=false;}
+  if(data.reorderLevel===''||isNaN(data.reorderLevel)||data.reorderLevel<0){document.getElementById('f_reorder').classList.add('invalid');valid=false;}
+  if(!data.expiry){document.getElementById('f_expiry').classList.add('invalid');valid=false;}
+  if(!valid) return;
+  data.stock = parseInt(data.stock);
+  data.unitPrice = parseFloat(data.unitPrice);
+  data.reorderLevel = parseInt(data.reorderLevel);
+  const btn = document.querySelector('#drugFormModal .btn-primary');
+  setLoading(btn, true);
+  setTimeout(async () => {
+    const r = editingId ? await PharmacyService.updateDrug(editingId, data) : await PharmacyService.addDrug(data);
+    setLoading(btn, false);
+    if (!r) { renderStats(); renderTable(); return; }
+    showToast(editingId ? 'Drug updated' : 'Drug added');
+    closeModal('drugFormModal');
+    renderStats();
+    renderTable();
+  }, 600);
+}
+
+function deleteDrug() {
+  if(!editingId) return;
+  const d = PharmacyService.getById(editingId);
+  if(!d) return;
+  if(confirm('Delete '+d.name+'?')){
+    const btn = document.querySelector('#drugFormModal .btn[style*="red"]');
+    setLoading(btn, true);
+    setTimeout(async () => {
+      const ok = await PharmacyService.deleteDrug(editingId);
+      setLoading(btn, false);
+      if (!ok) return;
+      closeModal('drugFormModal');
+      showToast('Drug deleted');
+      renderStats();
+      renderTable();
+    }, 400);
+  }
+}
+
+function openViewModal(id) {
+  const d = PharmacyService.getById(id);
+  if (!d) return;
+  viewingId = id;
+  const status = PharmacyService.getStatus(d);
+  const scls = status==='In Stock'?'badge-instock':status==='Low Stock'?'badge-lowstock':'badge-outofstock';
+  const dd = PharmacyService.daysUntil(d.expiry);
+  let expiryNote = dd<0?'<div class="expiry-expired">Expired '+Math.abs(dd)+' days ago</div>':dd<=60?'<div class="expiry-warn">Expires in '+dd+' days</div>':'';
+  document.getElementById('drugViewBody').innerHTML = `
+    <div class="view-header"><div><div style="font-size:16px;font-weight:800;">${esc(d.name)}</div><div style="font-size:12px;color:var(--text-light);">${esc(d.generic||'—')}</div></div><span class="badge ${scls}"><span class="dot"></span>${status}</span></div>
+    <div class="view-grid">
+      <div class="view-item"><div class="view-item-label">Drug Code</div><div class="view-item-value">${d.code}</div></div>
+      <div class="view-item"><div class="view-item-label">Category</div><div class="view-item-value">${esc(d.category)}</div></div>
+      <div class="view-item"><div class="view-item-label">Dosage Form</div><div class="view-item-value">${esc(d.form)}</div></div>
+      <div class="view-item"><div class="view-item-label">Batch No.</div><div class="view-item-value">${esc(d.batch||'—')}</div></div>
+      <div class="view-item"><div class="view-item-label">Stock on Hand</div><div class="view-item-value">${d.stock.toLocaleString()} ${esc(d.unit)}</div></div>
+      <div class="view-item"><div class="view-item-label">Unit Price</div><div class="view-item-value">${money(d.unitPrice)}</div></div>
+      <div class="view-item"><div class="view-item-label">Reorder Level</div><div class="view-item-value">${d.reorderLevel.toLocaleString()} ${esc(d.unit)}</div></div>
+      <div class="view-item"><div class="view-item-label">Expiry Date</div><div class="view-item-value">${PharmacyService.fmtDate(new Date(d.expiry))}${expiryNote}</div></div>
+    </div>
+    <div class="dispense-box"><div class="dispense-box-title">Dispense to Patient</div><div class="dispense-row"><input type="number" id="in_dispenseQty" min="1" max="${d.stock}" placeholder="Qty"><div class="btn btn-primary" onclick="submitDispense()">Dispense</div></div><div class="stock-remaining" id="dispenseRemaining">${d.stock.toLocaleString()} ${esc(d.unit)} in stock</div></div>`;
+  openModal('drugViewModal');
+}
+
+function submitDispense() {
+  const qty = parseInt(document.getElementById('in_dispenseQty').value,10);
+  if(!qty||qty<1){showToast('Enter a valid quantity');return;}
+  const btn = document.querySelector('#drugViewModal .dispense-row .btn');
+  setLoading(btn, true);
+  setTimeout(async () => {
+    const result = await PharmacyService.dispense(viewingId, qty);
+    setLoading(btn, false);
+    if(!result || result.error){showToast((result && result.error) || 'Could not dispense.');return;}
+    showToast('Dispensed '+qty+' of '+(result.drug && result.drug.name));
+    openViewModal(viewingId);
+    renderStats();
+    renderTable();
+  }, 500);
+}
+
+function editFromView() { closeModal('drugViewModal'); openEditModal(viewingId); }
+
+function openRestockModal(id) {
+  const d = PharmacyService.getById(id);
+  if (!d) return;
+  restockingId = id;
+  document.getElementById('restockInfo').textContent = d.name + ' — currently ' + d.stock.toLocaleString() + ' ' + d.unit + ' in stock';
+  document.getElementById('in_restockQty').value = '';
+  document.getElementById('f_restockQty').classList.remove('invalid');
+  openModal('restockModal');
+}
+
+function submitRestock() {
+  const qty = parseInt(document.getElementById('in_restockQty').value,10);
+  if(!qty||qty<1){document.getElementById('f_restockQty').classList.add('invalid');return;}
+  const btn = document.querySelector('#restockModal .btn-primary');
+  setLoading(btn, true);
+  setTimeout(async () => {
+    const r = await PharmacyService.restock(restockingId, qty);
+    setLoading(btn, false);
+    if (!r) return;
+    const d = r;
+    closeModal('restockModal');
+    showToast('Restocked '+qty+' '+(d.unit||'')+' of '+(d.name||''));
+    renderStats();
+    renderTable();
+  }, 500);
+}
+
+function exportCsv() {
+  const rows = [['Name','Generic','Code','Category','Form','Stock','Unit','Unit Price','Reorder Level','Expiry','Status']];
+  PharmacyService.getFiltered().forEach(d => rows.push([d.name,d.generic,d.code,d.category,d.form,d.stock,d.unit,d.unitPrice,d.reorderLevel,d.expiry,PharmacyService.getStatus(d)].map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')));
+  const csv = rows.map(r=>r.join(',')).join('\n');
+  const blob = new Blob([csv],{type:'text/csv'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'pharmacy-inventory.csv'; a.click();
+  showToast('Exported '+PharmacyService.getFiltered().length+' drugs');
+}
+
+function bindEvents() {
+  let debounce;
+  document.getElementById('searchInput').addEventListener('input', () => { clearTimeout(debounce); debounce=setTimeout(applyFilters,300); });
+  document.getElementById('categoryFilter').addEventListener('change', applyFilters);
+  document.getElementById('stockFilter').addEventListener('change', applyFilters);
+  document.getElementById('formFilter').addEventListener('change', applyFilters);
+  document.getElementById('resetFiltersBtn').addEventListener('click', () => { PharmacyService.resetFilters(); document.getElementById('searchInput').value=''; document.getElementById('categoryFilter').value='All'; document.getElementById('stockFilter').value='All'; document.getElementById('formFilter').value='All'; applyFilters(); showToast('Filters reset'); });
+  document.getElementById('addDrugBtn').addEventListener('click', openAddModal);
+  document.getElementById('manageCategoriesBtn').addEventListener('click', () => { renderCategoryList(); openModal('categoryModal'); });
+  document.getElementById('exportBtn').addEventListener('click', exportCsv);
+  document.getElementById('printBtn').addEventListener('click', () => window.print());
+  document.querySelectorAll('.modal-overlay').forEach(ov => { ov.addEventListener('click', e => { if(e.target===ov) ov.classList.remove('open'); }); });
+  document.getElementById('newCatInput').addEventListener('keydown', e => { if(e.key==='Enter') addCategory(); });
+  document.getElementById('editCatInput').addEventListener('keydown', e => { if(e.key==='Enter') saveEditCategory(); });
+}
+
+/* ── Category Management ─────────────────────────────────────────── */
+function renderCategoryList() {
+  const cats = [...PharmacyService.CATEGORIES];
+  const list = document.getElementById('catList');
+  if (!cats.length) { list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-light);font-size:13px;">No categories yet</div>'; return; }
+  list.innerHTML = cats.map((c, i) => {
+    const count = PharmacyService.getAll().filter(d => d.category === c).length;
+    return `<div class="cat-item">
+      <span>${esc(c)} <span style="color:var(--text-light);font-weight:400;font-size:11px;">(${count} drugs)</span></span>
+      <div class="cat-item-actions">
+        <div class="icon-btn" onclick="openEditCategory(${i})" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 013 3L12 15l-4 1 1-4z"/></svg></div>
+        <div class="icon-btn" onclick="deleteCategory(${i})" title="Delete" style="color:var(--red);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function addCategory() {
+  const input = document.getElementById('newCatInput');
+  const name = input.value.trim();
+  if (!name) return;
+  if (PharmacyService.CATEGORIES.some(c => c.toLowerCase() === name.toLowerCase())) { showToast('Category already exists'); return; }
+  const btn = document.querySelector('#categoryModal .btn-primary');
+  setLoading(btn, true);
+  setTimeout(() => {
+    PharmacyService.CATEGORIES.push(name);
+    setLoading(btn, false);
+    input.value = '';
+    renderCategoryList();
+    populateSelects();
+    showToast('Category "' + name + '" added');
+  }, 300);
+}
+
+function openEditCategory(idx) {
+  editingCatIdx = idx;
+  document.getElementById('editCatInput').value = PharmacyService.CATEGORIES[idx];
+  openModal('editCatModal');
+}
+
+function saveEditCategory() {
+  const name = document.getElementById('editCatInput').value.trim();
+  if (!name || editingCatIdx === null) return;
+  if (PharmacyService.CATEGORIES.some((c, i) => i !== editingCatIdx && c.toLowerCase() === name.toLowerCase())) { showToast('Category already exists'); return; }
+  const btn = document.querySelector('#editCatModal .btn-primary');
+  setLoading(btn, true);
+  setTimeout(() => {
+    const oldName = PharmacyService.CATEGORIES[editingCatIdx];
+    PharmacyService.CATEGORIES[editingCatIdx] = name;
+    PharmacyService.getAll().forEach(d => { if (d.category === oldName) d.category = name; });
+    setLoading(btn, false);
+    editingCatIdx = null;
+    closeModal('editCatModal');
+    renderCategoryList();
+    populateSelects();
+    renderTable();
+    showToast('Category updated');
+  }, 300);
+}
+
+function deleteCategory(idx) {
+  const name = PharmacyService.CATEGORIES[idx];
+  const count = PharmacyService.getAll().filter(d => d.category === name).length;
+  if (count > 0) { showToast('Cannot delete: ' + count + ' drugs use this category'); return; }
+  if (!confirm('Delete category "' + name + '"?')) return;
+  PharmacyService.CATEGORIES.splice(idx, 1);
+  renderCategoryList();
+  populateSelects();
+  showToast('Category deleted');
+}
+</script>
+</body>
+</html>

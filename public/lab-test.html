@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shiloh Clinic &amp; Maternity — New Test Order</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root{
+    --navy:#0b1a4d;
+    --navy-2:#101f5c;
+    --blue-accent:#2f6fed;
+    --bg:#f4f6fb;
+    --card:#ffffff;
+    --border:#eef0f6;
+    --text-dark:#1c2440;
+    --text-mid:#6b7280;
+    --text-light:#9aa1b3;
+
+    --green:#12b76a; --green-bg:#e9f9f0;
+    --blue:#2f6fed; --blue-bg:#eaf1ff;
+    --purple:#8b5cf6; --purple-bg:#f4efff;
+    --orange:#f79009; --orange-bg:#fff4e5;
+    --pink:#ee46bc; --pink-bg:#fdeefa;
+    --red:#f04438; --red-bg:#feecec;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif;
+    background:var(--bg);
+    color:var(--text-dark);
+    min-height:100vh;
+    font-size:13px;
+  }
+
+  .main{max-width:1320px; margin:0 auto; padding:24px 26px 60px;}
+
+  /* ---------- TOPBAR ---------- */
+  .topbar{display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:20px; flex-wrap:wrap;}
+  .topbar-left{display:flex; align-items:center; gap:14px;}
+  .back-btn{
+    width:40px; height:40px; border-radius:10px; background:#fff; border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; color:var(--text-mid); cursor:pointer; flex-shrink:0;
+  }
+  .back-btn:hover{background:var(--bg);}
+  .topbar-title h1{font-size:19px; font-weight:800; color:var(--text-dark); margin-bottom:2px;}
+  .topbar-title p{font-size:12px; color:var(--text-light); font-weight:500;}
+  .topbar-actions{display:flex; align-items:center; gap:10px; flex-shrink:0; flex-wrap:wrap;}
+
+  .btn{
+    display:flex; align-items:center; gap:8px; border-radius:11px; padding:11px 18px;
+    font-weight:700; font-size:13px; cursor:pointer; border:1px solid transparent; white-space:nowrap;
+  }
+  .btn-outline{background:#fff; border-color:var(--border); color:var(--text-dark);}
+  .btn-outline:hover{background:var(--bg);}
+  .btn-primary{background:var(--blue); color:#fff;}
+  .btn-primary:hover{background:#2560d9;}
+  .btn-primary:disabled{opacity:.5; cursor:not-allowed;}
+  .btn-dark{background:var(--navy); color:#fff;}
+  .btn-dark:hover{background:var(--navy-2);}
+  .btn-dark:disabled{opacity:.5; cursor:not-allowed;}
+
+  /* ---------- FORM LAYOUT ---------- */
+  .form-grid{display:grid; grid-template-columns:1fr 320px; gap:16px; align-items:start;}
+  .col-left{display:flex; flex-direction:column; gap:16px;}
+  .col-right{display:flex; flex-direction:column; gap:16px; position:sticky; top:16px;}
+
+  .panel{background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px;}
+  .panel-title{display:flex; align-items:center; justify-content:space-between; gap:9px; margin-bottom:18px; flex-wrap:wrap;}
+  .panel-title-text{display:flex; align-items:center; gap:9px; font-size:14.5px; font-weight:800; color:var(--text-dark);}
+  .panel-title-text i{color:var(--blue); font-size:14px;}
+  .panel-title-text.pt-pink i{color:var(--pink);}
+  .panel-title-text.pt-purple i{color:var(--purple);}
+  .panel-title-text.pt-orange i{color:var(--orange);}
+  .panel-sub{font-size:11px; color:var(--text-light); font-weight:600; margin-top:2px;}
+
+  .count-chip{
+    font-size:10.5px; font-weight:800; background:var(--blue-bg); color:var(--blue);
+    padding:3px 10px; border-radius:20px; white-space:nowrap;
+  }
+
+  .mode-toggle{display:flex; gap:4px; background:var(--bg); border:1px solid var(--border); border-radius:9px; padding:3px;}
+  .mode-toggle-btn{padding:6px 12px; border-radius:6px; font-size:11.5px; font-weight:700; color:var(--text-mid); cursor:pointer;}
+  .mode-toggle-btn.active{background:#fff; color:var(--blue); box-shadow:0 1px 4px rgba(0,0,0,.08);}
+
+  .field-grid{display:grid; gap:14px 16px;}
+  .cols-4{grid-template-columns:repeat(4,1fr);}
+  .cols-3{grid-template-columns:repeat(3,1fr);}
+  .cols-2{grid-template-columns:repeat(2,1fr);}
+  .cols-1{grid-template-columns:1fr;}
+
+  .field{display:flex; flex-direction:column; gap:6px;}
+  .field label{font-size:11.5px; font-weight:700; color:var(--text-mid);}
+  .field label .req{color:var(--red); margin-left:2px;}
+  .field .input-wrap{position:relative; display:flex; align-items:center;}
+  .field .input-wrap i{position:absolute; left:12px; color:var(--text-light); font-size:12px;}
+  .field input, .field select, .field textarea{
+    border:1px solid var(--border); border-radius:10px; padding:10px 12px; font-size:12.5px;
+    color:var(--text-dark); background:#fff; outline:none; font-family:inherit; width:100%;
+  }
+  .field .input-wrap input, .field .input-wrap select{padding-left:32px;}
+  .field input:focus, .field select:focus, .field textarea:focus{border-color:var(--blue); box-shadow:0 0 0 3px var(--blue-bg);}
+  .field select{appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M0 0l5 6 5-6z' fill='%239aa1b3'/></svg>"); background-repeat:no-repeat; background-position:right 12px center;}
+  .field textarea{resize:none; min-height:76px;}
+  .field input:disabled{background:var(--bg); color:var(--text-mid);}
+  .char-count{font-size:10.5px; color:var(--text-light); text-align:right; margin-top:-4px;}
+  .field-err{font-size:10.5px; color:var(--red); font-weight:700; display:none;}
+  .field.invalid input, .field.invalid select{border-color:var(--red);}
+  .field.invalid .field-err{display:block;}
+
+  /* patient search */
+  .patient-search-wrap{position:relative;}
+  .patient-dropdown{
+    position:absolute; top:calc(100% + 6px); left:0; right:0; background:#fff; border:1px solid var(--border);
+    border-radius:10px; box-shadow:0 14px 32px rgba(16,20,40,.14); max-height:230px; overflow-y:auto; z-index:50; display:none;
+  }
+  .patient-dropdown.open{display:block;}
+  .pd-item{display:flex; align-items:center; gap:10px; padding:9px 12px; cursor:pointer;}
+  .pd-item:hover{background:var(--bg);}
+  .pd-avatar{width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:11px; font-weight:800; flex-shrink:0;}
+  .pd-name{font-size:12.5px; font-weight:700; color:var(--text-dark);}
+  .pd-meta{font-size:10.5px; color:var(--text-light); font-weight:600;}
+  .pd-empty{padding:14px; text-align:center; font-size:12px; color:var(--text-light); font-weight:600;}
+
+  .selected-patient-card{
+    display:flex; align-items:center; gap:12px; background:var(--blue-bg); border-radius:12px; padding:12px 14px; margin-bottom:14px;
+  }
+  .selected-patient-card .pd-avatar{width:40px; height:40px; font-size:13px;}
+  .sp-name{font-size:13px; font-weight:800; color:var(--text-dark);}
+  .sp-meta{font-size:11px; color:var(--text-mid); font-weight:600; margin-top:1px;}
+  .sp-clear{margin-left:auto; width:26px; height:26px; border-radius:7px; background:#fff; border:1px solid var(--border); display:flex; align-items:center; justify-content:center; color:var(--text-mid); cursor:pointer; flex-shrink:0;}
+  .sp-clear:hover{color:var(--red); border-color:#f9d4d1;}
+
+  /* checkbox row */
+  .checkbox-row{display:flex; align-items:center; gap:8px; font-size:12px; color:var(--text-mid); font-weight:600;}
+  .checkbox-row input{width:15px; height:15px; accent-color:var(--blue); flex-shrink:0;}
+  .checkbox-group{display:flex; gap:18px; flex-wrap:wrap;}
+
+  /* priority chips */
+  .priority-chips{display:flex; gap:8px; flex-wrap:wrap;}
+  .priority-chip-btn{
+    padding:9px 16px; border-radius:9px; border:1.5px solid var(--border); font-size:12px; font-weight:700;
+    color:var(--text-mid); cursor:pointer; background:#fff; display:flex; align-items:center; gap:7px;
+  }
+  .priority-chip-btn .dot{width:7px; height:7px; border-radius:50%; background:var(--text-light);}
+  .priority-chip-btn[data-p="routine"].selected{background:#f1f2f6; border-color:#c7cbd6; color:#475066;}
+  .priority-chip-btn[data-p="routine"].selected .dot{background:#6b7280;}
+  .priority-chip-btn[data-p="urgent"].selected{background:var(--orange-bg); border-color:#ffd699; color:#c56c05;}
+  .priority-chip-btn[data-p="urgent"].selected .dot{background:var(--orange);}
+  .priority-chip-btn[data-p="stat"].selected{background:var(--red-bg); border-color:#fac3bd; color:var(--red);}
+  .priority-chip-btn[data-p="stat"].selected .dot{background:var(--red);}
+
+  /* test catalog */
+  .test-toolbar{display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap;}
+  .test-toolbar .search-wrap{flex:1; min-width:200px; position:relative;}
+  .test-toolbar .search-wrap i{position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--text-light); font-size:12px;}
+  .test-toolbar .search-wrap input{width:100%; padding:9px 12px 9px 32px; border:1px solid var(--border); border-radius:9px; font-size:12.5px; font-family:inherit; outline:none;}
+  .test-toolbar .search-wrap input:focus{border-color:var(--blue); box-shadow:0 0 0 3px var(--blue-bg);}
+  .test-toolbar select{padding:9px 12px; border:1px solid var(--border); border-radius:9px; font-size:12.5px; color:var(--text-dark); background:#fff; font-family:inherit; outline:none; min-width:160px;}
+
+  .test-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:10px; max-height:420px; overflow-y:auto; padding-right:4px;}
+  .test-card{
+    display:flex; align-items:flex-start; gap:10px; border:1.5px solid var(--border); border-radius:11px; padding:11px 12px;
+    cursor:pointer; transition:.12s; background:#fff;
+  }
+  .test-card:hover{border-color:#c9d6fb;}
+  .test-card.selected{background:var(--blue-bg); border-color:var(--blue-accent);}
+  .test-check{
+    width:18px; height:18px; border-radius:5px; border:1.5px solid var(--border); background:#fff; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; margin-top:1px; font-size:10px; color:#fff;
+  }
+  .test-card.selected .test-check{background:var(--blue-accent); border-color:var(--blue-accent);}
+  .test-card-name{font-size:12.5px; font-weight:700; color:var(--text-dark); line-height:1.3;}
+  .test-card-meta{font-size:10.5px; color:var(--text-light); font-weight:600; margin-top:3px; display:flex; gap:8px; flex-wrap:wrap;}
+  .test-card-meta span{display:flex; align-items:center; gap:4px;}
+  .test-card-price{font-size:11.5px; font-weight:800; color:var(--blue); margin-top:5px;}
+  .test-cat-tag{
+    font-size:9px; font-weight:800; letter-spacing:.02em; text-transform:uppercase; color:var(--purple);
+    background:var(--purple-bg); padding:2px 7px; border-radius:6px; display:inline-block; margin-top:5px;
+  }
+  .test-empty{grid-column:1/-1; text-align:center; padding:28px 14px; color:var(--text-light); font-size:12.5px; font-weight:600;}
+
+  /* ---------- RIGHT COLUMN ---------- */
+  .summary-row{display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border); gap:10px;}
+  .summary-row:last-child{border-bottom:none;}
+  .summary-label{font-size:11.5px; color:var(--text-mid); font-weight:600;}
+  .summary-value{font-size:12px; font-weight:700; color:var(--text-dark); text-align:right;}
+  .status-chip-sm{font-size:10.5px; font-weight:700; padding:3px 10px; border-radius:20px; white-space:nowrap;}
+  .priority-badge{font-size:10.5px; font-weight:700; padding:3px 10px; border-radius:20px; white-space:nowrap;}
+  .priority-badge.routine{background:#f1f2f6; color:#475066;}
+  .priority-badge.urgent{background:var(--orange-bg); color:#c56c05;}
+  .priority-badge.stat{background:var(--red-bg); color:var(--red);}
+  .priority-badge.none{background:#f1f2f6; color:#9aa1b3;}
+
+  .selected-tests-list{display:flex; flex-direction:column; gap:0; margin:2px 0 4px;}
+  .stl-empty{text-align:center; padding:18px 8px; color:var(--text-light); font-size:11.5px; font-weight:600;}
+  .stl-empty i{display:block; font-size:20px; margin-bottom:6px; color:#dbe2f5;}
+  .stl-row{display:flex; align-items:center; gap:8px; padding:8px 0; border-bottom:1px solid var(--border);}
+  .stl-row:last-child{border-bottom:none;}
+  .stl-info{flex:1; min-width:0;}
+  .stl-name{font-size:11.5px; font-weight:700; color:var(--text-dark); line-height:1.3; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .stl-sample{font-size:10px; color:var(--text-light); font-weight:600;}
+  .stl-price{font-size:11.5px; font-weight:800; color:var(--text-dark); white-space:nowrap;}
+  .stl-remove{width:22px; height:22px; border-radius:6px; background:var(--red-bg); color:var(--red); border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:10px; flex-shrink:0;}
+  .stl-remove:hover{background:#fbdad6;}
+
+  .total-row{display:flex; align-items:center; justify-content:space-between; padding:12px 0 2px; margin-top:4px; border-top:1.5px solid var(--border);}
+  .total-label{font-size:12.5px; font-weight:800; color:var(--text-dark);}
+  .total-value{font-size:16px; font-weight:800; color:var(--blue);}
+
+  .notice-box{display:flex; gap:10px; background:var(--blue-bg); border-radius:10px; padding:12px; margin-top:14px; font-size:11.5px; color:#1d54c9; font-weight:600; line-height:1.4;}
+  .notice-box i{margin-top:1px; flex-shrink:0;}
+
+  .consent-title{font-size:12.5px; font-weight:800; color:var(--blue); margin-bottom:10px;}
+  .consent-box{display:flex; gap:10px; font-size:11.5px; color:var(--text-mid); line-height:1.45; font-weight:500;}
+  .consent-box input{width:16px; height:16px; accent-color:var(--blue); flex-shrink:0; margin-top:1px;}
+
+  /* ---------- BOTTOM ACTIONS ---------- */
+  .bottom-actions{display:flex; align-items:center; justify-content:flex-end; gap:10px; margin-top:20px; flex-wrap:wrap;}
+
+  .toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;
+    padding:11px 20px;border-radius:10px;font-size:12.5px;font-weight:700;box-shadow:0 10px 30px rgba(10,15,40,0.3);
+    opacity:0;pointer-events:none;transition:.22s; z-index:300; display:flex; align-items:center; gap:9px;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .toast i{color:var(--green);}
+  .toast.error i{color:var(--red);}
+
+  @media (max-width:1100px){
+    .form-grid{grid-template-columns:1fr;}
+    .col-right{position:static;}
+    .cols-4{grid-template-columns:repeat(2,1fr);}
+    .cols-3{grid-template-columns:repeat(2,1fr);}
+    .test-grid{grid-template-columns:1fr;}
+  }
+  @media (max-width:640px){
+    .cols-4, .cols-3, .cols-2{grid-template-columns:1fr;}
+    .topbar{flex-direction:column; align-items:flex-start;}
+    .topbar-actions{width:100%; flex-wrap:wrap;}
+    .bottom-actions{flex-wrap:wrap;}
+  }
+</style>
+</head>
+<body>
+
+<main class="main">
+
+  <!-- topbar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="back-btn" id="backBtn"><i class="fa-solid fa-arrow-left"></i></div>
+      <div class="topbar-title">
+        <h1>New Test Order</h1>
+        <p>Create a new laboratory test order for a patient</p>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <div class="btn btn-outline" id="clearFormBtn"><i class="fa-solid fa-rotate-left"></i> Clear Form</div>
+      <div class="btn btn-primary" id="submitTopBtn" disabled><i class="fa-solid fa-flask"></i> Submit Order</div>
+    </div>
+  </div>
+
+  <div class="form-grid">
+
+    <!-- LEFT COLUMN -->
+    <div class="col-left">
+
+      <!-- Patient Information -->
+      <div class="panel">
+        <div class="panel-title">
+          <div class="panel-title-text"><i class="fa-regular fa-user"></i> Patient Information</div>
+          <div class="mode-toggle" id="patientModeToggle">
+            <div class="mode-toggle-btn active" data-mode="existing">Existing Patient</div>
+            <div class="mode-toggle-btn" data-mode="new">New / Walk-in</div>
+          </div>
+        </div>
+
+        <!-- existing patient search -->
+        <div id="existingPatientBlock">
+          <div class="selected-patient-card" id="selectedPatientCard" style="display:none;"></div>
+          <div class="field patient-search-wrap" id="patientSearchField">
+            <label>Search Patient<span class="req">*</span></label>
+            <div class="input-wrap"><i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="patientSearch" placeholder="Search by name, hospital no. or phone…" autocomplete="off">
+            </div>
+            <div class="field-err">Please select a patient</div>
+            <div class="patient-dropdown" id="patientDropdown"></div>
+          </div>
+          <div class="field-grid cols-3" style="margin-top:14px;">
+            <div class="field"><label>Hospital No.</label><input type="text" id="pHospNo" disabled placeholder="—"></div>
+            <div class="field"><label>Age / Gender</label><input type="text" id="pAgeGender" disabled placeholder="—"></div>
+            <div class="field"><label>Phone</label><input type="text" id="pPhone" disabled placeholder="—"></div>
+          </div>
+        </div>
+
+        <!-- new / walk-in patient -->
+        <div id="newPatientBlock" style="display:none;">
+          <div class="field-grid cols-3">
+            <div class="field" data-field="newFirst"><label>First Name<span class="req">*</span></label><input type="text" id="newFirst" placeholder="e.g. Grace"><div class="field-err">Required</div></div>
+            <div class="field" data-field="newLast"><label>Last Name<span class="req">*</span></label><input type="text" id="newLast" placeholder="e.g. Emu"><div class="field-err">Required</div></div>
+            <div class="field"><label>Gender</label>
+              <select id="newGender"><option>Female</option><option>Male</option></select>
+            </div>
+            <div class="field" data-field="newPhone"><label>Phone<span class="req">*</span></label>
+              <div class="input-wrap"><i class="fa-solid fa-phone"></i><input type="text" id="newPhone" placeholder="0803 123 4567"></div>
+              <div class="field-err">Required</div>
+            </div>
+            <div class="field" style="grid-column:span 2;">
+              <label class="checkbox-row"><input type="checkbox" id="newFullReg"> Complete full registration at check-in</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order Details -->
+      <div class="panel">
+        <div class="panel-title"><div class="panel-title-text"><i class="fa-solid fa-file-medical"></i> Order Details</div></div>
+        <div class="field-grid cols-3">
+          <div class="field" data-field="doctor">
+            <label>Ordering Doctor<span class="req">*</span></label>
+            <select id="fDoctor"><option value="">Select a doctor</option></select>
+            <div class="field-err">Please select a doctor</div>
+          </div>
+          <div class="field">
+            <label>Order Date<span class="req">*</span></label>
+            <div class="input-wrap"><i class="fa-regular fa-calendar"></i><input type="date" id="fDate"></div>
+          </div>
+          <div class="field">
+            <label>Order Time<span class="req">*</span></label>
+            <div class="input-wrap"><i class="fa-regular fa-clock"></i><input type="time" id="fTime"></div>
+          </div>
+        </div>
+        <div class="field-grid cols-1" style="margin-top:14px;">
+          <div class="field">
+            <label>Priority</label>
+            <div class="priority-chips" id="priorityChips">
+              <div class="priority-chip-btn selected" data-p="routine"><span class="dot"></span>Routine</div>
+              <div class="priority-chip-btn" data-p="urgent"><span class="dot"></span>Urgent</div>
+              <div class="priority-chip-btn" data-p="stat"><span class="dot"></span>STAT</div>
+            </div>
+          </div>
+        </div>
+        <div class="field-grid cols-2" style="margin-top:14px;">
+          <div class="field">
+            <label>Fasting Status</label>
+            <select id="fFasting">
+              <option>Not Required</option>
+              <option>Fasting — 8 hours</option>
+              <option>Fasting — 12 hours</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Sample Collection</label>
+            <select id="fCollection">
+              <option>Collect at Lab</option>
+              <option>Collect at Bedside / Ward</option>
+              <option>Home Sample Collection</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-grid cols-1" style="margin-top:14px;">
+          <div class="field">
+            <label>Clinical Diagnosis / Suspected Condition (Optional)</label>
+            <textarea id="fDiagnosis" placeholder="e.g. Suspected malaria, routine antenatal panel…" maxlength="400"></textarea>
+            <div class="char-count"><span id="diagCount">0</span> / 400</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Select Tests -->
+      <div class="panel">
+        <div class="panel-title">
+          <div class="panel-title-text pt-purple"><i class="fa-solid fa-flask"></i> Select Tests</div>
+          <div class="count-chip" id="testCountChip">0 selected</div>
+        </div>
+        <div class="test-toolbar">
+          <div class="search-wrap">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="testSearch" placeholder="Search tests…" autocomplete="off">
+          </div>
+          <select id="testCategoryFilter">
+            <option value="all">All Categories</option>
+            <option value="Hematology">Hematology</option>
+            <option value="Chemistry">Chemistry</option>
+            <option value="Microbiology">Microbiology</option>
+            <option value="Serology">Serology</option>
+            <option value="Urinalysis">Urinalysis</option>
+            <option value="Immunology">Immunology &amp; Genotyping</option>
+          </select>
+        </div>
+        <div class="test-grid" id="testGrid"></div>
+        <div class="field-err" id="testsErr" style="display:none; margin-top:10px;">Please select at least one test</div>
+      </div>
+
+      <!-- Additional Instructions -->
+      <div class="panel">
+        <div class="panel-title"><div class="panel-title-text pt-orange"><i class="fa-solid fa-circle-info"></i> Additional Instructions</div></div>
+        <div class="field-grid cols-1">
+          <div class="field">
+            <label>Specimen Collection Notes (Optional)</label>
+            <textarea id="fSpecimenNotes" placeholder="Any special instructions for the phlebotomist / lab technician…" maxlength="400"></textarea>
+            <div class="char-count"><span id="specCount">0</span> / 400</div>
+          </div>
+        </div>
+        <div class="field-grid cols-1" style="margin-top:14px;">
+          <div class="checkbox-group">
+            <label class="checkbox-row"><input type="checkbox" id="flagPregnant"> Patient is pregnant</label>
+            <label class="checkbox-row"><input type="checkbox" id="flagMedication"> Patient is currently on medication</label>
+            <label class="checkbox-row"><input type="checkbox" id="flagAllergy"> Known allergy to collection materials (e.g. latex)</label>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="col-right">
+
+      <div class="panel">
+        <div class="panel-title"><div class="panel-title-text"><i class="fa-regular fa-file-lines"></i> Order Summary</div></div>
+        <div class="summary-row"><div class="summary-label">Order ID</div><div class="summary-value" id="sumId">—</div></div>
+        <div class="summary-row"><div class="summary-label">Patient</div><div class="summary-value" id="sumPatient">Not selected</div></div>
+        <div class="summary-row"><div class="summary-label">Ordering Doctor</div><div class="summary-value" id="sumDoctor">Not selected</div></div>
+        <div class="summary-row"><div class="summary-label">Date &amp; Time</div><div class="summary-value" id="sumDateTime">—</div></div>
+        <div class="summary-row"><div class="summary-label">Priority</div><div id="sumPriority"><span class="priority-badge routine">Routine</span></div></div>
+        <div class="summary-row"><div class="summary-label">Est. Turnaround</div><div class="summary-value" id="sumTurnaround">—</div></div>
+
+        <div style="margin-top:12px;">
+          <div class="summary-label" style="margin-bottom:6px;">Tests Ordered</div>
+          <div class="selected-tests-list" id="selectedTestsList">
+            <div class="stl-empty"><i class="fa-solid fa-vial-circle-check"></i>No tests selected yet</div>
+          </div>
+        </div>
+
+        <div class="total-row">
+          <div class="total-label">Estimated Total</div>
+          <div class="total-value" id="sumTotal">₦0</div>
+        </div>
+
+        <div class="notice-box">
+          <i class="fa-regular fa-circle-check"></i>
+          <div>Sample labels and a requisition slip will be generated automatically once this order is submitted.</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="consent-title">Consent</div>
+        <div class="consent-box">
+          <input type="checkbox" id="fConsent">
+          <div>Patient (or their representative) has been informed of the tests being ordered and consents to sample collection for the tests listed above.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="bottom-actions">
+    <div class="btn btn-outline" id="cancelBtn">Cancel</div>
+    <div class="btn btn-outline" id="draftBtn"><i class="fa-regular fa-floppy-disk"></i> Save as Draft</div>
+    <div class="btn btn-dark" id="submitBtn" disabled><i class="fa-solid fa-print"></i> Submit Order &amp; Print Labels</div>
+  </div>
+
+</main>
+
+<div class="toast" id="toast"><i class="fa-solid fa-circle-check"></i><span id="toastText">Saved</span></div>
+
+<script src="../services/api.js"></script>
+<script src="../services/lab-service.js"></script>
+<script src="../services/patient-service.js"></script>
+<script>
+(async function(){
+  const el = id => document.getElementById(id);
+  const fmtN = n => '₦' + Number(n).toLocaleString('en-NG');
+
+  /* ============ DATA (backend-only, no demo fallback) ============ */
+  try { await LabService.init(); } catch (e) { window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error'); }
+  try { await PatientService.init(); } catch (e) { window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error'); }
+  let PATIENTS = [];
+  let DOCTORS = [];
+  try {
+    PATIENTS = PatientService.getAllPatients().map(p => ({
+      name: p.name, hospNo: p.hospitalNo, phone: p.phonePrimary,
+      gender: p.gender, age: parseInt(p.age)||0,
+      color: '#2f6fed'
+    }));
+  } catch (e) { window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error'); PATIENTS = []; }
+  try {
+    const base = (window.ShilohAPI && window.ShilohAPI.BASE) || (window.__SHILOH_API__ || 'http://localhost:5001/api');
+    const headers = window.ShilohAPI ? window.ShilohAPI.headers() : {};
+    const res = await fetch(base + '/users?limit=100', { headers });
+    if(!res.ok) throw new Error('Failed to load doctors (' + res.status + ')');
+    const data = await res.json();
+    const users = (data && data.items) || data;
+    const list = Array.isArray(users) ? users : [];
+    DOCTORS = list.map(d => ({ name: d.name || String(d), specialty: d.specialty || d.department || 'General Medicine' }));
+  } catch (e) { window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error'); DOCTORS = []; }
+
+  const TEST_CATALOG = [
+    { id:'fbc', name:'Full Blood Count', cat:'Hematology', sample:'Blood (EDTA)', price:3500, turnaround:'2 hrs' },
+    { id:'pcv', name:'Packed Cell Volume (PCV)', cat:'Hematology', sample:'Blood (Capillary)', price:1500, turnaround:'1 hr' },
+    { id:'esr', name:'ESR', cat:'Hematology', sample:'Blood (EDTA)', price:2000, turnaround:'2 hrs' },
+    { id:'fbs', name:'Fasting Blood Sugar', cat:'Chemistry', sample:'Blood (Fluoride)', price:2000, turnaround:'1 hr' },
+    { id:'lft', name:'Liver Function Test', cat:'Chemistry', sample:'Blood (Serum)', price:8500, turnaround:'Same day' },
+    { id:'kft', name:'Kidney Function Test', cat:'Chemistry', sample:'Blood (Serum)', price:8500, turnaround:'Same day' },
+    { id:'lipid', name:'Lipid Profile', cat:'Chemistry', sample:'Blood (Serum, Fasting)', price:9000, turnaround:'Same day' },
+    { id:'urine-cult', name:'Urine Culture &amp; Sensitivity', cat:'Microbiology', sample:'Urine (MSU)', price:6000, turnaround:'48 hrs' },
+    { id:'stool-mc', name:'Stool Microscopy, C&amp;S', cat:'Microbiology', sample:'Stool', price:4000, turnaround:'24 hrs' },
+    { id:'hep-b', name:'Hepatitis B Screening', cat:'Serology', sample:'Blood (Serum)', price:4500, turnaround:'2 hrs' },
+    { id:'hiv', name:'HIV Screening', cat:'Serology', sample:'Blood (Serum)', price:3000, turnaround:'1 hr' },
+    { id:'widal', name:'Widal Test', cat:'Serology', sample:'Blood (Serum)', price:3000, turnaround:'2 hrs' },
+    { id:'vdrl', name:'VDRL', cat:'Serology', sample:'Blood (Serum)', price:3000, turnaround:'2 hrs' },
+    { id:'urinalysis', name:'Urinalysis', cat:'Urinalysis', sample:'Urine', price:1500, turnaround:'30 mins' },
+    { id:'bhcg', name:'Pregnancy Test (BHCG)', cat:'Urinalysis', sample:'Urine', price:2000, turnaround:'30 mins' },
+    { id:'genotype', name:'Genotype', cat:'Immunology', sample:'Blood (EDTA)', price:3500, turnaround:'2 hrs' },
+    { id:'bloodgroup', name:'Blood Grouping &amp; Rhesus', cat:'Immunology', sample:'Blood (EDTA)', price:2500, turnaround:'1 hr' },
+    { id:'malaria', name:'Malaria Parasite (MP)', cat:'Immunology', sample:'Blood (Capillary)', price:1500, turnaround:'30 mins' },
+  ];
+
+  const TURNAROUND_RANK = { '30 mins':1, '1 hr':2, '2 hrs':3, 'Same day':4, '24 hrs':5, '48 hrs':6 };
+
+  let nextOrderNum = 351; // continues from LAB-000350
+  let selectedPatient = null;
+  let patientMode = 'existing';
+  let selectedTests = [];   // array of test ids
+  let priority = 'routine';
+
+  /* ============ TOAST ============ */
+  function showToast(msg, isError){
+    el('toastText').textContent = msg;
+    const t = el('toast');
+    t.classList.toggle('error', !!isError);
+    t.querySelector('i').className = isError ? 'fa-solid fa-triangle-exclamation' : 'fa-solid fa-circle-check';
+    t.classList.add('show');
+    clearTimeout(showToast._tm);
+    showToast._tm = setTimeout(()=>t.classList.remove('show'), 2200);
+  }
+
+  function initials(name){
+    return name.replace('Dr. ','').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+  }
+
+  /* ============ PATIENT MODE TOGGLE ============ */
+  document.querySelectorAll('#patientModeToggle .mode-toggle-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('#patientModeToggle .mode-toggle-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      patientMode = btn.dataset.mode;
+      el('existingPatientBlock').style.display = patientMode==='existing' ? 'block' : 'none';
+      el('newPatientBlock').style.display = patientMode==='new' ? 'block' : 'none';
+      updateSummary();
+      validateForm();
+    });
+  });
+
+  /* ============ PATIENT SEARCH ============ */
+  const dropdown = el('patientDropdown');
+  function renderPatientDropdown(query){
+    const q = query.trim().toLowerCase();
+    const matches = q ? PATIENTS.filter(p=> p.name.toLowerCase().includes(q) || p.hospNo.toLowerCase().includes(q) || p.phone.includes(q)) : PATIENTS;
+    dropdown.innerHTML = matches.length===0
+      ? `<div class="pd-empty">No patients found</div>`
+      : matches.slice(0,8).map(p=>`
+          <div class="pd-item" data-idx="${PATIENTS.indexOf(p)}">
+            <div class="pd-avatar" style="background:${p.color};">${initials(p.name)}</div>
+            <div><div class="pd-name">${p.name}</div><div class="pd-meta">${p.hospNo} · ${p.phone}</div></div>
+          </div>
+        `).join('');
+    dropdown.classList.add('open');
+  }
+  el('patientSearch').addEventListener('focus', ()=> renderPatientDropdown(el('patientSearch').value));
+  el('patientSearch').addEventListener('input', ()=> renderPatientDropdown(el('patientSearch').value));
+  dropdown.addEventListener('click', (e)=>{
+    const item = e.target.closest('.pd-item');
+    if(!item) return;
+    selectedPatient = PATIENTS[Number(item.dataset.idx)];
+    dropdown.classList.remove('open');
+    el('patientSearch').value = '';
+    renderSelectedPatient();
+    el('patientSearchField').classList.remove('invalid');
+    updateSummary();
+    validateForm();
+  });
+  document.addEventListener('click', (e)=>{
+    if(!e.target.closest('.patient-search-wrap')) dropdown.classList.remove('open');
+  });
+
+  function renderSelectedPatient(){
+    const card = el('selectedPatientCard');
+    if(!selectedPatient){
+      card.style.display='none';
+      el('pHospNo').value=''; el('pAgeGender').value=''; el('pPhone').value='';
+      return;
+    }
+    card.style.display='flex';
+    card.innerHTML = `
+      <div class="pd-avatar" style="background:${selectedPatient.color};">${initials(selectedPatient.name)}</div>
+      <div><div class="sp-name">${selectedPatient.name}</div><div class="sp-meta">${selectedPatient.hospNo} · ${selectedPatient.gender}, ${selectedPatient.age} yrs</div></div>
+      <div class="sp-clear" id="clearPatientBtn" title="Clear"><i class="fa-solid fa-xmark"></i></div>
+    `;
+    el('clearPatientBtn').addEventListener('click', ()=>{
+      selectedPatient = null;
+      renderSelectedPatient();
+      updateSummary();
+      validateForm();
+    });
+    el('pHospNo').value = selectedPatient.hospNo;
+    el('pAgeGender').value = `${selectedPatient.age} yrs, ${selectedPatient.gender}`;
+    el('pPhone').value = selectedPatient.phone;
+  }
+
+  /* ============ DOCTORS ============ */
+  const doctorSelect = el('fDoctor');
+  DOCTORS.forEach((d,i)=>{
+    const opt = document.createElement('option');
+    opt.value = i; opt.textContent = `${d.name} — ${d.specialty}`;
+    doctorSelect.appendChild(opt);
+  });
+  doctorSelect.addEventListener('change', ()=>{ updateSummary(); validateForm(); });
+
+  /* ============ PRIORITY CHIPS ============ */
+  el('priorityChips').addEventListener('click', (e)=>{
+    const btn = e.target.closest('.priority-chip-btn');
+    if(!btn) return;
+    document.querySelectorAll('.priority-chip-btn').forEach(b=>b.classList.remove('selected'));
+    btn.classList.add('selected');
+    priority = btn.dataset.p;
+    updateSummary();
+  });
+
+  /* ============ NEW PATIENT FIELDS ============ */
+  ['newFirst','newLast','newPhone'].forEach(id=>{
+    el(id).addEventListener('input', ()=>{ updateSummary(); validateForm(); });
+  });
+
+  /* ============ CHAR COUNTS ============ */
+  el('fDiagnosis').addEventListener('input', ()=>{ el('diagCount').textContent = el('fDiagnosis').value.length; });
+  el('fSpecimenNotes').addEventListener('input', ()=>{ el('specCount').textContent = el('fSpecimenNotes').value.length; });
+
+  /* ============ TEST CATALOG ============ */
+  const testGrid = el('testGrid');
+  function renderTestGrid(){
+    const q = el('testSearch').value.trim().toLowerCase();
+    const cat = el('testCategoryFilter').value;
+    const list = TEST_CATALOG.filter(t=>{
+      const matchesQ = !q || t.name.toLowerCase().includes(q);
+      const matchesCat = cat==='all' || t.cat===cat;
+      return matchesQ && matchesCat;
+    });
+    if(list.length===0){
+      testGrid.innerHTML = `<div class="test-empty"><i class="fa-solid fa-magnifying-glass" style="font-size:20px;display:block;margin-bottom:8px;color:#dbe2f5;"></i>No tests match your search</div>`;
+      return;
+    }
+    testGrid.innerHTML = list.map(t=>`
+      <div class="test-card ${selectedTests.includes(t.id) ? 'selected' : ''}" data-id="${t.id}">
+        <div class="test-check"><i class="fa-solid fa-check"></i></div>
+        <div style="flex:1;min-width:0;">
+          <div class="test-card-name">${t.name}</div>
+          <div class="test-card-meta"><span><i class="fa-solid fa-vial"></i>${t.sample}</span><span><i class="fa-regular fa-clock"></i>${t.turnaround}</span></div>
+          <div class="test-card-price">${fmtN(t.price)}</div>
+          <span class="test-cat-tag">${t.cat}</span>
+        </div>
+      </div>
+    `).join('');
+  }
+  testGrid.addEventListener('click', (e)=>{
+    const card = e.target.closest('.test-card');
+    if(!card) return;
+    const id = card.dataset.id;
+    if(selectedTests.includes(id)) selectedTests = selectedTests.filter(x=>x!==id);
+    else selectedTests.push(id);
+    renderTestGrid();
+    updateSummary();
+    validateForm();
+  });
+  el('testSearch').addEventListener('input', renderTestGrid);
+  el('testCategoryFilter').addEventListener('change', renderTestGrid);
+
+  /* ============ DATE / TIME ============ */
+  ['fDate','fTime'].forEach(id=> el(id).addEventListener('change', ()=>{ updateSummary(); validateForm(); }));
+
+  /* ============ SUMMARY ============ */
+  function fmtDateNice(iso){
+    if(!iso) return null;
+    return new Date(iso+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  }
+  function fmtTimeNice(hhmm){
+    if(!hhmm) return null;
+    const [h,m] = hhmm.split(':').map(Number);
+    const d = new Date(); d.setHours(h,m,0,0);
+    return d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  }
+  function updateSummary(){
+    el('sumId').textContent = 'LAB-' + String(nextOrderNum).padStart(6,'0');
+
+    if(patientMode==='existing'){
+      el('sumPatient').textContent = selectedPatient ? selectedPatient.name : 'Not selected';
+    } else {
+      const fn = el('newFirst').value.trim(), ln = el('newLast').value.trim();
+      el('sumPatient').textContent = (fn||ln) ? `${fn} ${ln} (new)`.trim() : 'Not entered';
+    }
+
+    const docVal = doctorSelect.value;
+    el('sumDoctor').textContent = docVal!=='' ? DOCTORS[Number(docVal)].name : 'Not selected';
+
+    const date = el('fDate').value, time = el('fTime').value;
+    el('sumDateTime').textContent = (date && time) ? `${fmtDateNice(date)}, ${fmtTimeNice(time)}` : '—';
+
+    const pLabel = priority.charAt(0).toUpperCase() + priority.slice(1);
+    el('sumPriority').innerHTML = `<span class="priority-badge ${priority}">${pLabel}</span>`;
+
+    // selected tests list + total + turnaround
+    const list = el('selectedTestsList');
+    if(selectedTests.length===0){
+      list.innerHTML = `<div class="stl-empty"><i class="fa-solid fa-vial-circle-check"></i>No tests selected yet</div>`;
+      el('sumTotal').textContent = fmtN(0);
+      el('sumTurnaround').textContent = '—';
+      el('testCountChip').textContent = '0 selected';
+      return;
+    }
+    let total = 0, slowest = null;
+    list.innerHTML = selectedTests.map(id=>{
+      const t = TEST_CATALOG.find(x=>x.id===id);
+      total += t.price;
+      if(!slowest || (TURNAROUND_RANK[t.turnaround]||0) > (TURNAROUND_RANK[slowest]||0)) slowest = t.turnaround;
+      return `
+        <div class="stl-row" data-id="${t.id}">
+          <div class="stl-info">
+            <div class="stl-name">${t.name}</div>
+            <div class="stl-sample">${t.sample}</div>
+          </div>
+          <div class="stl-price">${fmtN(t.price)}</div>
+          <button class="stl-remove" data-remove="${t.id}" title="Remove"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      `;
+    }).join('');
+    el('sumTotal').textContent = fmtN(total);
+    el('sumTurnaround').textContent = slowest || '—';
+    el('testCountChip').textContent = selectedTests.length + ' selected';
+  }
+  el('selectedTestsList').addEventListener('click', (e)=>{
+    const btn = e.target.closest('[data-remove]');
+    if(!btn) return;
+    selectedTests = selectedTests.filter(x=>x!==btn.dataset.remove);
+    renderTestGrid();
+    updateSummary();
+    validateForm();
+  });
+
+  /* ============ VALIDATION ============ */
+  function validateForm(){
+    const patientOk = patientMode==='existing'
+      ? !!selectedPatient
+      : (el('newFirst').value.trim() && el('newLast').value.trim() && el('newPhone').value.trim());
+    const doctorOk = doctorSelect.value !== '';
+    const dateOk = el('fDate').value !== '';
+    const timeOk = el('fTime').value !== '';
+    const testsOk = selectedTests.length > 0;
+    const consentOk = el('fConsent').checked;
+
+    const allOk = patientOk && doctorOk && dateOk && timeOk && testsOk && consentOk;
+    el('submitBtn').disabled = !allOk;
+    el('submitTopBtn').disabled = !allOk;
+    return { patientOk, doctorOk, dateOk, timeOk, testsOk, consentOk };
+  }
+  el('fConsent').addEventListener('change', validateForm);
+
+  /* ============ SUBMIT / DRAFT / RESET ============ */
+  function markFieldStates(v){
+    el('patientSearchField').classList.toggle('invalid', patientMode==='existing' && !v.patientOk);
+    document.querySelectorAll('#newPatientBlock [data-field]').forEach(f=>{
+      const input = f.querySelector('input');
+      f.classList.toggle('invalid', patientMode==='new' && input && !input.value.trim());
+    });
+    document.querySelector('[data-field="doctor"]').classList.toggle('invalid', !v.doctorOk);
+    el('testsErr').style.display = v.testsOk ? 'none' : 'block';
+  }
+
+  async function submitOrder(){
+    const v = validateForm();
+    markFieldStates(v);
+    if(!(v.patientOk && v.doctorOk && v.dateOk && v.timeOk && v.testsOk && v.consentOk)){
+      showToast('Please complete all required fields', true);
+      return;
+    }
+    let created = null;
+    try {
+      created = await LabService.createOrder({
+        patientName: selectedPatient ? selectedPatient.name : ((el('newFirst').value.trim()+' '+el('newLast').value.trim()).trim()),
+        hospitalNo: selectedPatient ? selectedPatient.hospNo : '',
+        doctor: doctorSelect.value || '',
+        test: selectedTests.map(id => (TEST_CATALOG.find(t=>t.id===id)||{}).name).join(', '),
+        tests: selectedTests,
+        date: el('fDate').value,
+        time: el('fTime').value,
+        priority
+      });
+    } catch (e) { window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error'); }
+    if(!created){ window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error'); return; }
+    const orderId = created.id || ('LAB-' + String(nextOrderNum).padStart(6,'0'));
+    nextOrderNum++;
+    showToast(`${orderId} submitted · labels sent to printer`);
+    resetForm();
+  }
+  function saveDraft(){
+    const orderId = 'LAB-' + String(nextOrderNum).padStart(6,'0');
+    showToast(`Draft ${orderId} saved`);
+  }
+
+  el('submitBtn').addEventListener('click', submitOrder);
+  el('submitTopBtn').addEventListener('click', submitOrder);
+  el('draftBtn').addEventListener('click', saveDraft);
+  el('cancelBtn').addEventListener('click', ()=>{ resetForm(); showToast('Order cancelled'); });
+  el('backBtn').addEventListener('click', ()=>{ if(window.history.length > 1) window.history.back(); else window.location.href = 'laboratory.html'; });
+  el('clearFormBtn').addEventListener('click', ()=>{ resetForm(); showToast('Form cleared'); });
+
+  function resetForm(){
+    selectedPatient = null; renderSelectedPatient();
+    el('patientSearch').value = '';
+    el('newFirst').value=''; el('newLast').value=''; el('newPhone').value=''; el('newGender').value='Female'; el('newFullReg').checked=false;
+    document.querySelectorAll('#patientModeToggle .mode-toggle-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelector('#patientModeToggle [data-mode="existing"]').classList.add('active');
+    patientMode='existing';
+    el('existingPatientBlock').style.display='block'; el('newPatientBlock').style.display='none';
+
+    doctorSelect.value='';
+    priority='routine';
+    document.querySelectorAll('.priority-chip-btn').forEach(b=>b.classList.remove('selected'));
+    document.querySelector('.priority-chip-btn[data-p="routine"]').classList.add('selected');
+    el('fFasting').value='Not Required'; el('fCollection').value='Collect at Lab';
+    el('fDiagnosis').value=''; el('diagCount').textContent='0';
+    el('fSpecimenNotes').value=''; el('specCount').textContent='0';
+    el('flagPregnant').checked=false; el('flagMedication').checked=false; el('flagAllergy').checked=false;
+    el('fConsent').checked=false;
+
+    selectedTests = [];
+    el('testSearch').value=''; el('testCategoryFilter').value='all';
+    renderTestGrid();
+
+    document.querySelectorAll('.field.invalid').forEach(f=>f.classList.remove('invalid'));
+    el('testsErr').style.display='none';
+    updateSummary();
+    validateForm();
+  }
+
+  /* ============ INIT ============ */
+  el('fDate').value = '2025-05-17';
+  el('fTime').value = '09:30';
+  renderTestGrid();
+  updateSummary();
+  validateForm();
+})();
+</script>
+</body>
+</html>

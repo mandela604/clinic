@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shiloh Clinic & Maternity — Patient Registration</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root{
+    --navy:#0b1a4d;
+    --navy-2:#101f5c;
+    --blue-accent:#2f6fed;
+    --bg:#f4f6fb;
+    --card:#ffffff;
+    --border:#eef0f6;
+    --text-dark:#1c2440;
+    --text-mid:#6b7280;
+    --text-light:#9aa1b3;
+
+    --green:#12b76a; --green-bg:#e9f9f0;
+    --blue:#2f6fed; --blue-bg:#eaf1ff;
+    --purple:#8b5cf6; --purple-bg:#f4efff;
+    --orange:#f79009; --orange-bg:#fff4e5;
+    --pink:#ee46bc; --pink-bg:#fdeefa;
+    --red:#f04438; --red-bg:#feecec;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif;
+    background:var(--bg);
+    color:var(--text-dark);
+    min-height:100vh;
+    font-size:13px;
+  }
+
+  .main{max-width:1320px; margin:0 auto; padding:24px 26px 40px;}
+
+  /* ---------- TOPBAR ---------- */
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:20px;
+  }
+  .topbar-left{display:flex; align-items:center; gap:14px;}
+  .back-btn{
+    width:40px; height:40px; border-radius:10px; background:#fff; border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; color:var(--text-mid); cursor:pointer; flex-shrink:0;
+  }
+  .back-btn:hover{background:var(--bg);}
+  .topbar-title h1{font-size:19px; font-weight:800; color:var(--text-dark); margin-bottom:2px;}
+  .topbar-title p{font-size:12px; color:var(--text-light); font-weight:500;}
+  .topbar-actions{display:flex; align-items:center; gap:10px; flex-shrink:0;}
+
+  .btn{
+    display:flex; align-items:center; gap:8px; border-radius:11px; padding:11px 18px;
+    font-weight:700; font-size:13px; cursor:pointer; border:1px solid transparent; white-space:nowrap;
+  }
+  .btn-outline{background:#fff; border-color:var(--border); color:var(--text-dark);}
+  .btn-outline:hover{background:var(--bg);}
+  .btn-primary{background:var(--blue); color:#fff;}
+  .btn-primary:hover{background:#2560d9;}
+  .btn-dark{background:var(--navy); color:#fff;}
+  .btn-dark:hover{background:var(--navy-2);}
+
+  /* ---------- FORM LAYOUT ---------- */
+  .form-grid{
+    display:grid; grid-template-columns:1fr 300px; gap:16px; align-items:start;
+  }
+  .col-left{display:flex; flex-direction:column; gap:16px;}
+  .col-right{display:flex; flex-direction:column; gap:16px;}
+
+  .panel{
+    background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px;
+  }
+  .panel-title{
+    display:flex; align-items:center; gap:9px; font-size:14.5px; font-weight:800; color:var(--text-dark);
+    margin-bottom:18px;
+  }
+  .panel-title i{color:var(--blue); font-size:14px;}
+  .panel-title.pt-pink i{color:var(--pink);}
+
+  .field-grid{
+    display:grid; gap:14px 16px;
+  }
+  .cols-4{grid-template-columns:repeat(4,1fr);}
+  .cols-3{grid-template-columns:repeat(3,1fr);}
+  .cols-2{grid-template-columns:repeat(2,1fr);}
+  .cols-1{grid-template-columns:1fr;}
+
+  .field{display:flex; flex-direction:column; gap:6px;}
+  .field label{font-size:11.5px; font-weight:700; color:var(--text-mid);}
+  .field label .req{color:var(--red); margin-left:2px;}
+  .field .input-wrap{
+    position:relative; display:flex; align-items:center;
+  }
+  .field .input-wrap i{
+    position:absolute; left:12px; color:var(--text-light); font-size:12px;
+  }
+  .field input, .field select, .field textarea{
+    border:1px solid var(--border); border-radius:10px; padding:10px 12px; font-size:12.5px;
+    color:var(--text-dark); background:#fff; outline:none; font-family:inherit; width:100%;
+  }
+  .field .input-wrap input, .field .input-wrap select{padding-left:32px;}
+  .field input:focus, .field select:focus, .field textarea:focus{border-color:var(--blue); box-shadow:0 0 0 3px var(--blue-bg);}
+  .field select{appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M0 0l5 6 5-6z' fill='%239aa1b3'/></svg>"); background-repeat:no-repeat; background-position:right 12px center;}
+  .field textarea{resize:none; min-height:76px;}
+  .char-count{font-size:10.5px; color:var(--text-light); text-align:right; margin-top:-4px;}
+
+  .divider-panel{margin-top:4px;}
+
+  /* checkbox row */
+  .checkbox-row{display:flex; align-items:center; gap:8px; font-size:12px; color:var(--text-mid); font-weight:600;}
+  .checkbox-row input{width:15px; height:15px; accent-color:var(--blue);}
+
+  /* ---------- RIGHT COLUMN ---------- */
+  .photo-box{
+    width:100%; aspect-ratio:1/0.85; border-radius:12px; background:var(--blue-bg);
+    display:flex; align-items:center; justify-content:center; position:relative; margin-bottom:14px; overflow:hidden;
+  }
+  .photo-box i.avatar-ic{font-size:64px; color:#c7d7fb;}
+  .photo-upload-btn{
+    position:absolute; bottom:10px; right:10px; width:32px; height:32px; border-radius:50%;
+    background:var(--blue); color:#fff; display:flex; align-items:center; justify-content:center;
+    border:3px solid #fff; cursor:pointer; font-size:12px;
+  }
+  .info-row{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;}
+  .info-label{font-size:11px; color:var(--text-light); font-weight:600;}
+  .info-value{font-size:15px; font-weight:800; color:var(--blue);}
+  .avail-chip{
+    display:inline-block; background:var(--green-bg); color:#0a8a52; font-size:10.5px; font-weight:700;
+    padding:3px 10px; border-radius:20px; margin-top:2px;
+  }
+  .qr-box{
+    display:flex; flex-direction:column; align-items:center; gap:10px; padding-top:14px; margin-top:14px; border-top:1px solid var(--border);
+  }
+  .qr-placeholder{
+    width:120px; height:120px; border-radius:8px; background:repeating-conic-gradient(#1c2440 0% 25%, #fff 0% 50%) 0 0/16px 16px;
+    border:1px solid var(--border);
+  }
+  .qr-note{font-size:10.5px; color:var(--text-light); text-align:center; font-weight:500;}
+
+  .summary-row{display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border);}
+  .summary-row:last-child{border-bottom:none;}
+  .summary-label{font-size:11.5px; color:var(--text-mid); font-weight:600;}
+  .summary-value{font-size:12px; font-weight:700; color:var(--text-dark);}
+  .status-chip-sm{background:var(--green-bg); color:#0a8a52; font-size:10.5px; font-weight:700; padding:3px 10px; border-radius:20px;}
+  .type-chip-sm{background:var(--blue-bg); color:#1d54c9; font-size:10.5px; font-weight:700; padding:3px 10px; border-radius:20px;}
+
+  .notice-box{
+    display:flex; gap:10px; background:var(--blue-bg); border-radius:10px; padding:12px; margin-top:14px; font-size:11.5px; color:#1d54c9; font-weight:600; line-height:1.4;
+  }
+  .notice-box i{margin-top:1px; flex-shrink:0;}
+
+  .consent-title{font-size:12.5px; font-weight:800; color:var(--blue); margin-bottom:10px;}
+  .consent-box{display:flex; gap:10px; font-size:11.5px; color:var(--text-mid); line-height:1.45; font-weight:500;}
+  .consent-box input{width:16px; height:16px; accent-color:var(--blue); flex-shrink:0; margin-top:1px;}
+  .consent-box a{color:var(--blue); font-weight:700; text-decoration:none;}
+
+  /* ---------- BOTTOM ACTIONS ---------- */
+  .bottom-actions{
+    display:flex; align-items:center; justify-content:flex-end; gap:10px; margin-top:20px;
+  }
+
+  @media (max-width:1100px){
+    .form-grid{grid-template-columns:1fr;}
+    .cols-4{grid-template-columns:repeat(2,1fr);}
+    .cols-3{grid-template-columns:repeat(2,1fr);}
+  }
+  @media (max-width:640px){
+    .cols-4, .cols-3, .cols-2{grid-template-columns:1fr;}
+    .topbar{flex-direction:column; align-items:flex-start;}
+    .topbar-actions{width:100%; flex-wrap:wrap;}
+    .bottom-actions{flex-wrap:wrap;}
+  }
+</style>
+</head>
+<body>
+
+<main class="main">
+
+  <!-- topbar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="back-btn"><i class="fa-solid fa-arrow-left"></i></div>
+      <div class="topbar-title">
+        <h1>Patient Registration</h1>
+        <p>Register a new patient and create patient record</p>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <div class="btn btn-outline"><i class="fa-solid fa-qrcode"></i> Scan QR / Barcode</div>
+      <div class="btn btn-outline"><i class="fa-solid fa-rotate-left"></i> Clear Form</div>
+      <div class="btn btn-primary"><i class="fa-solid fa-user-check"></i> Save & Check In</div>
+    </div>
+  </div>
+
+  <div class="form-grid">
+
+    <!-- LEFT COLUMN -->
+    <div class="col-left">
+
+      <!-- Personal Information -->
+      <div class="panel">
+        <div class="panel-title"><i class="fa-regular fa-user"></i> Personal Information</div>
+        <div class="field-grid cols-4">
+          <div class="field"><label>Title</label><select><option>Mr.</option><option>Mrs.</option><option>Miss</option><option>Dr.</option></select></div>
+          <div class="field"><label>First Name<span class="req">*</span></label><input type="text" value="John"></div>
+          <div class="field"><label>Middle Name</label><input type="text" value="Oluwaseyi"></div>
+          <div class="field"><label>Last Name<span class="req">*</span></label><input type="text" value="Adekunle"></div>
+
+          <div class="field">
+            <label>Date of Birth<span class="req">*</span></label>
+            <div class="input-wrap"><i class="fa-regular fa-calendar"></i><input type="text" value="15 / 06 / 1990"></div>
+          </div>
+          <div class="field"><label>Age</label><input type="text" value="34 Years"></div>
+          <div class="field"><label>Gender<span class="req">*</span></label><select><option>Male</option><option>Female</option></select></div>
+          <div class="field"><label>Marital Status</label><select><option>Married</option><option>Single</option><option>Divorced</option><option>Widowed</option></select></div>
+
+          <div class="field"><label>Nationality<span class="req">*</span></label><select><option>Nigerian</option></select></div>
+          <div class="field"><label>State of Origin<span class="req">*</span></label><select><option>Edo State</option></select></div>
+          <div class="field"><label>LGA</label><select><option>Uromi</option></select></div>
+          <div class="field"><label>Religion</label><select><option>Christianity</option><option>Islam</option><option>Other</option></select></div>
+
+          <div class="field"><label>Occupation</label><input type="text" value="Business"></div>
+          <div class="field"><label>Employer / Business Name</label><input type="text" value="Adekunle Enterprises"></div>
+          <div class="field"><label>Blood Group</label><select><option>O+</option><option>O-</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option></select></div>
+          <div class="field"><label>Genotype</label><select><option>AA</option><option>AS</option><option>SS</option><option>AC</option></select></div>
+        </div>
+      </div>
+
+      <!-- Contact Information -->
+      <div class="panel">
+        <div class="panel-title"><i class="fa-solid fa-phone"></i> Contact Information</div>
+        <div class="field-grid cols-3">
+          <div class="field">
+            <label>Phone Number (Primary)<span class="req">*</span></label>
+            <div class="input-wrap"><i class="fa-solid fa-phone"></i><input type="text" value="0803 123 4567"></div>
+          </div>
+          <div class="field">
+            <label>Phone Number (Secondary)</label>
+            <div class="input-wrap"><i class="fa-solid fa-phone"></i><input type="text" value="0705 765 4321"></div>
+          </div>
+          <div class="field">
+            <label>Email Address</label>
+            <div class="input-wrap"><i class="fa-regular fa-envelope"></i><input type="text" value="johnadekunle@example.com"></div>
+          </div>
+        </div>
+        <div class="field-grid cols-4" style="margin-top:14px;">
+          <div class="field" style="grid-column:span 2;">
+            <label>Residential Address<span class="req">*</span></label>
+            <div class="input-wrap"><i class="fa-solid fa-location-dot"></i><input type="text" value="12 Mission Road, Uromi, Edo State"></div>
+          </div>
+          <div class="field"><label>State<span class="req">*</span></label><select><option>Edo State</option></select></div>
+          <div class="field"><label>LGA<span class="req">*</span></label><select><option>Esan North East</option></select></div>
+        </div>
+        <div class="field-grid cols-4" style="margin-top:14px;">
+          <div class="field"><label>City / Town<span class="req">*</span></label><input type="text" value="Uromi"></div>
+        </div>
+      </div>
+
+      <!-- Additional Information & Emergency Contact -->
+      <div class="panel">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px;">
+          <div>
+            <div class="panel-title"><i class="fa-solid fa-circle-info"></i> Additional Information</div>
+            <div class="field-grid cols-2">
+              <div class="field"><label>ID Type</label><select><option>National ID</option><option>Driver's License</option><option>Voter's Card</option><option>Passport</option></select></div>
+              <div class="field"><label>ID Number</label><input type="text" value="12345678901"></div>
+              <div class="field">
+                <label>Date Issued</label>
+                <div class="input-wrap"><i class="fa-regular fa-calendar"></i><input type="text" value="10 / 01 / 2020"></div>
+              </div>
+              <div class="field">
+                <label>Expiry Date</label>
+                <div class="input-wrap"><i class="fa-regular fa-calendar"></i><input type="text" value="10 / 01 / 2030"></div>
+              </div>
+              <div class="field"><label>Preferred Language</label><select><option>English</option><option>Pidgin</option><option>Yoruba</option><option>Igbo</option><option>Hausa</option></select></div>
+              <div class="field"><label>How did you hear about us?</label><select><option>Walk-in</option><option>Referral</option><option>Social Media</option><option>Advertisement</option></select></div>
+              <div class="field" style="grid-column:span 2;"><label>Patient Category</label><select><option>General Outpatient</option><option>Antenatal</option><option>Pediatric</option><option>Emergency</option></select></div>
+              <div class="field" style="grid-column:span 2;">
+                <label>Notes / Medical History (Optional)</label>
+                <textarea placeholder="Add any relevant notes or known medical history..."></textarea>
+                <div class="char-count">0 / 500</div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="panel-title pt-pink"><i class="fa-solid fa-triangle-exclamation"></i> Emergency Contact</div>
+            <div class="field-grid cols-2">
+              <div class="field"><label>Contact Name<span class="req">*</span></label><input type="text" value="Mrs. Mary Adekunle"></div>
+              <div class="field"><label>Relationship<span class="req">*</span></label><select><option>Wife</option><option>Husband</option><option>Parent</option><option>Sibling</option><option>Other</option></select></div>
+              <div class="field" style="grid-column:span 2;">
+                <label>Phone Number<span class="req">*</span></label>
+                <div class="input-wrap"><i class="fa-solid fa-phone"></i><input type="text" value="0803 222 3344"></div>
+              </div>
+              <div class="field" style="grid-column:span 2;">
+                <label>Address</label>
+                <div class="input-wrap"><i class="fa-solid fa-location-dot"></i><input type="text" value="12 Mission Road, Uromi, Edo State"></div>
+              </div>
+              <div class="field" style="grid-column:span 2;">
+                <label class="checkbox-row"><input type="checkbox" checked> Same as patient address</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="col-right">
+
+      <div class="panel">
+        <div class="panel-title"><i class="fa-regular fa-image"></i> Patient Photo</div>
+        <div class="photo-box">
+          <i class="fa-solid fa-user avatar-ic"></i>
+          <div class="photo-upload-btn"><i class="fa-solid fa-camera"></i></div>
+        </div>
+        <div class="info-row">
+          <div>
+            <div class="info-label">Hospital No. (Auto)</div>
+            <div class="info-value">SHC-000123</div>
+          </div>
+          <span class="avail-chip">Available</span>
+        </div>
+        <div class="qr-box">
+          <div class="info-label">QR Code (Auto)</div>
+          <div class="qr-placeholder"></div>
+          <div class="qr-note">QR code will be generated after saving</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title"><i class="fa-regular fa-file-lines"></i> Registration Summary</div>
+        <div class="summary-row"><div class="summary-label">Registration Date</div><div class="summary-value">May 17, 2025 09:30 AM</div></div>
+        <div class="summary-row"><div class="summary-label">Registered By</div><div class="summary-value">Receptionist</div></div>
+        <div class="summary-row"><div class="summary-label">Department</div><div class="summary-value">Reception</div></div>
+        <div class="summary-row"><div class="summary-label">Patient Type</div><span class="type-chip-sm">New Patient</span></div>
+        <div class="summary-row"><div class="summary-label">Status</div><span class="status-chip-sm">Active</span></div>
+
+        <div class="notice-box">
+          <i class="fa-regular fa-circle-check"></i>
+          <div>After saving, you can immediately check-in the patient to create a visit.</div>
+        </div>
+
+        <div style="margin-top:18px;">
+          <div class="consent-title">Consent</div>
+          <div class="consent-box">
+            <input type="checkbox" checked>
+            <div>I confirm that the information provided is correct to the best of my knowledge. I consent to the processing of my data as per the hospital's <a href="#">privacy policy</a>.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="bottom-actions">
+    <div class="btn btn-outline">Cancel</div>
+    <div class="btn btn-outline"><i class="fa-regular fa-square-plus"></i> Save & New</div>
+    <div class="btn btn-dark"><i class="fa-regular fa-floppy-disk"></i> Save Patient</div>
+  </div>
+
+</main>
+
+</body>
+</html>

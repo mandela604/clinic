@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shiloh Clinic & Maternity — Notes</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root{
+    --navy:#0b1a4d; --blue-accent:#2f6fed; --bg:#f4f6fb; --card:#ffffff; --border:#eef0f6;
+    --text-dark:#1c2440; --text-mid:#6b7280; --text-light:#9aa1b3;
+    --green:#12b76a; --green-bg:#e9f9f0;
+    --blue:#2f6fed; --blue-bg:#eaf1ff;
+    --purple:#8b5cf6; --purple-bg:#f4efff;
+    --orange:#f79009; --orange-bg:#fff4e5;
+    --red:#f04438; --red-bg:#feecec;
+    --pink:#ee46bc; --pink-bg:#fdeefa;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif;
+    background:var(--bg); color:var(--text-dark); font-size:13px; padding:26px;
+    display:flex; justify-content:center;
+  }
+
+  .page-wrap{width:100%; max-width:1100px;}
+
+  .back-btn{
+    display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border);border-radius:10px;
+    padding:9px 14px;font-size:12.5px;font-weight:700;color:var(--text-dark);white-space:nowrap;cursor:pointer;
+    margin-bottom:16px;max-width:fit-content;
+  }
+  .back-btn:hover{background:var(--bg);}
+  .back-btn i{color:var(--text-mid);font-size:11px;}
+
+  .nt-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:18px;flex-wrap:wrap;}
+  .nt-title{font-size:18px;font-weight:800;color:var(--text-dark);}
+  .nt-sub{font-size:11.5px;color:var(--text-light);font-weight:600;margin-top:2px;}
+  .nt-count{font-size:11.5px;color:var(--text-mid);font-weight:700;}
+
+  .panel{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px;}
+
+  /* composer */
+  .nt-composer{margin-bottom:18px;}
+  .nt-composer-label{font-size:11px;font-weight:800;color:var(--text-mid);text-transform:uppercase;letter-spacing:.03em;margin-bottom:10px;display:none;}
+  .nt-composer-top{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
+  .nt-type-chip{padding:6px 13px;border-radius:999px;font-size:11px;font-weight:700;border:1.5px solid var(--border);color:var(--text-mid);cursor:pointer;background:#fff;transition:.12s;}
+  .nt-type-chip:hover{border-color:var(--blue-accent);color:var(--blue-accent);}
+  .nt-type-chip.active{background:var(--blue-accent);border-color:var(--blue-accent);color:#fff;}
+  .nt-textarea{
+    width:100%;border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-family:inherit;
+    font-size:12.5px;color:var(--text-dark);resize:vertical;min-height:70px;outline:none;
+  }
+  .nt-textarea:focus{border-color:var(--blue-accent);}
+  .nt-textarea::placeholder{color:var(--text-light);}
+  .nt-composer-actions{display:flex;justify-content:space-between;align-items:center;margin-top:10px;flex-wrap:wrap;gap:10px;}
+  .nt-pin-toggle{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--text-mid);font-weight:600;cursor:pointer;user-select:none;}
+  .nt-pin-toggle i{color:var(--text-light);font-size:12px;transition:.12s;}
+  .nt-pin-toggle.active{color:#c56c05;}
+  .nt-pin-toggle.active i{color:var(--orange);}
+  .nt-composer-btns{display:flex;gap:8px;}
+  .btn-primary{
+    display:flex;align-items:center;gap:8px;background:var(--blue-accent);border:1px solid var(--blue-accent);
+    border-radius:10px;padding:10px 16px;font-size:12.5px;font-weight:700;color:#fff;white-space:nowrap;cursor:pointer;
+    box-shadow:0 4px 10px rgba(47,111,237,0.28);
+  }
+  .btn-primary:hover{background:#2660d6;}
+  .btn-primary:disabled{opacity:.5;cursor:not-allowed;box-shadow:none;}
+  .btn-secondary{
+    display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border);
+    border-radius:10px;padding:10px 16px;font-size:12.5px;font-weight:700;color:var(--text-mid);white-space:nowrap;cursor:pointer;
+  }
+  .btn-secondary:hover{background:var(--bg);color:var(--text-dark);}
+
+  /* filters */
+  .nt-filters{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
+  .nt-search{display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:9px 12px;flex:1;min-width:200px;}
+  .nt-search i{color:var(--text-light);font-size:12px;}
+  .nt-search input{border:none;background:transparent;outline:none;font-size:12.5px;color:var(--text-dark);width:100%;font-family:inherit;}
+  .nt-search input::placeholder{color:var(--text-light);}
+  .nt-select{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:9px 12px;font-size:12.5px;font-weight:600;color:var(--text-dark);cursor:pointer;font-family:inherit;}
+
+  /* pinned note */
+  .nt-pinned-wrap{margin-bottom:14px;}
+  .nt-pinned{background:var(--orange-bg);border:1px solid #ffe2b8;border-radius:12px;padding:14px;margin-bottom:8px;position:relative;}
+  .nt-pinned-head{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+  .nt-pinned-head i{color:var(--orange);font-size:11px;}
+  .nt-pinned-label{font-size:10.5px;font-weight:800;color:#c56c05;text-transform:uppercase;letter-spacing:.03em;}
+
+  /* note timeline */
+  .nt-item{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--border);cursor:pointer;border-radius:8px;position:relative;}
+  .nt-item:hover{background:#fafbff;}
+  .nt-item:last-child{border-bottom:none;padding-bottom:0;}
+  .nt-avatar{width:34px;height:34px;border-radius:50%;background:var(--blue-bg);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;}
+  .nt-body{flex:1;min-width:0;}
+  .nt-top-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px;}
+  .nt-author{font-size:12.5px;font-weight:800;color:var(--text-dark);}
+  .nt-type-tag{font-size:9.5px;font-weight:800;padding:2px 8px;border-radius:6px;text-transform:uppercase;letter-spacing:.02em;}
+  .nt-type-clinical{background:var(--blue-bg);color:#1d54c9;}
+  .nt-type-nursing{background:var(--green-bg);color:#0a8a52;}
+  .nt-type-admin{background:var(--purple-bg);color:#6b3fd6;}
+  .nt-time{font-size:10.5px;color:var(--text-light);font-weight:600;margin-left:auto;}
+  .nt-text{font-size:12.5px;color:var(--text-mid);line-height:1.6;}
+  .nt-menu-btn{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;color:var(--text-light);font-size:12px;cursor:pointer;flex-shrink:0;position:relative;}
+  .nt-menu-btn:hover{background:var(--bg);color:var(--text-dark);}
+
+  .nt-menu-dropdown{
+    position:absolute; top:32px; right:0; background:#fff; border:1px solid var(--border); border-radius:10px;
+    box-shadow:0 10px 30px rgba(20,30,60,0.14); min-width:150px; z-index:50; overflow:hidden; display:none;
+  }
+  .nt-menu-dropdown.open{display:block;}
+  .nt-menu-item{display:flex;align-items:center;gap:9px;padding:9px 13px;font-size:12px;font-weight:600;color:var(--text-dark);cursor:pointer;}
+  .nt-menu-item:hover{background:var(--bg);}
+  .nt-menu-item i{width:13px;color:var(--text-mid);font-size:11.5px;}
+  .nt-menu-item.danger{color:var(--red);}
+  .nt-menu-item.danger i{color:var(--red);}
+
+  .empty-state{padding:40px 10px;text-align:center;color:var(--text-light);}
+  .empty-state i{font-size:26px;margin-bottom:10px;display:block;color:var(--text-light);}
+  .empty-state div{font-size:12.5px;font-weight:600;}
+
+  /* pagination */
+  .nt-pagination{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:18px;padding-top:16px;border-top:1px solid var(--border);flex-wrap:wrap;}
+  .nt-page-info{font-size:11.5px;color:var(--text-light);font-weight:600;}
+  .nt-page-controls{display:flex;align-items:center;gap:6px;}
+  .nt-page-btn{
+    width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:#fff;color:var(--text-mid);
+    font-size:11.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  }
+  .nt-page-btn:hover:not(:disabled){border-color:var(--blue-accent);color:var(--blue-accent);}
+  .nt-page-btn:disabled{opacity:.4;cursor:not-allowed;}
+  .nt-page-btn.active{background:var(--blue-accent);border-color:var(--blue-accent);color:#fff;}
+
+  /* modal */
+  .modal-overlay{
+    position:fixed;inset:0;background:rgba(15,20,40,0.45);display:none;align-items:center;justify-content:center;
+    z-index:200;padding:20px;
+  }
+  .modal-overlay.open{display:flex;}
+  .modal-box{background:#fff;border-radius:16px;max-width:480px;width:100%;padding:22px;box-shadow:0 20px 60px rgba(10,15,40,0.25);}
+  .modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+  .modal-title{font-size:15px;font-weight:800;color:var(--text-dark);}
+  .modal-close{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text-mid);cursor:pointer;font-size:13px;}
+  .modal-close:hover{background:var(--bg);}
+  .modal-meta{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+
+  .toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;
+    padding:11px 20px;border-radius:10px;font-size:12.5px;font-weight:700;box-shadow:0 10px 30px rgba(10,15,40,0.3);
+    opacity:0;pointer-events:none;transition:.22s; z-index:300; display:flex; align-items:center; gap:9px;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .toast i{color:var(--green);}
+
+  @media (max-width:720px){
+    body{padding:14px;}
+    .nt-time{margin-left:0;}
+  }
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <div class="back-btn" id="backBtn"><i class="fa-solid fa-arrow-left"></i> Back to Profile</div>
+
+  <div class="nt-head">
+    <div>
+      <div class="nt-title">Notes</div>
+      <div class="nt-sub">Clinical, nursing &amp; administrative notes for this patient</div>
+    </div>
+    <div class="nt-count" id="noteCount"></div>
+  </div>
+
+  <div class="panel">
+
+    <!-- composer -->
+    <div class="nt-composer">
+      <div class="nt-composer-label" id="composerLabel">Editing note</div>
+      <div class="nt-composer-top" id="typeChips">
+        <div class="nt-type-chip active" data-type="clinical">Clinical</div>
+        <div class="nt-type-chip" data-type="nursing">Nursing</div>
+        <div class="nt-type-chip" data-type="admin">Administrative</div>
+      </div>
+      <textarea class="nt-textarea" id="noteInput" placeholder="Add a note about this patient…"></textarea>
+      <div class="nt-composer-actions">
+        <div class="nt-pin-toggle" id="pinToggle"><i class="fa-solid fa-thumbtack"></i> Pin this note</div>
+        <div class="nt-composer-btns">
+          <div class="btn-secondary" id="cancelEditBtn" style="display:none;"><i class="fa-solid fa-xmark"></i> Cancel</div>
+          <div class="btn-primary" id="submitBtn"><i class="fa-solid fa-paper-plane"></i> Add Note</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- filters -->
+    <div class="nt-filters">
+      <div class="nt-search"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="searchInput" placeholder="Search notes…"></div>
+      <select class="nt-select" id="typeFilter">
+        <option value="all">All Types</option>
+        <option value="clinical">Clinical</option>
+        <option value="nursing">Nursing</option>
+        <option value="admin">Administrative</option>
+      </select>
+      <select class="nt-select" id="authorFilter">
+        <option value="all">All Authors</option>
+      </select>
+    </div>
+
+    <!-- pinned note(s) -->
+    <div class="nt-pinned-wrap" id="pinnedWrap"></div>
+
+    <!-- notes timeline -->
+    <div id="notesTimeline"></div>
+
+    <!-- empty state -->
+    <div class="empty-state" id="emptyState" style="display:none;">
+      <i class="fa-regular fa-note-sticky"></i>
+      <div>No notes match your filters</div>
+    </div>
+
+    <!-- pagination -->
+    <div class="nt-pagination" id="paginationBar">
+      <div class="nt-page-info" id="pageInfo"></div>
+      <div class="nt-page-controls" id="pageControls"></div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- view modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title">Note detail</div>
+      <div class="modal-close" id="modalClose"><i class="fa-solid fa-xmark"></i></div>
+    </div>
+    <div class="modal-meta" id="modalMeta"></div>
+    <div class="nt-text" id="modalText" style="font-size:13px;"></div>
+    <div class="nt-composer-actions" style="margin-top:18px;">
+      <div></div>
+      <div class="nt-composer-btns">
+        <div class="btn-secondary" id="modalEditBtn"><i class="fa-solid fa-pen"></i> Edit</div>
+        <div class="btn-secondary" id="modalDeleteBtn" style="color:var(--red);"><i class="fa-solid fa-trash"></i> Delete</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><i class="fa-solid fa-circle-check"></i><span id="toastText">Saved</span></div>
+
+<script>
+(function(){
+  const TYPE_META = {
+    clinical: { label: 'Clinical', cls: 'nt-type-clinical' },
+    nursing: { label: 'Nursing', cls: 'nt-type-nursing' },
+    admin: { label: 'Administrative', cls: 'nt-type-admin' }
+  };
+  const PAGE_SIZE = 3;
+
+  let notes = [
+    {
+      id: 6, author: 'Dr. Samuel O.', initials: 'SO', type: 'clinical', pinned: true,
+      date: 'May 16, 2025', time: '10:02 AM', ts: new Date('2025-05-16T10:02:00').getTime(),
+      text: 'Patient has a confirmed penicillin allergy — flagged for pharmacy and nursing staff. Avoid all penicillin-class antibiotics; use erythromycin as an alternative where indicated.'
+    },
+    {
+      id: 5, author: 'Dr. Samuel O.', initials: 'SO', type: 'clinical', pinned: false,
+      date: 'May 16, 2025', time: '09:52 AM', ts: new Date('2025-05-16T09:52:00').getTime(),
+      text: 'Blood pressure trending slightly high over the last two visits. Advised low-sodium diet and started on Amlodipine 5mg once daily. Follow-up in 2 weeks to reassess.'
+    },
+    {
+      id: 4, author: 'Nurse Ruth A.', initials: 'NR', type: 'nursing', pinned: false,
+      date: 'May 16, 2025', time: '09:15 AM', ts: new Date('2025-05-16T09:15:00').getTime(),
+      text: 'Vitals taken prior to consultation — BP 138/89, Temp 36.8°C, Pulse 78bpm. Patient reports mild headache this morning, no other complaints.'
+    },
+    {
+      id: 3, author: 'Receptionist', initials: 'RC', type: 'admin', pinned: false,
+      date: 'May 9, 2025', time: '10:20 AM', ts: new Date('2025-05-09T10:20:00').getTime(),
+      text: 'Patient requested his HMO details be updated — new policy number confirmed and updated in Billing.'
+    },
+    {
+      id: 2, author: 'Dr. Samuel O.', initials: 'SO', type: 'clinical', pinned: false,
+      date: 'Apr 28, 2025', time: '08:40 AM', ts: new Date('2025-04-28T08:40:00').getTime(),
+      text: 'Reviewed malaria test result — negative. Symptoms likely viral, prescribed supportive care and paracetamol as needed.'
+    },
+    {
+      id: 1, author: 'Dr. Amaka N.', initials: 'AN', type: 'nursing', pinned: false,
+      date: 'Apr 20, 2025', time: '02:10 PM', ts: new Date('2025-04-20T14:10:00').getTime(),
+      text: 'Wound dressing changed on left forearm. Site shows good healing, no signs of infection. Advised to keep area dry for 48 hours.'
+    },
+    {
+      id: 0, author: 'Receptionist', initials: 'RC', type: 'admin', pinned: false,
+      date: 'Apr 12, 2025', time: '11:05 AM', ts: new Date('2025-04-12T11:05:00').getTime(),
+      text: "Appointment rescheduled at patient\\'s request, moved from Apr 14 to Apr 20 due to travel conflict."
+    }
+  ];
+  let nextId = 7;
+
+  let state = {
+    search: '',
+    typeFilter: 'all',
+    authorFilter: 'all',
+    page: 1,
+    editingId: null,
+    composerType: 'clinical',
+    composerPinned: false,
+    openMenuId: null
+  };
+
+  const el = id => document.getElementById(id);
+  const noteInput = el('noteInput');
+  const typeChips = el('typeChips');
+  const pinToggle = el('pinToggle');
+  const submitBtn = el('submitBtn');
+  const cancelEditBtn = el('cancelEditBtn');
+  const composerLabel = el('composerLabel');
+
+  function showToast(msg){
+    el('toastText').textContent = msg;
+    const t = el('toast');
+    t.classList.add('show');
+    clearTimeout(showToast._tm);
+    showToast._tm = setTimeout(()=>t.classList.remove('show'), 1800);
+  }
+
+  function populateAuthorFilter(){
+    const authors = [...new Set(notes.map(n=>n.author))].sort();
+    const sel = el('authorFilter');
+    const current = sel.value;
+    sel.innerHTML = '<option value="all">All Authors</option>' +
+      authors.map(a=>`<option value="${escapeAttr(a)}">${escapeHtml(a)}</option>`).join('');
+    sel.value = authors.includes(current) ? current : 'all';
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function escapeAttr(s){ return escapeHtml(s); }
+
+  function getFiltered(){
+    const q = state.search.trim().toLowerCase();
+    return notes.filter(n=>{
+      if(state.typeFilter !== 'all' && n.type !== state.typeFilter) return false;
+      if(state.authorFilter !== 'all' && n.author !== state.authorFilter) return false;
+      if(q && !(n.text.toLowerCase().includes(q) || n.author.toLowerCase().includes(q))) return false;
+      return true;
+    }).sort((a,b)=> b.ts - a.ts);
+  }
+
+  function renderNoteItem(n, isPinnedBlock){
+    const meta = TYPE_META[n.type];
+    return `
+      <div class="nt-item" data-id="${n.id}" style="${isPinnedBlock ? 'padding:0;border:none;' : ''}">
+        <div class="nt-avatar" style="${avatarColor(n.type)}">${escapeHtml(n.initials)}</div>
+        <div class="nt-body">
+          <div class="nt-top-row">
+            <span class="nt-author">${escapeHtml(n.author)}</span>
+            <span class="nt-type-tag ${meta.cls}">${meta.label}</span>
+            <span class="nt-time">${n.date} · ${n.time}</span>
+          </div>
+          <div class="nt-text">${escapeHtml(n.text)}</div>
+        </div>
+        <div class="nt-menu-btn" data-menu-id="${n.id}">
+          <i class="fa-solid fa-ellipsis-vertical"></i>
+          <div class="nt-menu-dropdown ${state.openMenuId===n.id ? 'open' : ''}" data-dropdown-id="${n.id}">
+            <div class="nt-menu-item" data-action="edit" data-id="${n.id}"><i class="fa-solid fa-pen"></i> Edit</div>
+            <div class="nt-menu-item" data-action="pin" data-id="${n.id}"><i class="fa-solid fa-thumbtack"></i> ${n.pinned ? 'Unpin note' : 'Pin note'}</div>
+            <div class="nt-menu-item danger" data-action="delete" data-id="${n.id}"><i class="fa-solid fa-trash"></i> Delete</div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function avatarColor(type){
+    if(type==='nursing') return 'background:var(--green-bg);color:var(--green);';
+    if(type==='admin') return 'background:var(--purple-bg);color:var(--purple);';
+    return 'background:var(--blue-bg);color:var(--blue);';
+  }
+
+  function render(){
+    populateAuthorFilter();
+    const all = getFiltered();
+
+    // pinned notes (shown regardless of page, always on top, excluded from paginated count for clarity but still filtered)
+    const pinned = all.filter(n=>n.pinned);
+    const unpinned = all.filter(n=>!n.pinned);
+
+    el('pinnedWrap').innerHTML = pinned.map(n=>`
+      <div class="nt-pinned" data-id="${n.id}">
+        <div class="nt-pinned-head"><i class="fa-solid fa-thumbtack"></i><span class="nt-pinned-label">Pinned</span></div>
+        ${renderNoteItem(n, true)}
+      </div>`).join('');
+
+    const totalPages = Math.max(1, Math.ceil(unpinned.length / PAGE_SIZE));
+    if(state.page > totalPages) state.page = totalPages;
+    if(state.page < 1) state.page = 1;
+
+    const startIdx = (state.page - 1) * PAGE_SIZE;
+    const pageItems = unpinned.slice(startIdx, startIdx + PAGE_SIZE);
+
+    el('notesTimeline').innerHTML = pageItems.map(n => renderNoteItem(n, false)).join('');
+    el('emptyState').style.display = (all.length === 0) ? 'block' : 'none';
+
+    // pagination bar
+    if(unpinned.length === 0){
+      el('paginationBar').style.display = 'none';
+    } else {
+      el('paginationBar').style.display = 'flex';
+      const from = unpinned.length ? startIdx+1 : 0;
+      const to = Math.min(startIdx + PAGE_SIZE, unpinned.length);
+      el('pageInfo').textContent = `Showing ${from}–${to} of ${unpinned.length} note${unpinned.length===1?'':'s'}`;
+
+      let btns = `<div class="nt-page-btn" id="prevPage" ${state.page===1?'disabled':''}><i class="fa-solid fa-chevron-left"></i></div>`;
+      for(let p=1;p<=totalPages;p++){
+        btns += `<div class="nt-page-btn ${p===state.page?'active':''}" data-page="${p}">${p}</div>`;
+      }
+      btns += `<div class="nt-page-btn" id="nextPage" ${state.page===totalPages?'disabled':''}><i class="fa-solid fa-chevron-right"></i></div>`;
+      el('pageControls').innerHTML = btns;
+    }
+
+    el('noteCount').textContent = `${notes.length} total note${notes.length===1?'':'s'}`;
+
+    attachRowListeners();
+  }
+
+  function attachRowListeners(){
+    document.querySelectorAll('.nt-item').forEach(row=>{
+      row.addEventListener('click', (e)=>{
+        if(e.target.closest('.nt-menu-btn')) return;
+        const id = Number(row.dataset.id);
+        openViewModal(id);
+      });
+    });
+    document.querySelectorAll('.nt-menu-btn').forEach(btn=>{
+      btn.addEventListener('click', (e)=>{
+        e.stopPropagation();
+        const id = Number(btn.dataset.menuId);
+        state.openMenuId = (state.openMenuId === id) ? null : id;
+        render();
+      });
+    });
+    document.querySelectorAll('.nt-menu-item').forEach(item=>{
+      item.addEventListener('click', (e)=>{
+        e.stopPropagation();
+        const id = Number(item.dataset.id);
+        const action = item.dataset.action;
+        state.openMenuId = null;
+        if(action==='edit') startEdit(id);
+        if(action==='pin') togglePin(id);
+        if(action==='delete') deleteNote(id);
+      });
+    });
+    document.querySelectorAll('#pageControls [data-page]').forEach(b=>{
+      b.addEventListener('click', ()=>{ state.page = Number(b.dataset.page); render(); window.scrollTo({top:0, behavior:'smooth'}); });
+    });
+    const prev = el('prevPage'), next = el('nextPage');
+    if(prev) prev.addEventListener('click', ()=>{ if(state.page>1){ state.page--; render(); } });
+    if(next) next.addEventListener('click', ()=>{ state.page++; render(); });
+  }
+
+  document.addEventListener('click', ()=>{
+    if(state.openMenuId !== null){ state.openMenuId = null; render(); }
+  });
+
+  // composer type chips
+  typeChips.addEventListener('click', (e)=>{
+    const chip = e.target.closest('.nt-type-chip');
+    if(!chip) return;
+    state.composerType = chip.dataset.type;
+    [...typeChips.children].forEach(c=>c.classList.toggle('active', c===chip));
+  });
+
+  pinToggle.addEventListener('click', ()=>{
+    state.composerPinned = !state.composerPinned;
+    pinToggle.classList.toggle('active', state.composerPinned);
+  });
+
+  function resetComposer(){
+    noteInput.value = '';
+    state.composerType = 'clinical';
+    state.composerPinned = false;
+    state.editingId = null;
+    [...typeChips.children].forEach(c=>c.classList.toggle('active', c.dataset.type==='clinical'));
+    pinToggle.classList.remove('active');
+    submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Add Note';
+    cancelEditBtn.style.display = 'none';
+    composerLabel.style.display = 'none';
+  }
+
+  function startEdit(id){
+    const n = notes.find(x=>x.id===id);
+    if(!n) return;
+    state.editingId = id;
+    noteInput.value = n.text;
+    state.composerType = n.type;
+    state.composerPinned = n.pinned;
+    [...typeChips.children].forEach(c=>c.classList.toggle('active', c.dataset.type===n.type));
+    pinToggle.classList.toggle('active', n.pinned);
+    submitBtn.innerHTML = '<i class="fa-solid fa-check"></i> Save Changes';
+    cancelEditBtn.style.display = 'flex';
+    composerLabel.style.display = 'block';
+    closeModal();
+    noteInput.scrollIntoView({behavior:'smooth', block:'center'});
+    noteInput.focus();
+  }
+
+  cancelEditBtn.addEventListener('click', resetComposer);
+
+  submitBtn.addEventListener('click', ()=>{
+    const text = noteInput.value.trim();
+    if(!text){
+      noteInput.focus();
+      showToast('Write a note before saving');
+      return;
+    }
+    if(state.editingId !== null){
+      const n = notes.find(x=>x.id===state.editingId);
+      n.text = text;
+      n.type = state.composerType;
+      n.pinned = state.composerPinned;
+      showToast('Note updated');
+    } else {
+      const now = new Date();
+      notes.unshift({
+        id: nextId++,
+        author: 'Dr. Samuel O.',
+        initials: 'SO',
+        type: state.composerType,
+        pinned: state.composerPinned,
+        date: now.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }),
+        time: now.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' }),
+        ts: now.getTime(),
+        text
+      });
+      state.page = 1;
+      showToast('Note added');
+    }
+    resetComposer();
+    render();
+  });
+
+  function togglePin(id){
+    const n = notes.find(x=>x.id===id);
+    if(!n) return;
+    n.pinned = !n.pinned;
+    showToast(n.pinned ? 'Note pinned' : 'Note unpinned');
+    render();
+  }
+
+  function deleteNote(id){
+    const n = notes.find(x=>x.id===id);
+    if(!n) return;
+    if(!confirm("Delete this note? This can\\'t be undone.")) return;
+    notes = notes.filter(x=>x.id!==id);
+    showToast('Note deleted');
+    closeModal();
+    render();
+  }
+
+  // search & filters
+  el('searchInput').addEventListener('input', (e)=>{ state.search = e.target.value; state.page = 1; render(); });
+  el('typeFilter').addEventListener('change', (e)=>{ state.typeFilter = e.target.value; state.page = 1; render(); });
+  el('authorFilter').addEventListener('change', (e)=>{ state.authorFilter = e.target.value; state.page = 1; render(); });
+
+  // view modal
+  function openViewModal(id){
+    const n = notes.find(x=>x.id===id);
+    if(!n) return;
+    const meta = TYPE_META[n.type];
+    el('modalMeta').innerHTML = `
+      <span class="nt-author">${escapeHtml(n.author)}</span>
+      <span class="nt-type-tag ${meta.cls}">${meta.label}</span>
+      <span class="nt-time" style="margin-left:0;">${n.date} · ${n.time}</span>
+      ${n.pinned ? '<i class="fa-solid fa-thumbtack" style="color:var(--orange);font-size:11px;"></i>' : ''}
+    `;
+    el('modalText').textContent = n.text;
+    el('modalEditBtn').dataset.id = id;
+    el('modalDeleteBtn').dataset.id = id;
+    el('modalOverlay').classList.add('open');
+  }
+  function closeModal(){ el('modalOverlay').classList.remove('open'); }
+  el('modalClose').addEventListener('click', closeModal);
+  el('modalOverlay').addEventListener('click', (e)=>{ if(e.target.id==='modalOverlay') closeModal(); });
+  el('modalEditBtn').addEventListener('click', (e)=> startEdit(Number(e.currentTarget.dataset.id)));
+  el('modalDeleteBtn').addEventListener('click', (e)=> deleteNote(Number(e.currentTarget.dataset.id)));
+
+  el('backBtn').addEventListener('click', ()=> showToast('Back to profile (demo)'));
+
+  render();
+})();
+</script>
+</body>
+</html>

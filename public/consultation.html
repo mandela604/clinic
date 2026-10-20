@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shiloh Clinic &amp; Maternity — Consultation</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root{--navy:#0d1b4c;--blue:#2563eb;--bg:#f4f6fb;--card:#fff;--border:#eef0f6;--text-dark:#1c2440;--text-mid:#6b7280;--text-light:#9aa1b3;--green:#12b76a;--green-bg:#e9f9f0;--blue-bg:#eaf1ff;--orange:#f79009;--orange-bg:#fff4e5;--red:#f04438;--red-bg:#feecec;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text-dark);display:flex;min-height:100vh;}
+  .main{flex:1;min-width:0;padding:20px 26px 40px;}
+
+  .consult-priority-routine{background:#f1f5f9;color:#64748b;}
+  .consult-priority-urgent{background:var(--orange-bg);color:#c56c05;}
+  .consult-priority-emergency{background:var(--red-bg);color:#c1362b;}
+  .consult-status-waiting{background:var(--orange-bg);color:#c56c05;}
+  .consult-status-waiting .std-dot{background:var(--orange);}
+  .consult-status-inprogress{background:var(--blue-bg);color:#1d54c9;}
+  .consult-status-inprogress .std-dot{background:var(--blue);}
+  .consult-status-completed{background:var(--green-bg);color:#0a8a52;}
+  .consult-status-completed .std-dot{background:var(--green);}
+  .vital-mini{font-size:11px;color:var(--text-mid);font-weight:600;}
+  .vital-mini.flag{color:var(--red);font-weight:800;}
+  .vital-dash{color:var(--text-light);font-size:11px;}
+
+  .modal-overlay{position:fixed;inset:0;background:rgba(15,20,40,0.45);display:none;align-items:flex-start;justify-content:center;z-index:1500;padding:40px 20px;overflow-y:auto;}
+  .modal-overlay.open{display:flex;}
+  .modal-box{background:#fff;border-radius:16px;max-width:640px;width:100%;padding:22px;box-shadow:0 20px 60px rgba(10,15,40,0.25);}
+  .modal-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;}
+  .modal-title{font-size:18px;font-weight:700;color:#0f172a;}
+  .modal-subtitle{font-size:12px;color:var(--text-light);margin-top:2px;}
+  .modal-close{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-light);font-size:16px;}
+  .modal-close:hover{background:var(--red-bg);color:var(--red);}
+  .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;}
+
+  .cm-head{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+  .cm-avatar{width:44px;height:44px;border-radius:50%;background-size:cover;background-position:center;flex-shrink:0;}
+  .cm-name{font-size:15px;font-weight:700;color:#0f172a;}
+  .cm-sub{font-size:12px;color:var(--text-light);}
+
+  .vitals-strip{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+  .vital-box{flex:1;min-width:100px;background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:10px 12px;text-align:center;}
+  .vital-box-label{font-size:10px;color:var(--text-light);font-weight:600;text-transform:uppercase;letter-spacing:0.04em;}
+  .vital-box-value{font-size:14px;font-weight:700;color:#0f172a;margin-top:2px;}
+  .vital-box-value.flag{color:var(--red);}
+
+  .form-group{margin-bottom:14px;}
+  .form-label{display:block;font-size:12px;font-weight:600;color:var(--text-mid);margin-bottom:5px;}
+  .form-input,.form-textarea,.form-select{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;color:var(--text-dark);outline:none;}
+  .form-input:focus,.form-textarea:focus,.form-select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1);}
+  .form-textarea{min-height:80px;resize:vertical;}
+  .form-err{font-size:11px;color:var(--red);display:none;margin-top:3px;}
+  .form-group.invalid .form-err{display:block;}
+  .form-group.invalid .form-input,.form-group.invalid .form-textarea{border-color:var(--red);}
+
+  .btn-primary{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:var(--blue);color:#fff;}
+  .btn-primary:hover{background:#1d4ed8;}
+  .btn-secondary{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:#fff;color:#334155;}
+  .btn-secondary:hover{background:var(--bg);}
+
+  .rx-rows{display:flex;flex-direction:column;gap:8px;}
+  .rx-row{display:flex;gap:8px;align-items:center;}
+  .rx-row input{flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;}
+  .rx-row input:focus{outline:none;border-color:var(--blue);}
+  .rx-remove{width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--red);font-size:12px;flex-shrink:0;}
+  .rx-remove:hover{background:var(--red-bg);}
+  .rx-add{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;color:var(--blue);margin-top:6px;}
+  .rx-add:hover{background:var(--blue-bg);}
+
+  .view-grid{display:flex;flex-direction:column;gap:0;}
+  .view-row{display:flex;border-bottom:1px solid var(--border);padding:10px 0;}
+  .view-row.full{flex-direction:column;gap:4px;padding:12px 0;}
+  .view-label{font-size:12px;color:var(--text-light);font-weight:600;min-width:140px;}
+  .view-value{font-size:13px;color:#0f172a;font-weight:500;}
+
+  .page-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;padding:11px 20px;border-radius:10px;font-size:12.5px;font-weight:600;box-shadow:0 10px 30px rgba(10,15,40,0.3);opacity:0;pointer-events:none;transition:.22s;z-index:300;display:flex;align-items:center;gap:8px;}
+  .page-toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .page-toast.err{background:var(--red);}
+
+  /* ── Hover Micro-interactions ──────────────────────────────────────── */
+  .std-order-card{transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;}
+  .std-order-card:hover{transform:translateY(-4px) scale(1.015);box-shadow:0 8px 24px rgba(0,0,0,0.08);border-color:var(--blue-bg);}
+
+  .std-wrap tbody tr{transition:transform .15s ease,background .15s ease,box-shadow .15s ease;}
+  .std-wrap tbody tr:hover{transform:translateY(-2px) scale(1.005);box-shadow:0 4px 12px rgba(0,0,0,0.06);background:#f8fafc;}
+
+  .btn-primary{transition:transform .15s ease,box-shadow .15s ease,background .15s ease;}
+  .btn-primary:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 6px 16px rgba(37,99,235,0.25);}
+  .btn-primary:active{transform:translateY(0) scale(0.98);}
+
+  .btn-secondary{transition:transform .15s ease,box-shadow .15s ease,background .15s ease;}
+  .btn-secondary:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 4px 12px rgba(0,0,0,0.06);}
+
+  .rx-add{transition:transform .15s ease,background .15s ease;}
+  .rx-add:hover{transform:translateX(3px);}
+
+  .rx-remove{transition:transform .15s ease,background .15s ease,box-shadow .15s ease;}
+  .rx-remove:hover{transform:scale(1.12);box-shadow:0 2px 8px rgba(240,68,56,0.2);}
+
+  .modal-close{transition:transform .15s ease,background .15s ease,color .15s ease;}
+  .modal-close:hover{transform:rotate(90deg) scale(1.1);}
+
+  .std-chip{transition:transform .15s ease,box-shadow .15s ease;}
+  .std-chip:hover{transform:scale(1.08);}
+
+  .std-badge{transition:transform .15s ease;}
+  .std-badge:hover{transform:scale(1.06);}
+
+  .std-avatar{transition:transform .2s ease,box-shadow .2s ease;}
+  .std-order-card:hover .std-avatar,.std-wrap tbody tr:hover .std-avatar{transform:scale(1.08);box-shadow:0 3px 10px rgba(0,0,0,0.1);}
+
+  .std-clickable{transition:color .15s ease;}
+  .std-clickable:hover{color:var(--blue);}
+
+  .vital-box{transition:transform .15s ease,box-shadow .15s ease;}
+  .vital-box:hover{transform:translateY(-2px);box-shadow:0 4px 10px rgba(0,0,0,0.06);}
+
+  .form-input,.form-textarea,.form-select{transition:border-color .15s ease,box-shadow .15s ease;}
+  .form-input:focus,.form-textarea:focus,.form-select:focus{transform:scale(1.005);}
+
+  .btn.loading{pointer-events:none;opacity:.7;}
+  .btn.loading::after{content:'';width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:phspin .6s linear infinite;margin-left:6px;display:inline-block;vertical-align:middle;}
+  .btn:not(.btn-primary).loading::after{border-color:rgba(0,0,0,.15);border-top-color:var(--blue);}
+  @keyframes phspin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+
+<div id="sidebarPlaceholder"></div>
+
+<main class="main">
+  <div id="consultTablePlaceholder"></div>
+</main>
+
+<div class="modal-overlay" id="consultModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title" id="consultModalTitle">Consultation</div>
+        <div class="modal-subtitle" id="consultModalSubtitle"></div>
+      </div>
+      <div class="modal-close" onclick="closeModal('consultModal')"><i class="fa-solid fa-xmark"></i></div>
+    </div>
+    <div class="cm-head">
+      <div class="cm-avatar" id="cmAvatar"></div>
+      <div>
+        <div class="cm-name" id="cmName"></div>
+        <div class="cm-sub" id="cmSub"></div>
+      </div>
+    </div>
+    <div class="vitals-strip" id="vitalsStrip"></div>
+    <div class="form-group" id="cDiagnosisGroup">
+      <label class="form-label">Diagnosis</label>
+      <input class="form-input" id="cDiagnosis" placeholder="e.g. Malaria with mild dehydration">
+      <div class="form-err">Please enter a diagnosis</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Clinical Notes</label>
+      <textarea class="form-textarea" id="cNotes" placeholder="Consultation findings, examination notes, advice given..."></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Prescription</label>
+      <div class="rx-rows" id="rxRows"></div>
+      <div class="rx-add" id="rxAddBtn"><i class="fa-solid fa-plus"></i> Add medication</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Doctor</label>
+      <select class="form-select" id="cDoctor"></select>
+    </div>
+    <div class="modal-actions">
+      <div class="btn-secondary" onclick="closeModal('consultModal')">Cancel</div>
+      <div class="btn-secondary" id="consultScheduleBtn" style="background:var(--purple-bg);color:#6b3fd6;border-color:#e6dbff;"><i class="fa-regular fa-calendar-plus"></i> Schedule Follow-up</div>
+      <div class="btn-primary" id="consultSaveBtn"><i class="fa-solid fa-floppy-disk"></i> Save Progress</div>
+      <div class="btn-primary" id="consultCompleteBtn" style="background:var(--green);"><i class="fa-solid fa-check"></i> Complete &amp; Send to Pharmacy</div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="viewModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title">Consultation Summary</div>
+      <div class="modal-close" onclick="closeModal('viewModal')"><i class="fa-solid fa-xmark"></i></div>
+    </div>
+    <div class="cm-head">
+      <div class="cm-avatar" id="vAvatar"></div>
+      <div>
+        <div class="cm-name" id="vName"></div>
+        <div class="cm-sub" id="vSub"></div>
+      </div>
+    </div>
+    <div class="view-grid" id="viewGrid"></div>
+    <div class="modal-actions">
+      <div class="btn-secondary" onclick="closeModal('viewModal')">Close</div>
+    </div>
+  </div>
+</div>
+
+<div class="page-toast" id="pageToast"><i class="fa-solid fa-circle-check"></i><span id="pageToastText">Saved</span></div>
+
+<script src="shiloh-sidebar.js"></script>
+<script src="shiloh-table.js"></script>
+<script src="../services/api.js"></script>
+<script src="../services/consultation-service.js"></script>
+<script>
+(async function(){
+  'use strict';
+  var el=function(id){return document.getElementById(id);};
+  var TODAY=ConsultationService.TODAY;
+
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];});}
+
+  function showToast(msg,isErr){
+    var t=el('pageToast');el('pageToastText').textContent=msg;
+    t.classList.toggle('err',!!isErr);t.classList.add('show');
+    clearTimeout(t._timer);t._timer=setTimeout(function(){t.classList.remove('show');},2200);
+  }
+  function openModal(id){el(id).classList.add('open');}
+  window.closeModal=function(id){el(id).classList.remove('open');};
+  function setLoading(btn,loading){if(!btn)return;if(loading){btn.classList.add('loading');btn._oldHTML=btn.innerHTML;}else{btn.classList.remove('loading');if(btn._oldHTML)btn.innerHTML=btn._oldHTML;}}
+
+  await ConsultationService.init();
+
+  var DOCTORS=ConsultationService.DOCTORS;
+  var PRIORITY_MAP=ConsultationService.PRIORITY_MAP;
+  var STATUS_MAP=ConsultationService.STATUS_MAP;
+
+  function vitalCellHtml(row){
+    if(!row.bp)return '<span class="vital-dash">Not recorded</span>';
+    var flagged=row.priority==='Emergency';
+    return '<span class="vital-mini'+(flagged?' flag':'')+'">'+esc(row.bp)+' \u00b7 '+esc(row.temp)+' \u00b7 '+esc(row.pulse)+'</span>';
+  }
+
+  function fmtTodayLabel(){
+    var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var parts=TODAY.split('-');var y=parseInt(parts[0]),m=parseInt(parts[1]),d=parseInt(parts[2]);
+    return months[m-1]+' '+d+', '+y;
+  }
+
+  var SVG={
+    queue:'<i class="fa-solid fa-user-clock"></i>',
+    inConsult:'<i class="fa-solid fa-comment-medical"></i>',
+    completed:'<i class="fa-solid fa-circle-check"></i>',
+    avgTime:'<i class="fa-solid fa-hourglass-half"></i>'
+  };
+
+  var COLUMNS=[
+    {key:'#',label:'#',type:'index'},
+    {key:'patient',label:'Patient',type:'custom',exportField:'name',
+      render:function(row){
+        return '<div class="std-patient-cell"><div class="std-avatar" style="background-image:url(\'https://i.pravatar.cc/80?img='+(row.img||1)+'\')"></div><div><div class="std-patient-name std-clickable" onclick="window.openConsultModal(\''+row.id+'\')">'+esc(row.name)+'</div><div class="std-patient-sub">'+esc(row.hospNo)+' \u00b7 '+esc(row.gender)+', '+esc(String(row.age))+' yrs</div></div></div>';
+      }},
+    {key:'priority',label:'Priority',type:'chip',field:'priority',map:PRIORITY_MAP,hideable:true},
+    {key:'vitals',label:'Vitals',type:'custom',hideable:true,exportField:'vitalsText',render:function(row){return vitalCellHtml(row);}},
+    {key:'doctor',label:'Doctor',type:'text',field:'doctor',hideable:true},
+    {key:'status',label:'Status',type:'badge',field:'status',map:STATUS_MAP},
+    {key:'actions',label:'Actions',type:'actions'}
+  ];
+
+  function gridCard(row){
+    var pc=PRIORITY_MAP[row.priority]||PRIORITY_MAP.Routine;
+    var sc=STATUS_MAP[row.status]||STATUS_MAP.Waiting;
+    return '<div class="std-order-card" data-id="'+row.id+'">'+
+      '<div class="std-order-card-top">'+
+        '<div class="std-patient-cell" style="min-width:0;">'+
+          '<div class="std-avatar" style="background-image:url(\'https://i.pravatar.cc/80?img='+(row.img||1)+'\')"></div>'+
+          '<div style="min-width:0;">'+
+            '<div class="std-patient-name std-clickable" onclick="window.openConsultModal(\''+row.id+'\')">'+esc(row.name)+'</div>'+
+            '<div class="std-patient-sub">'+esc(row.hospNo)+' \u00b7 '+esc(row.gender)+', '+esc(String(row.age))+' yrs</div>'+
+          '</div>'+
+        '</div>'+
+        '<span class="std-chip '+pc.cls+'">'+pc.label+'</span>'+
+      '</div>'+
+      '<div style="font-size:12px;color:#64748b;">'+vitalCellHtml(row)+'</div>'+
+      '<div class="std-order-card-row">'+
+        '<span style="font-weight:600;">'+esc(row.doctor)+'</span>'+
+        '<span class="std-badge '+sc.cls+'"><span class="std-dot"></span>'+sc.label+'</span>'+
+      '</div>'+
+      '<div class="std-order-card-footer">'+
+        '<span style="font-size:11.5px;color:#94a3b8;">Queue #'+row.q+'</span>'+
+      '</div>'+
+    '</div>';
+  }
+
+  var tbl=null;
+  tbl=ShilohTable.attach('#consultTablePlaceholder',{
+    storageKey:ConsultationService.STORAGE_KEY,
+    seedData:ConsultationService.getAll(),
+    idField:'id',
+    pageTitle:'Consultation',
+    breadcrumb:'Dashboard / Consultation / Doctor Queue',
+    entityName:'consultation',
+    entityNamePlural:'consultations',
+    newButton:{
+      label:'New Consultation',
+      onClick:async function(){
+        try {
+          var entry=await ConsultationService.addEntry({});
+          if (!entry) { window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error'); return; }
+          tbl.addRow(entry);showToast('New consultation added to queue');
+        } catch (e) { window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error'); }
+      }
+    },
+    statCards:[
+      {label:'In Queue',icon:SVG.queue,color:'orange',compute:function(rows){return rows.filter(function(r){return r.status==='Waiting';}).length;},sub:'Awaiting doctor'},
+      {label:'In Consultation',icon:SVG.inConsult,color:'blue',compute:function(rows){return rows.filter(function(r){return r.status==='In Consultation';}).length;},sub:'Currently with doctor'},
+      {label:'Completed Today',icon:SVG.completed,color:'green',compute:function(rows){return rows.filter(function(r){return r.status==='Completed'&&r.completedAt===TODAY;}).length;},sub:fmtTodayLabel()},
+      {label:'Avg. Time (min)',icon:SVG.avgTime,color:'purple',compute:function(rows){var done=rows.filter(function(r){return r.avgMinutes;});return done.length?Math.round(done.reduce(function(s,r){return s+r.avgMinutes;},0)/done.length):0;},sub:'Minutes per consult'}
+    ],
+    searchFields:['id','name','hospNo','doctor'],
+    searchPlaceholder:'Search by queue #, patient name, hospital no. or doctor...',
+    selectFilters:[
+      {key:'priority',label:'Priority',field:'priority',options:[{value:'Routine',label:'Routine'},{value:'Urgent',label:'Urgent'},{value:'Emergency',label:'Emergency'}]},
+      {key:'status',label:'Status',field:'status',options:[{value:'Waiting',label:'Waiting'},{value:'In Consultation',label:'In Consultation'},{value:'Completed',label:'Completed'}]}
+    ],
+    columns:COLUMNS,
+    gridCard:gridCard,
+    statusField:'status',
+    statusOrder:['Waiting','In Consultation','Completed'],
+    statusMap:STATUS_MAP,
+    onView:function(row){window.openConsultModal(row.id);},
+    onAdvanceStatus:async function(row){
+      try {
+        var updated=await ConsultationService.advanceStatus(row.id);
+        if(updated){tbl.updateRow(row.id,{status:updated.status,completedAt:updated.completedAt});showToast(row.name+' moved to '+updated.status);}
+        else window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error');
+      } catch (e) { window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error'); }
+    },
+    onDelete:async function(row){
+      if(!confirm('Remove '+row.name+' from queue?'))return false;
+      try {
+        await ConsultationService.removeEntry(row.id);
+        tbl.removeRow(row.id);showToast(row.name+' removed');return true;
+      } catch (e) { window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error'); return false; }
+    },
+    exportFilename:'consultation-queue.csv'
+  });
+
+  /* ============ CONSULTATION MODAL ============ */
+  function vitalsStripHtml(c){
+    var flagged=c.priority==='Emergency';
+    var rows=[['BP',c.bp],['Temp',c.temp],['Pulse',c.pulse],['SpO2',c.spo2]];
+    return rows.map(function(pair){
+      var label=pair[0],val=pair[1];
+      return '<div class="vital-box"><div class="vital-box-label">'+label+'</div><div class="vital-box-value'+(flagged&&val?' flag':'')+'">'+(val?esc(val):'\u2014')+'</div></div>';
+    }).join('')+'<div class="vital-box"><div class="vital-box-label">Priority</div><div class="vital-box-value'+(flagged?' flag':'')+'">'+esc(c.priority)+'</div></div>';
+  }
+
+  function rxRowHtml(data){
+    data=data||{name:'',dose:'',freq:''};
+    return '<div class="rx-row">'+
+      '<input data-rx="name" placeholder="Drug name" value="'+esc(data.name)+'">'+
+      '<input data-rx="dose" placeholder="Dose" value="'+esc(data.dose)+'" style="max-width:120px;">'+
+      '<input data-rx="freq" placeholder="Frequency" value="'+esc(data.freq)+'" style="max-width:140px;">'+
+      '<div class="rx-remove" data-rx-remove><i class="fa-solid fa-xmark"></i></div>'+
+    '</div>';
+  }
+
+  function renderRxRows(rxList){
+    var list=(rxList&&rxList.length)?rxList:[{name:'',dose:'',freq:''}];
+    el('rxRows').innerHTML=list.map(rxRowHtml).join('');
+    bindRxRemove();
+  }
+  function bindRxRemove(){
+    el('rxRows').querySelectorAll('[data-rx-remove]').forEach(function(btn){
+      btn.addEventListener('click',function(){
+        var rows=el('rxRows').querySelectorAll('.rx-row');
+        if(rows.length<=1){btn.closest('.rx-row').querySelectorAll('input').forEach(function(i){i.value='';});return;}
+        btn.closest('.rx-row').remove();
+      });
+    });
+  }
+  el('rxAddBtn').addEventListener('click',function(){
+    el('rxRows').insertAdjacentHTML('beforeend',rxRowHtml());
+    bindRxRemove();
+  });
+  function collectRx(){
+    return Array.from(el('rxRows').querySelectorAll('.rx-row')).map(function(row){
+      return{name:row.querySelector('[data-rx="name"]').value.trim(),dose:row.querySelector('[data-rx="dose"]').value.trim(),freq:row.querySelector('[data-rx="freq"]').value.trim()};
+    }).filter(function(r){return r.name;});
+  }
+
+  var activeId=null;
+  window.openConsultModal=async function(id){
+    var c=ConsultationService.getById(id);
+    if(!c)return;
+    activeId=id;
+    if(c.status==='Waiting'){try {var updated=await ConsultationService.advanceStatus(id);if(updated)tbl.updateRow(id,{status:updated.status});} catch (e) { window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error'); }}
+    el('consultModalTitle').textContent='Consultation \u2014 '+c.name;
+    el('consultModalSubtitle').textContent=c.id+' \u00b7 Queue #'+c.q;
+    el('cmAvatar').style.backgroundImage='url(https://i.pravatar.cc/80?img='+c.img+')';
+    el('cmName').textContent=c.name;
+    el('cmSub').textContent=c.hospNo+' \u00b7 '+c.gender+', '+c.age+' yrs';
+    el('vitalsStrip').innerHTML=vitalsStripHtml(c);
+    el('cDiagnosis').value=c.diagnosis||'';
+    el('cNotes').value=c.notes||'';
+    renderRxRows(c.rx);
+    el('cDoctor').innerHTML=DOCTORS.map(function(d){return '<option value="'+esc(d)+'"'+(d===c.doctor?' selected':'')+'>'+esc(d)+'</option>';}).join('');
+    el('cDiagnosisGroup').classList.remove('invalid');
+    openModal('consultModal');
+  };
+
+  el('consultSaveBtn').addEventListener('click',function(){
+    if(!activeId)return;
+    var diag=el('cDiagnosis').value.trim();
+    if(!diag){el('cDiagnosisGroup').classList.add('invalid');return;}
+    el('cDiagnosisGroup').classList.remove('invalid');
+    var btn=el('consultSaveBtn');
+    setLoading(btn,true);
+    setTimeout(async function(){
+      try {
+        var updated=await ConsultationService.updateEntry(activeId,{diagnosis:diag,notes:el('cNotes').value.trim(),rx:collectRx(),doctor:el('cDoctor').value});
+        if(!updated) window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error');
+      } catch (e) { window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error'); }
+      tbl.updateRow(activeId,{diagnosis:diag,notes:el('cNotes').value.trim(),rx:collectRx(),doctor:el('cDoctor').value});
+      setLoading(btn,false);
+      closeModal('consultModal');showToast('Progress saved');
+    },400);
+  });
+
+  el('consultCompleteBtn').addEventListener('click',function(){
+    if(!activeId)return;
+    var diag=el('cDiagnosis').value.trim();
+    if(!diag){el('cDiagnosisGroup').classList.add('invalid');return;}
+    el('cDiagnosisGroup').classList.remove('invalid');
+    var btn=el('consultCompleteBtn');
+    setLoading(btn,true);
+    setTimeout(async function(){
+      try {
+        var updated=await ConsultationService.updateEntry(activeId,{diagnosis:diag,notes:el('cNotes').value.trim(),rx:collectRx(),doctor:el('cDoctor').value,status:'Completed',completedAt:TODAY});
+        if(!updated) window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error');
+      } catch (e) { window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error'); }
+      tbl.updateRow(activeId,{diagnosis:diag,notes:el('cNotes').value.trim(),rx:collectRx(),doctor:el('cDoctor').value,status:'Completed',completedAt:TODAY});
+      setLoading(btn,false);
+      closeModal('consultModal');showToast('Consultation completed');
+    },400);
+  });
+
+  el('consultScheduleBtn').addEventListener('click',async function(){
+    if(!activeId)return;
+    var c=ConsultationService.getById(activeId);
+    if(!c)return;
+    var diag=el('cDiagnosis').value.trim();
+    if(diag) try { await ConsultationService.updateEntry(activeId,{diagnosis:diag,notes:el('cNotes').value.trim(),rx:collectRx(),doctor:el('cDoctor').value}); } catch (e) { window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error'); }
+    closeModal('consultModal');
+    window.location.href='book-appointment.html?patient='+encodeURIComponent(c.hospNo)+'&name='+encodeURIComponent(c.name)+'&doctor='+encodeURIComponent(el('cDoctor').value);
+  });
+
+  /* ============ VIEW COMPLETED MODAL ============ */
+  window.openViewModal=function(id){
+    var c=ConsultationService.getById(id);
+    if(!c||c.status!=='Completed')return;
+    el('vAvatar').style.backgroundImage='url(https://i.pravatar.cc/80?img='+c.img+')';
+    el('vName').textContent=c.name;
+    el('vSub').textContent=c.hospNo+' \u00b7 '+c.gender+', '+c.age+' yrs';
+    var rxHtml=c.rx&&c.rx.length?c.rx.map(function(r){return '<div style="padding:4px 0;"><strong>'+esc(r.name)+'</strong> \u2014 '+esc(r.dose)+' \u00b7 '+esc(r.freq)+'</div>';}).join(''):'<span class="vital-dash">No prescription issued</span>';
+    el('viewGrid').innerHTML=
+      '<div class="view-row"><span class="view-label">Consultation ID</span><span class="view-value">'+esc(c.id)+'</span></div>'+
+      '<div class="view-row"><span class="view-label">Doctor</span><span class="view-value">'+esc(c.doctor)+'</span></div>'+
+      '<div class="view-row"><span class="view-label">Priority</span><span class="view-value">'+esc(c.priority)+'</span></div>'+
+      '<div class="view-row"><span class="view-label">Completed On</span><span class="view-value">'+esc(c.completedAt||'\u2014')+'</span></div>'+
+      '<div class="view-row full"><span class="view-label">Diagnosis</span><span class="view-value">'+esc(c.diagnosis||'\u2014')+'</span></div>'+
+      '<div class="view-row full"><span class="view-label">Clinical Notes</span><span class="view-value">'+esc(c.notes||'\u2014')+'</span></div>'+
+      '<div class="view-row full"><span class="view-label">Prescription</span><span class="view-value">'+rxHtml+'</span></div>';
+    openModal('viewModal');
+  };
+
+  el('cDoctor').innerHTML=DOCTORS.map(function(d){return '<option value="'+esc(d)+'">'+esc(d)+'</option>';}).join('');
+
+  window.ShilohSidebar.attach('#sidebarPlaceholder',{
+    activeFile:'consultation.html',
+    user:{name:'Dr. Samuel O.',role:'Physician',avatar:'https://i.pravatar.cc/64?img=13'}
+  });
+})();
+</script>
+</body>
+</html>

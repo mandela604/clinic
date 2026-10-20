@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Shiloh Clinic &amp; Maternity - Invoice</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root{
+    --navy:#0b1a4d;
+    --navy-2:#101f5c;
+    --blue-accent:#2f6fed;
+    --bg:#f4f6fb;
+    --card:#ffffff;
+    --border:#eef0f6;
+    --text-dark:#1c2440;
+    --text-mid:#6b7280;
+    --text-light:#9aa1b3;
+
+    --green:#12b76a; --green-bg:#e9f9f0;
+    --blue:#2f6fed; --blue-bg:#eaf1ff;
+    --purple:#8b5cf6; --purple-bg:#f4efff;
+    --orange:#f79009; --orange-bg:#fff4e5;
+    --pink:#ee46bc; --pink-bg:#fdeefa;
+    --red:#f04438; --red-bg:#feecec;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif;
+    background:var(--bg);
+    color:var(--text-dark);
+    display:flex;
+    min-height:100vh;
+    font-size:13px;
+  }
+
+  /* ---------- SIDEBAR ---------- */
+  .sidebar{
+    width:220px; background:linear-gradient(180deg,#0a1848 0%, #0c1c58 100%); color:#c9cee6;
+    display:flex; flex-direction:column; flex-shrink:0; padding:20px 14px; position:sticky; top:0; height:100vh;
+  }
+  .brand{display:flex; align-items:center; gap:10px; padding:4px 8px 22px 8px;}
+  .brand-icon{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#3b6bf5,#7b4cf0);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;flex-shrink:0;}
+  .brand-name{font-size:14px;font-weight:700;color:#fff;line-height:1.25;}
+  nav.nav-group{margin-bottom:14px;}
+  .nav-label{font-size:10px;letter-spacing:.08em;color:#5f6890;padding:6px 10px 6px;font-weight:700;}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:9px;color:#aab0d0;text-decoration:none;font-size:13px;font-weight:500;margin-bottom:2px;cursor:pointer;}
+  .nav-item i{width:16px;text-align:center;font-size:14px;color:#8891bd;}
+  .nav-item:hover{background:rgba(255,255,255,0.06); color:#fff;}
+  .nav-item.active{background:var(--blue-accent); color:#fff; box-shadow:0 4px 10px rgba(47,111,237,0.4);}
+  .nav-item.active i{color:#fff;}
+  .sidebar-spacer{flex:1;}
+  .sidebar-footer{border-top:1px solid rgba(255,255,255,0.08); padding-top:14px; display:flex; flex-direction:column; gap:10px;}
+  .user-chip{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:10px;}
+  .user-chip img{width:34px;height:34px;border-radius:50%;object-fit:cover;}
+  .user-name{font-size:12.5px;font-weight:600;color:#fff;}
+  .user-role{font-size:11px;color:#8891bd;}
+  .logout{display:flex;align-items:center;gap:10px;color:#aab0d0;font-size:13px;font-weight:500;padding:8px;cursor:pointer;}
+  .logout:hover{color:#fff;}
+
+  /* ---------- MAIN ---------- */
+  .main{flex:1; min-width:0; padding:20px 26px 40px;}
+
+  .topbar{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;gap:16px;flex-wrap:wrap;}
+  .topbar-left{display:flex;align-items:flex-start;gap:14px;}
+  .back-btn{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border);border-radius:10px;padding:9px 14px;font-size:12.5px;font-weight:700;color:var(--text-dark);white-space:nowrap;cursor:pointer;margin-top:2px;text-decoration:none;}
+  .back-btn i{color:var(--text-mid);font-size:11px;}
+  .page-title{font-size:20px;font-weight:800;color:var(--text-dark);line-height:1.25; display:flex; align-items:center; gap:10px;}
+  .breadcrumb{font-size:11.5px;color:var(--text-light);font-weight:600;margin-top:3px;}
+  .topbar-actions{display:flex;align-items:center;gap:10px;flex-shrink:0;flex-wrap:wrap;position:relative;}
+
+  .btn{display:flex;align-items:center;gap:8px;border-radius:10px;padding:10px 16px;font-size:12.5px;font-weight:700;cursor:pointer;white-space:nowrap;border:1px solid transparent;}
+  .btn-outline{background:#fff;border-color:var(--border);color:var(--text-dark);}
+  .btn-outline:hover{background:var(--bg);}
+  .btn-danger-outline{background:#fff;border-color:#fac3bd;color:var(--red);}
+  .btn-danger-outline:hover{background:var(--red-bg);}
+  .btn-primary{background:var(--blue-accent);color:#fff;box-shadow:0 4px 10px rgba(47,111,237,0.28);}
+  .btn-primary:hover{background:#2560d9;}
+
+  /* share popover */
+  .share-wrap{position:relative;}
+  .share-menu{position:absolute; top:calc(100% + 8px); right:0; z-index:120; width:230px; background:#fff; border:1px solid var(--border); border-radius:12px; padding:8px; box-shadow:0 14px 32px rgba(16,20,40,.16); display:none;}
+  .share-menu.open{display:block;}
+  .share-menu-item{display:flex; align-items:center; gap:10px; padding:10px 11px; border-radius:8px; font-size:12.5px; font-weight:700; color:var(--text-dark); cursor:pointer;}
+  .share-menu-item:hover{background:var(--bg);}
+  .share-menu-item i{width:16px; text-align:center; font-size:13px;}
+  .share-menu-item.wa i{color:#25D366;}
+  .share-menu-item.mail i{color:var(--blue-accent);}
+  .share-menu-item.copy i{color:var(--purple);}
+
+  /* ---------- LAYOUT ---------- */
+  .view-grid{display:grid; grid-template-columns:1fr 300px; gap:16px; align-items:start;}
+
+  /* ---------- BILL / INVOICE CARD ---------- */
+  .bill-card{background:var(--card); border:1px solid var(--border); border-radius:16px; padding:34px 38px;}
+  .bill-hdr{display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid var(--blue-accent); padding-bottom:18px; margin-bottom:22px; gap:16px; flex-wrap:wrap;}
+  .clinic-block{display:flex; align-items:center; gap:12px;}
+  .clinic-logo{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#3b6bf5,#7b4cf0);display:flex;align-items:center;justify-content:center;color:#fff;font-size:19px;flex-shrink:0;}
+  .clinic-name{font-size:16px; font-weight:800; color:var(--navy);}
+  .clinic-sub{font-size:11px; color:var(--text-light); font-weight:600; margin-top:2px;}
+  .bill-hdr-right{text-align:right;}
+  .bill-title{font-size:22px; font-weight:800; color:var(--blue-accent); letter-spacing:.02em;}
+  .bill-no{font-size:12px; color:var(--text-mid); font-weight:700; margin-top:2px;}
+  .bill-status-badge{display:inline-flex; align-items:center; gap:6px; padding:5px 13px; border-radius:20px; font-size:11.5px; font-weight:800; margin-top:8px;}
+  .bill-status-badge .dot{width:7px;height:7px;border-radius:50%;}
+  .bill-paid{background:var(--green-bg); color:#0a8a52;} .bill-paid .dot{background:var(--green);}
+  .bill-partial{background:var(--orange-bg); color:#c56c05;} .bill-partial .dot{background:var(--orange);}
+  .bill-unpaid{background:var(--red-bg); color:var(--red);} .bill-unpaid .dot{background:var(--red);}
+
+  .bill-meta-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-bottom:26px;}
+  .bill-meta-label{font-size:10px; text-transform:uppercase; letter-spacing:.04em; color:var(--text-light); font-weight:700; margin-bottom:5px;}
+  .bill-meta-value{font-size:13px; font-weight:700; color:var(--text-dark);}
+  .bill-meta-value.link{color:var(--blue-accent); cursor:pointer;}
+  .bill-meta-value.link:hover{text-decoration:underline;}
+
+  .bill-table{width:100%; border-collapse:collapse; margin-bottom:20px;}
+  .bill-table th{text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:.03em; color:var(--text-light); font-weight:700; padding:9px 6px; border-bottom:2px solid var(--border);}
+  .bill-table th.num, .bill-table td.num{text-align:right;}
+  .bill-table td{padding:12px 6px; font-size:13px; border-bottom:1px solid var(--border); color:var(--text-dark);}
+
+  .bill-totals{margin-left:auto; width:280px; display:flex; flex-direction:column; gap:8px;}
+  .bill-totals-row{display:flex; justify-content:space-between; font-size:12.5px; color:var(--text-mid); font-weight:600;}
+  .bill-totals-row.grand{font-size:16px; font-weight:800; color:var(--text-dark); border-top:1.5px solid var(--text-dark); margin-top:6px; padding-top:10px;}
+  .bill-totals-row.balance{font-size:13.5px; font-weight:800;}
+  .bill-totals-row.balance.due{color:var(--red);}
+  .bill-totals-row.balance.clear{color:var(--green);}
+
+  .bill-notes{margin-top:24px; padding-top:16px; border-top:1px dashed var(--border); font-size:12px; color:var(--text-mid); font-style:italic;}
+  .bill-footer{margin-top:34px; text-align:center; font-size:11px; color:var(--text-light); font-weight:600;}
+
+  /* ---------- RIGHT COLUMN ---------- */
+  .panel{background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px 20px;}
+  .panel-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;}
+  .panel-title{font-size:13.5px; font-weight:800; color:var(--text-dark);}
+  .right-col{display:flex; flex-direction:column; gap:16px;}
+
+  .qa-grid{display:flex; flex-direction:column; gap:9px;}
+  .qa-btn{display:flex; align-items:center; gap:10px; padding:11px 13px; border-radius:11px; font-size:12.5px; font-weight:700; cursor:pointer;}
+  .qa-ic{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;flex-shrink:0;}
+  .qa-payment{background:var(--green-bg); color:#0a8a52;} .qa-payment .qa-ic{background:var(--green);}
+  .qa-edit{background:var(--blue-bg); color:#1d54c9;} .qa-edit .qa-ic{background:var(--blue);}
+  .qa-print{background:var(--purple-bg); color:#6b3fd6;} .qa-print .qa-ic{background:var(--purple);}
+  .qa-delete{background:var(--red-bg); color:var(--red);} .qa-delete .qa-ic{background:var(--red);}
+
+  .payment-history-row{display:flex; justify-content:space-between; align-items:center; padding:9px 0; border-bottom:1px solid var(--border); font-size:12px;}
+  .payment-history-row:last-child{border-bottom:none;}
+  .payment-history-method{font-weight:700; color:var(--text-dark);}
+  .payment-history-date{font-size:10.5px; color:var(--text-light); font-weight:600;}
+  .payment-history-amount{font-weight:800; color:var(--green);}
+  .payment-history-empty{font-size:12px; color:var(--text-light); font-weight:600; padding:6px 0;}
+
+  /* ---------- RECORD PAYMENT MODAL ---------- */
+  .modal-overlay{position:fixed; inset:0; background:rgba(15,23,42,0.5); display:none; align-items:center; justify-content:center; z-index:500; padding:20px;}
+  .modal-overlay.open{display:flex;}
+  .modal-box{background:#fff; border-radius:14px; width:100%; max-width:400px; box-shadow:0 20px 50px rgba(15,23,42,0.25);}
+  .modal-head{display:flex; align-items:center; justify-content:space-between; padding:18px 22px; border-bottom:1px solid var(--border);}
+  .modal-title{font-size:15px; font-weight:800; color:var(--text-dark);}
+  .modal-close{width:30px; height:30px; border-radius:8px; border:none; background:none; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text-mid);}
+  .modal-close:hover{background:var(--bg);}
+  .modal-body{padding:20px 22px; display:flex; flex-direction:column; gap:14px;}
+  .modal-foot{display:flex; justify-content:flex-end; gap:10px; padding:16px 22px; border-top:1px solid var(--border);}
+  .balance-due-info{font-size:12.5px; color:var(--text-dark); font-weight:600; background:var(--bg); border:1px solid var(--border); border-radius:9px; padding:10px 12px;}
+  .field{display:flex; flex-direction:column; gap:6px;}
+  .field label{font-size:11.5px; font-weight:700; color:var(--text-mid);}
+  .field input, .field select{padding:9px 12px; border:1px solid var(--border); border-radius:9px; font-size:12.5px; font-family:inherit;}
+  .field input:focus, .field select:focus{outline:none; border-color:var(--blue-accent); box-shadow:0 0 0 3px var(--blue-bg);}
+  .field-err{font-size:10.5px; color:var(--red); font-weight:700; display:none;}
+  .field.invalid input{border-color:var(--red);}
+  .field.invalid .field-err{display:block;}
+
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;padding:11px 20px;border-radius:10px;font-size:12.5px;font-weight:700;box-shadow:0 10px 30px rgba(10,15,40,0.3);opacity:0;pointer-events:none;transition:.22s; z-index:600; display:flex; align-items:center; gap:9px;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .toast i{color:var(--green);}
+  .toast.error i{color:var(--red);}
+
+  .empty-notice{display:flex; flex-direction:column; align-items:center; gap:12px; text-align:center; padding:80px 20px; color:var(--text-mid);}
+  .empty-notice i{font-size:36px; color:#dbe2f5;}
+  .empty-notice h2{font-size:17px; color:var(--text-dark); font-weight:800;}
+
+  /* ---------- PRINT ---------- */
+  @media print{
+    .sidebar, .topbar-actions, .back-btn, .right-col{display:none !important;}
+    .main{padding:0;}
+    .view-grid{grid-template-columns:1fr; display:block;}
+    .bill-card{border:none; padding:0; border-radius:0;}
+    body{background:#fff;}
+    .topbar{margin-bottom:14px;}
+  }
+
+  @media (max-width:1100px){
+    .view-grid{grid-template-columns:1fr;}
+    .bill-meta-grid{grid-template-columns:repeat(2,1fr);}
+  }
+  @media (max-width:720px){
+    .sidebar{display:none;}
+    .bill-card{padding:22px;}
+    .bill-meta-grid{grid-template-columns:1fr 1fr;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= SIDEBAR ================= -->
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-icon"><i class="fa-solid fa-heart-pulse"></i></div>
+    <div class="brand-name">Shiloh Clinic &amp;<br>Maternity</div>
+  </div>
+
+  <nav class="nav-group">
+    <div class="nav-label">MAIN</div>
+    <a class="nav-item" href="dashboard.html" data-link><i class="fa-solid fa-grip"></i> Dashboard</a>
+    <a class="nav-item" href="patients.html" data-link><i class="fa-solid fa-user-group"></i> Patients</a>
+    <a class="nav-item" href="visits.html" data-link><i class="fa-regular fa-square-check"></i> Visits</a>
+    <a class="nav-item" href="appointments.html" data-link><i class="fa-regular fa-calendar"></i> Appointments</a>
+    <a class="nav-item" href="nursing.html" data-link><i class="fa-solid fa-plus-minus"></i> Nursing</a>
+    <a class="nav-item" href="laboratory.html" data-link><i class="fa-solid fa-flask"></i> Laboratory</a>
+    <a class="nav-item" href="pharmacy.html" data-link><i class="fa-solid fa-pills"></i> Pharmacy</a>
+    <a class="nav-item active" href="billing.html" data-link><i class="fa-regular fa-credit-card"></i> Billing</a>
+    <a class="nav-item" href="reports.html" data-link><i class="fa-regular fa-file-lines"></i> Reports</a>
+  </nav>
+
+  <div class="nav-group">
+    <div class="nav-label">ADMINISTRATION</div>
+    <a class="nav-item" href="users.html" data-link><i class="fa-regular fa-user"></i> Users</a>
+    <a class="nav-item" href="roles-permissions.html" data-link><i class="fa-solid fa-user-shield"></i> Roles &amp; Permissions</a>
+    <a class="nav-item" href="settings.html" data-link><i class="fa-solid fa-gear"></i> Settings</a>
+    <a class="nav-item" href="audit-logs.html" data-link><i class="fa-solid fa-clipboard-list"></i> Audit Logs</a>
+  </div>
+
+  <div class="sidebar-spacer"></div>
+
+  <div class="sidebar-footer">
+    <div class="user-chip">
+      <img src="https://i.pravatar.cc/64?img=47" alt="user">
+      <div>
+        <div class="user-name">Cashier Bisi</div>
+        <div class="user-role">Billing Desk</div>
+      </div>
+    </div>
+    <a class="logout"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a>
+  </div>
+</aside>
+
+<!-- ================= MAIN ================= -->
+<main class="main">
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <a class="back-btn" href="billing.html" data-link><i class="fa-solid fa-arrow-left"></i> Billing</a>
+      <div>
+        <div class="page-title" id="pageTitle">Invoice</div>
+        <div class="breadcrumb">Dashboard / Billing / Invoice</div>
+      </div>
+    </div>
+    <div class="topbar-actions" id="topbarActions">
+      <div class="btn btn-danger-outline" id="deleteBtn"><i class="fa-solid fa-trash"></i> Delete</div>
+      <a class="btn btn-outline" id="editBtn" href="#" data-link><i class="fa-solid fa-pen"></i> Edit</a>
+      <div class="btn btn-outline" id="printBtn"><i class="fa-solid fa-print"></i> Print</div>
+      <div class="share-wrap">
+        <div class="btn btn-outline" id="shareBtn"><i class="fa-solid fa-share-nodes"></i> Share</div>
+        <div class="share-menu" id="shareMenu">
+          <div class="share-menu-item wa" data-share="whatsapp"><i class="fa-brands fa-whatsapp"></i> Share via WhatsApp</div>
+          <div class="share-menu-item mail" data-share="email"><i class="fa-regular fa-envelope"></i> Share via Email</div>
+          <div class="share-menu-item copy" data-share="copy"><i class="fa-regular fa-copy"></i> Copy Summary</div>
+        </div>
+      </div>
+      <div class="btn btn-primary" id="recordPaymentBtn"><i class="fa-solid fa-plus"></i> Record Payment</div>
+    </div>
+  </div>
+
+  <div id="billArea">
+    <div class="view-grid">
+
+      <!-- printable bill -->
+      <div class="bill-card" id="printArea">
+        <div class="bill-hdr">
+          <div class="clinic-block">
+            <div class="clinic-logo"><i class="fa-solid fa-heart-pulse"></i></div>
+            <div>
+              <div class="clinic-name">Shiloh Clinic &amp; Maternity</div>
+              <div class="clinic-sub">12 Mission Road, Uromi, Edo State, Nigeria</div>
+              <div class="clinic-sub">+234 803 000 0000 · billing@shilohclinic.ng</div>
+            </div>
+          </div>
+          <div class="bill-hdr-right">
+            <div class="bill-title">INVOICE</div>
+            <div class="bill-no" id="billInvoiceNo">—</div>
+            <div id="billStatusBadge"></div>
+          </div>
+        </div>
+
+        <div class="bill-meta-grid">
+          <div>
+            <div class="bill-meta-label">Bill To</div>
+            <div class="bill-meta-value link" id="billPatientName">—</div>
+          </div>
+          <div>
+            <div class="bill-meta-label">Hospital No.</div>
+            <div class="bill-meta-value" id="billPatientHosp">—</div>
+          </div>
+          <div>
+            <div class="bill-meta-label">Invoice Date</div>
+            <div class="bill-meta-value" id="billDate">—</div>
+          </div>
+          <div>
+            <div class="bill-meta-label">Billing Type</div>
+            <div class="bill-meta-value" id="billType">—</div>
+          </div>
+        </div>
+
+        <table class="bill-table">
+          <thead>
+            <tr><th>Description</th><th class="num">Amount</th></tr>
+          </thead>
+          <tbody id="billItemsBody"></tbody>
+        </table>
+
+        <div class="bill-totals">
+          <div class="bill-totals-row grand"><span>Total</span><span id="billTotal">₦0</span></div>
+          <div class="bill-totals-row"><span>Amount Paid</span><span id="billPaid">₦0</span></div>
+          <div class="bill-totals-row balance" id="billBalanceRow"><span>Balance Due</span><span id="billBalance">₦0</span></div>
+        </div>
+
+        <div class="bill-notes" id="billMethodNote" style="display:none;"></div>
+
+        <div class="bill-footer">Thank you for choosing Shiloh Clinic &amp; Maternity.</div>
+      </div>
+
+      <!-- right column (hidden on print) -->
+      <div class="right-col">
+        <div class="panel">
+          <div class="panel-head"><div class="panel-title">Quick Actions</div></div>
+          <div class="qa-grid">
+            <div class="qa-btn qa-payment" id="qaRecordPayment"><div class="qa-ic"><i class="fa-solid fa-plus"></i></div>Record Payment</div>
+            <div class="qa-btn qa-edit" id="qaEdit"><div class="qa-ic"><i class="fa-solid fa-pen"></i></div>Edit Invoice</div>
+            <div class="qa-btn qa-print" id="qaPrint"><div class="qa-ic"><i class="fa-solid fa-print"></i></div>Print Invoice</div>
+            <div class="qa-btn qa-delete" id="qaDelete"><div class="qa-ic"><i class="fa-solid fa-trash"></i></div>Delete Invoice</div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><div class="panel-title">Payment History</div></div>
+          <div id="paymentHistoryList"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="empty-notice" id="notFoundNotice" style="display:none;">
+    <i class="fa-regular fa-file-excel"></i>
+    <h2>Invoice not found</h2>
+    <p>We couldn't find that invoice in your billing records.</p>
+    <a class="btn btn-primary" href="billing.html" data-link style="margin-top:6px;">Back to Billing</a>
+  </div>
+
+</main>
+
+<!-- RECORD PAYMENT MODAL -->
+<div class="modal-overlay" id="paymentOverlay">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title">Record Payment</div>
+      <button class="modal-close" id="paymentCloseBtn"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="balance-due-info" id="paymentInvoiceInfo"></div>
+      <div class="field" id="f_paymentAmount">
+        <label>Amount (₦) *</label>
+        <input type="number" id="in_paymentAmount" min="1" placeholder="e.g. 5000">
+        <span class="field-err">Enter a valid amount (within balance due)</span>
+      </div>
+      <div class="field">
+        <label>Payment Method</label>
+        <select id="in_paymentMethod">
+          <option value="Cash">Cash</option>
+          <option value="Card">Card</option>
+          <option value="Bank Transfer">Bank Transfer</option>
+          <option value="Insurance">Insurance</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <div class="btn btn-outline" id="paymentCancelBtn">Cancel</div>
+      <div class="btn btn-primary" id="paymentSubmitBtn">Confirm Payment</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><i class="fa-solid fa-circle-check"></i><span id="toastText">Saved</span></div>
+
+<script type="module" src="./app-shell.js"></script>
+<script src="../services/api.js"></script>
+<script src="../services/billing-service.js"></script>
+<script>
+(function(){
+  const el = id => document.getElementById(id);
+  const esc = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const money = n => '₦' + Number(n||0).toLocaleString('en-NG', {maximumFractionDigits:0});
+
+  /* Backend-only data layer: GET /invoices/:id by uuid from URL param. */
+  const STATUS_CLS = { Paid:'bill-paid', Partial:'bill-partial', Unpaid:'bill-unpaid' };
+
+  /* ============ STATE ============ */
+  const params = new URLSearchParams(location.search);
+  const invoiceParam = params.get('invoice') || params.get('id');
+  let record = null;
+
+  function toViewModel(apiInv){
+    const total = apiInv.total != null ? apiInv.total : (apiInv.amount || 0);
+    const paid = apiInv.paid != null ? apiInv.paid : (apiInv.amountPaid || 0);
+    const balance = apiInv.balance != null ? apiInv.balance : Math.max(0, total - paid);
+    const items = Array.isArray(apiInv.items) ? apiInv.items.join(', ') : '';
+    return {
+      id: apiInv.id,
+      invoiceNo: apiInv.invoiceNo || apiInv.id,
+      patientId: apiInv.patientId,
+      patientName: apiInv.patientName || '',
+      patientHosp: apiInv.hospitalNo || '—',
+      description: items || apiInv.description || 'Charges',
+      amount: total,
+      amountPaid: paid,
+      balance,
+      status: apiInv.status || (paid <= 0 ? 'Unpaid' : (paid >= total ? 'Paid' : 'Partial')),
+      method: apiInv.method || null,
+      insurance: apiInv.method === 'Insurance',
+      provider: null,
+      date: (apiInv.date || '').slice(0,10),
+      payments: Array.isArray(apiInv.payments) ? apiInv.payments : [],
+    };
+  }
+
+  async function findInvoice(){
+    if(!invoiceParam) return null;
+    try { await BillingService.init(); } catch (e) { /* toast handled below */ }
+    try {
+      const cached = (BillingService.getAll() || []).find(inv => inv.id === invoiceParam || inv.invoiceNo === invoiceParam);
+      if(cached) return toViewModel(cached);
+    } catch (e) {}
+    try {
+      const base = (window.ShilohAPI && window.ShilohAPI.BASE) || (window.__SHILOH_API__ || 'http://localhost:5001/api');
+      const res = await fetch(base + '/invoices/' + encodeURIComponent(invoiceParam), {
+        headers: window.ShilohAPI ? window.ShilohAPI.headers() : {}
+      });
+      if(!res.ok) throw new Error('Invoice not found (' + res.status + ')');
+      const apiInv = await res.json();
+      return toViewModel(apiInv);
+    } catch (e) {
+      window.ShilohAPI.toast('Could not load invoice. Check connection / login.', 'error');
+      return null;
+    }
+  }
+
+  /* ============ TOAST ============ */
+  function showToast(msg, isError){
+    el('toastText').textContent = msg;
+    const t = el('toast');
+    t.classList.toggle('error', !!isError);
+    t.querySelector('i').className = isError ? 'fa-solid fa-triangle-exclamation' : 'fa-solid fa-circle-check';
+    t.classList.add('show');
+    clearTimeout(showToast._tm);
+    showToast._tm = setTimeout(()=>t.classList.remove('show'), 2400);
+  }
+
+  function fmtDate(iso){
+    if(!iso) return '—';
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const d = new Date(iso+'T00:00:00');
+    return months[d.getMonth()]+' '+d.getDate()+', '+d.getFullYear();
+  }
+
+  function goToPatientProfile(){ window.location.href = 'patient-profile.html'; }
+
+  /* ============ RENDER BILL ============ */
+  function renderBill(){
+    document.title = `Invoice ${record.invoiceNo} — Shiloh Clinic & Maternity`;
+    el('pageTitle').textContent = `Invoice ${record.invoiceNo}`;
+    el('billInvoiceNo').textContent = record.invoiceNo;
+    el('billStatusBadge').innerHTML = `<span class="bill-status-badge ${STATUS_CLS[record.status]}"><span class="dot"></span>${record.status}</span>`;
+
+    const patientEl = el('billPatientName');
+    patientEl.textContent = record.patientName || 'Walk-in Patient';
+    patientEl.onclick = goToPatientProfile;
+
+    el('billPatientHosp').textContent = record.patientHosp || '—';
+    el('billDate').textContent = fmtDate(record.date);
+    el('billType').textContent = record.insurance ? `Insured${record.provider ? ' — '+record.provider : ''}` : 'Self-Pay';
+
+    el('billItemsBody').innerHTML = `
+      <tr>
+        <td>${esc(record.description || 'Charges')}</td>
+        <td class="num">${money(record.amount)}</td>
+      </tr>
+    `;
+
+    el('billTotal').textContent = money(record.amount);
+    el('billPaid').textContent = money(record.amountPaid);
+    el('billBalance').textContent = money(record.balance);
+    const balRow = el('billBalanceRow');
+    balRow.classList.toggle('due', record.balance > 0);
+    balRow.classList.toggle('clear', record.balance <= 0);
+
+    const methodNote = el('billMethodNote');
+    if(record.method){
+      methodNote.style.display = 'block';
+      methodNote.textContent = `Last payment method: ${record.method}`;
+    } else {
+      methodNote.style.display = 'none';
+    }
+
+    renderPaymentHistory();
+    el('editBtn').href = 'invoice-form.html?invoice=' + encodeURIComponent(record.id);
+  }
+
+  function renderPaymentHistory(){
+    const list = el('paymentHistoryList');
+    if(record.payments && record.payments.length){
+      list.innerHTML = record.payments.map(p => `
+        <div class="payment-history-row">
+          <div><div class="payment-history-method">${esc(p.method)}</div><div class="payment-history-date">${fmtDate(p.date)}</div></div>
+          <div class="payment-history-amount">+ ${money(p.amount)}</div>
+        </div>
+      `).join('');
+    } else {
+      list.innerHTML = `<div class="payment-history-empty">No payments recorded yet.</div>`;
+    }
+  }
+
+  /* ============ RECORD PAYMENT ============ */
+  function openPaymentModal(){
+    el('paymentInvoiceInfo').textContent = `${record.invoiceNo} — ${record.patientName} — balance due ${money(record.balance)}`;
+    el('in_paymentAmount').value = '';
+    el('in_paymentAmount').max = record.balance;
+    el('f_paymentAmount').classList.remove('invalid');
+    el('in_paymentMethod').value = record.insurance ? 'Insurance' : 'Cash';
+    el('paymentOverlay').classList.add('open');
+  }
+  function closePaymentModal(){ el('paymentOverlay').classList.remove('open'); }
+  el('paymentCloseBtn').addEventListener('click', closePaymentModal);
+  el('paymentCancelBtn').addEventListener('click', closePaymentModal);
+  el('paymentOverlay').addEventListener('click', e=>{ if(e.target===el('paymentOverlay')) closePaymentModal(); });
+
+  el('paymentSubmitBtn').addEventListener('click', async ()=>{
+    const amt = parseFloat(el('in_paymentAmount').value);
+    if(!amt || amt<=0 || amt>record.balance){
+      el('f_paymentAmount').classList.add('invalid');
+      return;
+    }
+    const method = el('in_paymentMethod').value;
+    try {
+      const result = await BillingService.recordPayment(record.id, amt, method);
+      if(!result || !result.success){
+        window.ShilohAPI.toast((result && result.error) || 'Could not record payment. Check connection / login.', 'error');
+        return;
+      }
+      record = toViewModel(result.invoice);
+      closePaymentModal();
+      renderBill();
+      showToast(`Recorded ${money(amt)} payment for ${record.invoiceNo}`);
+    } catch (e) {
+      window.ShilohAPI.toast('Could not record payment. Check connection / login.', 'error');
+    }
+  });
+
+  el('recordPaymentBtn').addEventListener('click', openPaymentModal);
+  el('qaRecordPayment').addEventListener('click', openPaymentModal);
+  el('qaEdit').addEventListener('click', ()=>{
+    const url = 'invoice-form.html?invoice=' + encodeURIComponent(record.id);
+    if(window.ShilohAppShell) window.ShilohAppShell.navigate(url); else location.href = url;
+  });
+
+  /* ============ DELETE (backend-only) ============ */
+  async function deleteInvoice(){
+    if(!record) return;
+    if(!confirm(`Delete invoice ${record.invoiceNo} for ${record.patientName}? This cannot be undone.`)) return;
+    try {
+      const base = (window.ShilohAPI && window.ShilohAPI.BASE) || (window.__SHILOH_API__ || 'http://localhost:5001/api');
+      const res = await fetch(base + '/invoices/' + encodeURIComponent(record.id), {
+        method: 'DELETE',
+        headers: window.ShilohAPI ? window.ShilohAPI.headers() : {}
+      });
+      if(!res.ok) throw new Error('Delete failed (' + res.status + ')');
+      showToast('Invoice deleted');
+      setTimeout(()=>{
+        if(window.ShilohAppShell) window.ShilohAppShell.navigate('billing.html');
+        else location.href = 'billing.html';
+      }, 500);
+    } catch (e) {
+      window.ShilohAPI.toast('Could not delete invoice. Check connection / login.', 'error');
+    }
+  }
+  el('deleteBtn').addEventListener('click', deleteInvoice);
+  el('qaDelete').addEventListener('click', deleteInvoice);
+
+  /* ============ PRINT ============ */
+  function printBill(){ window.print(); }
+  el('printBtn').addEventListener('click', printBill);
+  el('qaPrint').addEventListener('click', printBill);
+
+  /* ============ SHARE ============ */
+  function buildShareText(){
+    const lines = [
+      `Shiloh Clinic & Maternity — Invoice ${record.invoiceNo}`,
+      `Patient: ${record.patientName} (${record.patientHosp})`,
+      `Date: ${fmtDate(record.date)}`,
+      '',
+      `${record.description}`,
+      '',
+      `Total: ${money(record.amount)}`,
+      `Amount Paid: ${money(record.amountPaid)}`,
+      `Balance Due: ${money(record.balance)}`,
+      `Status: ${record.status}`,
+    ];
+    return lines.join('\n');
+  }
+  el('shareBtn').addEventListener('click', async (e)=>{
+    e.stopPropagation();
+    const text = buildShareText();
+    if(navigator.share){
+      try{ await navigator.share({ title: 'Shiloh Clinic Invoice', text }); return; }
+      catch(err){ /* fall through to menu */ }
+    }
+    el('shareMenu').classList.toggle('open');
+  });
+  document.addEventListener('click', (e)=>{
+    if(!e.target.closest('.share-wrap')) el('shareMenu').classList.remove('open');
+  });
+  el('shareMenu').addEventListener('click', (e)=>{
+    const item = e.target.closest('[data-share]');
+    if(!item) return;
+    const kind = item.dataset.share;
+    const text = buildShareText();
+    if(kind==='whatsapp'){
+      window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+    } else if(kind==='email'){
+      window.location.href = 'mailto:?subject=' + encodeURIComponent('Shiloh Clinic — ' + record.invoiceNo) + '&body=' + encodeURIComponent(text);
+    } else if(kind==='copy'){
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(()=> showToast('Invoice summary copied')).catch(()=> showToast('Could not copy', true));
+      } else {
+        showToast('Clipboard not available', true);
+      }
+    }
+    el('shareMenu').classList.remove('open');
+  });
+
+  /* ============ INIT (async, GET /invoices/:id by uuid) ============ */
+  async function init(){
+    record = await findInvoice();
+    if(!record){
+      el('billArea').style.display = 'none';
+      el('topbarActions').style.display = 'none';
+      el('notFoundNotice').style.display = 'flex';
+    } else {
+      renderBill();
+    }
+  }
+  init();
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shiloh Clinic &amp; Maternity — Reports</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root{
+    --navy:#0d1b4c; --blue-accent:#2563eb; --bg:#f4f6fb; --card:#ffffff; --border:#eef0f6;
+    --text-dark:#1c2440; --text-mid:#6b7280; --text-light:#9aa1b3;
+    --green:#12b76a; --green-bg:#e9f9f0;
+    --blue:#2563eb; --blue-bg:#eaf1ff;
+    --purple:#8b5cf6; --purple-bg:#f4efff;
+    --orange:#f79009; --orange-bg:#fff4e5;
+    --red:#f04438; --red-bg:#feecec;
+    --pink:#ec4899; --pink-bg:#fde8f2;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif;
+    background:var(--bg); color:var(--text-dark); font-size:13px;
+    display:flex; min-height:100vh;
+  }
+
+  .main{flex:1;min-width:0;padding:20px 26px 50px;}
+
+  .topbar{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;gap:16px;flex-wrap:wrap;}
+  .page-title{font-size:20px;font-weight:800;color:var(--text-dark);}
+  .breadcrumb{font-size:11.5px;color:var(--text-light);font-weight:600;margin-top:3px;}
+  .topbar-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .btn-outline{
+    display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border);border-radius:10px;
+    padding:9px 15px;font-size:12.5px;font-weight:700;color:var(--text-dark);white-space:nowrap;cursor:pointer;
+  }
+  .btn-outline:hover{background:var(--bg);}
+  .btn-primary{
+    display:flex;align-items:center;gap:8px;background:var(--blue-accent);border:1px solid var(--blue-accent);
+    border-radius:10px;padding:9px 15px;font-size:12.5px;font-weight:700;color:#fff;white-space:nowrap;cursor:pointer;
+    box-shadow:0 4px 10px rgba(37,99,235,0.28);
+  }
+  .btn-primary:hover{background:#1d4ed8;}
+
+  /* filter bar */
+  .filter-bar{
+    display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;background:var(--card);border:1px solid var(--border);
+    border-radius:14px;padding:16px 18px;margin-bottom:20px;
+  }
+  .filter-group{display:flex;flex-direction:column;gap:5px;}
+  .filter-label{font-size:10.5px;color:var(--text-light);font-weight:700;text-transform:uppercase;letter-spacing:.03em;}
+  .filter-select, .filter-date{
+    background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:9px 12px;
+    font-size:12.5px;font-weight:600;color:var(--text-dark);cursor:pointer;font-family:inherit;min-width:150px;
+  }
+  .filter-date{cursor:text;}
+  .filter-spacer{flex:1;}
+  .custom-dates{display:none;gap:10px;}
+  .custom-dates.show{display:flex;}
+
+  /* section shell */
+  .report-section{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px 22px;margin-bottom:18px;}
+  .section-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;gap:12px;flex-wrap:wrap;}
+  .section-title-row{display:flex;align-items:center;gap:11px;}
+  .section-ic{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+  .section-title{font-size:15px;font-weight:800;color:var(--text-dark);}
+  .section-sub{font-size:11.5px;color:var(--text-light);font-weight:600;margin-top:2px;}
+  .section-export{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--blue);background:var(--blue-bg);border:none;padding:7px 12px;border-radius:8px;cursor:pointer;white-space:nowrap;}
+  .section-export:hover{background:#dde8ff;}
+
+  /* stat mini cards used inside sections */
+  .mini-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+  .mini-stat{border:1px solid var(--border);border-radius:12px;padding:13px 14px;}
+  .mini-stat-label{font-size:10.5px;color:var(--text-mid);font-weight:700;margin-bottom:6px;}
+  .mini-stat-value{font-size:19px;font-weight:800;color:var(--text-dark);}
+  .mini-stat-sub{font-size:10.5px;font-weight:700;margin-top:4px;}
+  .mini-stat-sub.up{color:var(--green);}
+  .mini-stat-sub.down{color:var(--red);}
+  .mini-stat-sub.flat{color:var(--text-light);}
+
+  /* CSS bar chart (vertical) */
+  .bar-chart{display:flex;align-items:flex-end;gap:10px;height:150px;padding:0 4px;margin-bottom:6px;}
+  .bar-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px;}
+  .bar-fill{width:100%;max-width:34px;border-radius:6px 6px 0 0;background:var(--blue-accent);position:relative;transition:height .3s;}
+  .bar-fill.secondary{background:var(--purple);}
+  .bar-val{font-size:10px;font-weight:800;color:var(--text-dark);}
+  .bar-label{font-size:10px;color:var(--text-light);font-weight:600;}
+  .chart-legend{display:flex;gap:16px;margin-top:8px;}
+  .chart-legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-mid);font-weight:600;}
+  .chart-legend-dot{width:8px;height:8px;border-radius:2px;}
+
+  /* horizontal breakdown bars */
+  .hbar-row{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+  .hbar-row:last-child{margin-bottom:0;}
+  .hbar-label{width:130px;flex-shrink:0;font-size:12px;font-weight:700;color:var(--text-dark);}
+  .hbar-track{flex:1;height:10px;background:var(--bg);border-radius:6px;overflow:hidden;}
+  .hbar-fill{height:100%;border-radius:6px;}
+  .hbar-val{width:70px;flex-shrink:0;text-align:right;font-size:12px;font-weight:800;color:var(--text-dark);}
+
+  /* generic tables */
+  table{width:100%;border-collapse:collapse;}
+  thead th{text-align:left;font-size:10.5px;letter-spacing:.03em;color:var(--text-light);text-transform:uppercase;font-weight:700;padding:9px 10px;border-bottom:1px solid var(--border);white-space:nowrap;}
+  tbody td{padding:11px 10px;border-bottom:1px solid var(--border);font-size:12.5px;vertical-align:middle;color:var(--text-dark);font-weight:600;}
+  tbody tr:last-child td{border-bottom:none;}
+  .util-bar-wrap{display:flex;align-items:center;gap:8px;}
+  .util-track{width:70px;height:7px;background:var(--bg);border-radius:5px;overflow:hidden;flex-shrink:0;}
+  .util-fill{height:100%;border-radius:5px;background:var(--green);}
+  .pill{font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:20px;display:inline-block;}
+  .pill-green{background:var(--green-bg);color:#0a8a52;}
+  .pill-orange{background:var(--orange-bg);color:#c56c05;}
+  .pill-red{background:var(--red-bg);color:#c1362b;}
+
+  /* two-col layout for consultation summary */
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+
+  .diag-row{display:flex;align-items:center;gap:12px;margin-bottom:11px;}
+  .diag-row:last-child{margin-bottom:0;}
+  .diag-rank{width:22px;height:22px;border-radius:50%;background:var(--blue-bg);color:var(--blue);font-size:10.5px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .diag-name{flex:1;font-size:12.5px;font-weight:700;color:var(--text-dark);}
+  .diag-count{font-size:12px;font-weight:800;color:var(--text-mid);}
+
+  /* donut (conic-gradient) for billing breakdown */
+  .donut-wrap{display:flex;align-items:center;gap:26px;flex-wrap:wrap;}
+  .donut{width:150px;height:150px;border-radius:50%;flex-shrink:0;}
+  .donut-legend{display:flex;flex-direction:column;gap:10px;flex:1;min-width:180px;}
+  .donut-legend-row{display:flex;align-items:center;gap:9px;font-size:12px;font-weight:700;color:var(--text-dark);}
+  .donut-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0;}
+  .donut-amt{margin-left:auto;color:var(--text-mid);font-weight:700;}
+
+  @media (max-width:1100px){
+    .mini-stats{grid-template-columns:repeat(2,1fr);}
+    .two-col{grid-template-columns:1fr;}
+  }
+  @media print{
+    #sidebarPlaceholder, .filter-bar, .topbar-actions, .section-export{display:none !important;}
+    .main{padding:0;}
+    .report-section{break-inside:avoid;border:none;box-shadow:none;}
+  }
+</style>
+</head>
+<body>
+
+<div id="sidebarPlaceholder"></div>
+<script src="shiloh-sidebar.js"></script>
+
+<main class="main">
+
+  <div class="topbar">
+    <div>
+      <div class="page-title">Reports</div>
+      <div class="breadcrumb">Dashboard / Reports / Analytics Overview</div>
+    </div>
+    <div class="topbar-actions">
+      <div class="btn-outline" id="exportPdfBtn"><i class="fa-regular fa-file-pdf"></i> Export PDF</div>
+      <div class="btn-outline" id="exportCsvBtn"><i class="fa-regular fa-file-excel"></i> Export CSV</div>
+      <div class="btn-primary" id="printBtn"><i class="fa-solid fa-print"></i> Print</div>
+    </div>
+  </div>
+
+  <!-- filters -->
+  <div class="filter-bar">
+    <div class="filter-group">
+      <div class="filter-label">Date Range</div>
+      <select class="filter-select" id="dateRangeSelect">
+        <option value="today">Today</option>
+        <option value="week">This Week</option>
+        <option value="month" selected>This Month</option>
+        <option value="quarter">This Quarter</option>
+        <option value="custom">Custom Range</option>
+      </select>
+    </div>
+    <div class="custom-dates" id="customDates">
+      <div class="filter-group"><div class="filter-label">From</div><input type="date" class="filter-date" id="dateFrom"></div>
+      <div class="filter-group"><div class="filter-label">To</div><input type="date" class="filter-date" id="dateTo"></div>
+    </div>
+    <div class="filter-group">
+      <div class="filter-label">Department</div>
+      <select class="filter-select" id="deptFilter">
+        <option value="all">All Departments</option>
+        <option>General OPD</option>
+        <option>Maternity</option>
+        <option>Nursing</option>
+        <option>Laboratory</option>
+        <option>Pharmacy</option>
+        <option>Billing</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <div class="filter-label">Doctor</div>
+      <select class="filter-select" id="doctorFilter">
+        <option value="all">All Doctors</option>
+        <option>Dr. Samuel O.</option>
+        <option>Dr. Ifeoma B.</option>
+        <option>Dr. Chidi K.</option>
+        <option>Dr. Amaka N.</option>
+      </select>
+    </div>
+    <div class="filter-spacer"></div>
+    <div class="btn-primary" id="applyFiltersBtn"><i class="fa-solid fa-filter"></i> Apply Filters</div>
+  </div>
+
+  <!-- ═══════════ PATIENT VOLUME ═══════════ -->
+  <div class="report-section">
+    <div class="section-head">
+      <div class="section-title-row">
+        <div class="section-ic" style="background:var(--blue-bg);color:var(--blue);"><i class="fa-solid fa-user-group"></i></div>
+        <div><div class="section-title">Patient Volume</div><div class="section-sub">Daily, weekly &amp; monthly visits and new registrations</div></div>
+      </div>
+      <button class="section-export" data-export-table="volumeTable"><i class="fa-solid fa-download"></i> Export CSV</button>
+    </div>
+
+    <div class="mini-stats">
+      <div class="mini-stat"><div class="mini-stat-label">Total Visits</div><div class="mini-stat-value">1,248</div><div class="mini-stat-sub up">↑ 8.2% vs last period</div></div>
+      <div class="mini-stat"><div class="mini-stat-label">New Registrations</div><div class="mini-stat-value">186</div><div class="mini-stat-sub up">↑ 14.6% vs last period</div></div>
+      <div class="mini-stat"><div class="mini-stat-label">Avg. Daily Visits</div><div class="mini-stat-value">41.6</div><div class="mini-stat-sub flat">Consistent with last period</div></div>
+      <div class="mini-stat"><div class="mini-stat-label">Returning Patients</div><div class="mini-stat-value">85.1%</div><div class="mini-stat-sub down">↓ 1.3% vs last period</div></div>
+    </div>
+
+    <div class="bar-chart" id="volumeChart"></div>
+    <div class="chart-legend">
+      <div class="chart-legend-item"><span class="chart-legend-dot" style="background:var(--blue-accent);"></span>Total Visits</div>
+      <div class="chart-legend-item"><span class="chart-legend-dot" style="background:var(--purple);"></span>New Registrations</div>
+    </div>
+
+    <table style="display:none;" id="volumeTable">
+      <thead><tr><th>Week</th><th>Total Visits</th><th>New Registrations</th></tr></thead>
+      <tbody id="volumeTableBody"></tbody>
+    </table>
+  </div>
+
+  <!-- ═══════════ APPOINTMENT ANALYSIS ═══════════ -->
+  <div class="report-section">
+    <div class="section-head">
+      <div class="section-title-row">
+        <div class="section-ic" style="background:var(--purple-bg);color:var(--purple);"><i class="fa-regular fa-calendar-check"></i></div>
+        <div><div class="section-title">Appointment Analysis</div><div class="section-sub">Show/no-show rates, cancellations &amp; doctor utilization</div></div>
+      </div>
+      <button class="section-export" data-export-table="doctorUtilTable"><i class="fa-solid fa-download"></i> Export CSV</button>
+    </div>
+
+    <div class="mini-stats">
+      <div class="mini-stat"><div class="mini-stat-label">Total Appointments</div><div class="mini-stat-value">612</div><div class="mini-stat-sub flat">This period</div></div>
+      <div class="mini-stat"><div class="mini-stat-label">Show Rate</div><div class="mini-stat-value">87.4%</div><div class="mini-stat-sub up">↑ 2.1% vs last period</div></div>
+      <div class="mini-stat"><div class="mini-stat-label">No-Show Rate</div><div class="mini-stat-value">7.8%</div><div class="mini-stat-sub down">↓ 0.9% vs last period</div></div>
+      <div class="mini-stat"><div class="mini-stat-label">Cancellation Rate</div><div class="mini-stat-value">4.8%</div><div class="mini-stat-sub flat">Consistent with last period</div></div>
+    </div>
+
+    <div id="apptBreakdown"></div>
+
+    <div style="margin-top:20px;">
+      <div style="font-size:12.5px;font-weight:800;color:var(--text-dark);margin-bottom:12px;">Doctor Utilization</div>
+      <table id="doctorUtilTable">
+        <thead><tr><th>Doctor</th><th>Appointments</th><th>Completed</th><th>No-Show</th><th>Utilization</th></tr></thead>
+        <tbody id="doctorUtilBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ═══════════ DEPARTMENT PERFORMANCE ═══════════ -->
+  <div class="report-section">
+    <div class="section-head">
+      <div class="section-title-row">
+        <div class="section-ic" style="background:var(--orange-bg);color:var(--orange);"><i class="fa-solid fa-gauge-high"></i></div>
+        <div><div class="section-title">Department Performance</div><div class="section-sub">Queue times and throughput across departments</div></div>
+      </div>
+      <button class="section-export" data-export-table="deptPerfTable"><i class="fa-solid fa-download"></i> Export CSV</button>
+    </div>
+
+    <table id="deptPerfTable">
+      <thead><tr><th>Department</th><th>Patients Served</th><th>Avg. Queue Time</th><th>Throughput / hr</th><th>Queue Load</th></tr></thead>
+      <tbody id="deptPerfBody"></tbody>
+    </table>
+  </div>
+
+  <!-- ═══════════ CONSULTATION SUMMARY ═══════════ -->
+  <div class="report-section">
+    <div class="section-head">
+      <div class="section-title-row">
+        <div class="section-ic" style="background:var(--pink-bg);color:var(--pink);"><i class="fa-solid fa-stethoscope"></i></div>
+        <div><div class="section-title">Consultation Summary</div><div class="section-sub">Most common diagnoses and prescribing patterns</div></div>
+      </div>
+      <button class="section-export" data-export-table="diagnosesTable"><i class="fa-solid fa-download"></i> Export CSV</button>
+    </div>
+
+    <div class="two-col">
+      <div>
+        <div style="font-size:12.5px;font-weight:800;color:var(--text-dark);margin-bottom:14px;">Top Diagnoses</div>
+        <div id="diagList"></div>
+      </div>
+      <div>
+        <div style="font-size:12.5px;font-weight:800;color:var(--text-dark);margin-bottom:14px;">Most Prescribed Medications</div>
+        <div id="rxList"></div>
+      </div>
+    </div>
+
+    <table style="display:none;" id="diagnosesTable">
+      <thead><tr><th>Diagnosis</th><th>Cases</th></tr></thead>
+      <tbody id="diagnosesTableBody"></tbody>
+    </table>
+  </div>
+
+  <!-- ═══════════ REVENUE SUMMARY ═══════════ -->
+  <div class="report-section">
+    <div class="section-head">
+      <div class="section-title-row">
+        <div class="section-ic" style="background:var(--green-bg);color:var(--green);"><i class="fa-solid fa-sack-dollar"></i></div>
+        <div><div class="section-title">Revenue Summary</div><div class="section-sub">Total income, payments received &amp; outstanding invoices</div></div>
+      </div>
+      <button class="section-export" data-export-table="revenueTable"><i class="fa-solid fa-download"></i> Export CSV</button>
+    </div>
+
+    <div class="mini-stats">
+      <div class="mini-stat"><div class="mini-stat-label">Total Revenue</div><div class="mini-stat-value">₦4,286,500</div><div class="mini-stat-sub up">↑ 11.4% vs last period</div></div>
+      <div class="mini-stat"><div class="mini-stat-label">Payments Received</div><div class="mini-stat-value">₦3,912,300</div><div class="mini-stat-sub up">↑ 9.8% vs last period</div></div>
+      <div class="mini-stat"><div class="mini-stat-label">Outstanding Invoices</div><div class="mini-stat-value">₦374,200</div><div class="mini-stat-sub down">↓ 3.2% vs last period</div></div>
+      <div class="mini-stat"><div class="mini-stat-label">Collection Rate</div><div class="mini-stat-value">91.3%</div><div class="mini-stat-sub up">↑ 1.7% vs last period</div></div>
+    </div>
+
+    <div class="bar-chart" id="revenueChart"></div>
+    <div class="chart-legend">
+      <div class="chart-legend-item"><span class="chart-legend-dot" style="background:var(--green);"></span>Revenue (₦'000)</div>
+    </div>
+
+    <table style="display:none;" id="revenueTable">
+      <thead><tr><th>Week</th><th>Revenue</th></tr></thead>
+      <tbody id="revenueTableBody"></tbody>
+    </table>
+  </div>
+
+  <!-- ═══════════ SERVICE / BILLING REPORT ═══════════ -->
+  <div class="report-section">
+    <div class="section-head">
+      <div class="section-title-row">
+        <div class="section-ic" style="background:var(--blue-bg);color:var(--blue);"><i class="fa-regular fa-credit-card"></i></div>
+        <div><div class="section-title">Service / Billing Report</div><div class="section-sub">Revenue breakdown by department</div></div>
+      </div>
+      <button class="section-export" data-export-table="billingTable"><i class="fa-solid fa-download"></i> Export CSV</button>
+    </div>
+
+    <div class="donut-wrap">
+      <div class="donut" id="billingDonut"></div>
+      <div class="donut-legend" id="billingLegend"></div>
+    </div>
+
+    <table style="display:none;" id="billingTable">
+      <thead><tr><th>Service</th><th>Revenue</th><th>Share</th></tr></thead>
+      <tbody id="billingTableBody"></tbody>
+    </table>
+  </div>
+
+</main>
+
+<script>
+(function(){
+  const el = id => document.getElementById(id);
+
+  /* ============ FILTER UI ============ */
+  el('dateRangeSelect').addEventListener('change', () => {
+    el('customDates').classList.toggle('show', el('dateRangeSelect').value === 'custom');
+  });
+  el('applyFiltersBtn').addEventListener('click', () => {
+    // In production: re-fetch every section's data using the selected
+    // date range / department / doctor filters (e.g. ReportsAPI.getPatientVolume({...})).
+    // The demo data below stays static, but the click is wired so the
+    // filter bar behaves like the real thing once an API is attached.
+    renderAll();
+  });
+
+  /* ============ DEMO DATA ============ */
+  const volumeData = [
+    { label:'Wk 1', visits:268, reg:38 },
+    { label:'Wk 2', visits:301, reg:44 },
+    { label:'Wk 3', visits:279, reg:41 },
+    { label:'Wk 4', visits:400, reg:63 },
+  ];
+
+  const apptBreakdown = [
+    { label:'Completed', value:412, color:'#12b76a' },
+    { label:'Checked In', value:64, color:'#2563eb' },
+    { label:'Confirmed', value:52, color:'#8b5cf6' },
+    { label:'Cancelled', value:29, color:'#f79009' },
+    { label:'No-Show', value:48, color:'#f04438' },
+  ];
+
+  const doctorUtil = [
+    { name:'Dr. Samuel O.', appts:186, completed:164, noshow:11, util:88 },
+    { name:'Dr. Ifeoma B.', appts:172, completed:158, noshow:8, util:92 },
+    { name:'Dr. Chidi K.', appts:141, completed:118, noshow:16, util:84 },
+    { name:'Dr. Amaka N.', appts:113, completed:96, noshow:13, util:85 },
+  ];
+
+  const deptPerf = [
+    { name:'Nursing', served:412, queue:'6 min', throughput:9.8, load:62 },
+    { name:'Doctor Consultation', served:380, queue:'14 min', throughput:4.2, load:81 },
+    { name:'Laboratory', served:210, queue:'11 min', throughput:5.1, load:58 },
+    { name:'Pharmacy', served:298, queue:'8 min', throughput:7.4, load:47 },
+    { name:'Billing', served:355, queue:'5 min', throughput:11.2, load:39 },
+  ];
+
+  const diagnoses = [
+    { name:'Malaria', count:184 },
+    { name:'Hypertension', count:142 },
+    { name:'Antenatal Review (Normal)', count:129 },
+    { name:'Upper Respiratory Tract Infection', count:97 },
+    { name:'Typhoid Fever', count:64 },
+    { name:'Acute Gastroenteritis', count:51 },
+  ];
+
+  const prescriptions = [
+    { name:'Paracetamol 500mg', count:312 },
+    { name:'Amoxicillin 500mg', count:201 },
+    { name:'Artemether/Lumefantrine', count:178 },
+    { name:'Amlodipine 5mg', count:134 },
+    { name:'Folic Acid 5mg', count:121 },
+    { name:'Ferrous Sulphate 200mg', count:118 },
+  ];
+
+  const revenueData = [
+    { label:'Wk 1', revenue:912 },
+    { label:'Wk 2', revenue:1046 },
+    { label:'Wk 3', revenue:998 },
+    { label:'Wk 4', revenue:1330 },
+  ];
+
+  const billing = [
+    { name:'Consultation', amount:1542000, color:'#2563eb' },
+    { name:'Laboratory', amount:986000, color:'#8b5cf6' },
+    { name:'Pharmacy', amount:1108500, color:'#12b76a' },
+    { name:'Maternity Services', amount:520000, color:'#ec4899' },
+    { name:'Admissions', amount:130000, color:'#f79009' },
+  ];
+
+  function fmtNaira(n){ return '₦' + n.toLocaleString(); }
+
+  /* ============ PATIENT VOLUME CHART ============ */
+  function renderVolumeChart(){
+    const max = Math.max(...volumeData.map(d=>Math.max(d.visits, d.reg*4)));
+    el('volumeChart').innerHTML = volumeData.map(d=>`
+      <div class="bar-col">
+        <div style="display:flex;align-items:flex-end;gap:4px;height:100%;">
+          <div class="bar-fill" style="height:${(d.visits/max*100).toFixed(0)}%;"><span class="bar-val" style="position:absolute;top:-16px;left:50%;transform:translateX(-50%);">${d.visits}</span></div>
+          <div class="bar-fill secondary" style="height:${(d.reg*4/max*100).toFixed(0)}%;"><span class="bar-val" style="position:absolute;top:-16px;left:50%;transform:translateX(-50%);">${d.reg}</span></div>
+        </div>
+        <div class="bar-label">${d.label}</div>
+      </div>
+    `).join('');
+    el('volumeTableBody').innerHTML = volumeData.map(d=>`<tr><td>${d.label}</td><td>${d.visits}</td><td>${d.reg}</td></tr>`).join('');
+  }
+
+  /* ============ APPOINTMENT BREAKDOWN ============ */
+  function renderApptBreakdown(){
+    const total = apptBreakdown.reduce((s,d)=>s+d.value,0);
+    el('apptBreakdown').innerHTML = apptBreakdown.map(d=>{
+      const pct = (d.value/total*100).toFixed(1);
+      return `
+        <div class="hbar-row">
+          <div class="hbar-label">${d.label}</div>
+          <div class="hbar-track"><div class="hbar-fill" style="width:${pct}%;background:${d.color};"></div></div>
+          <div class="hbar-val">${d.value} (${pct}%)</div>
+        </div>`;
+    }).join('');
+  }
+
+  function renderDoctorUtil(){
+    el('doctorUtilBody').innerHTML = doctorUtil.map(d=>{
+      const pillClass = d.util>=88 ? 'pill-green' : d.util>=80 ? 'pill-orange' : 'pill-red';
+      return `
+        <tr>
+          <td>${d.name}</td>
+          <td>${d.appts}</td>
+          <td>${d.completed}</td>
+          <td>${d.noshow}</td>
+          <td>
+            <div class="util-bar-wrap">
+              <div class="util-track"><div class="util-fill" style="width:${d.util}%;"></div></div>
+              <span class="pill ${pillClass}">${d.util}%</span>
+            </div>
+          </td>
+        </tr>`;
+    }).join('');
+  }
+
+  /* ============ DEPARTMENT PERFORMANCE ============ */
+  function renderDeptPerf(){
+    el('deptPerfBody').innerHTML = deptPerf.map(d=>`
+      <tr>
+        <td>${d.name}</td>
+        <td>${d.served}</td>
+        <td>${d.queue}</td>
+        <td>${d.throughput}</td>
+        <td>
+          <div class="util-bar-wrap">
+            <div class="util-track"><div class="util-fill" style="width:${d.load}%;background:${d.load>75?'#f04438':d.load>55?'#f79009':'#12b76a'};"></div></div>
+            <span style="font-size:11px;font-weight:700;color:var(--text-mid);">${d.load}%</span>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  /* ============ CONSULTATION SUMMARY ============ */
+  function renderDiagList(){
+    const max = Math.max(...diagnoses.map(d=>d.count));
+    el('diagList').innerHTML = diagnoses.map((d,i)=>`
+      <div class="diag-row">
+        <div class="diag-rank">${i+1}</div>
+        <div style="flex:1;">
+          <div class="diag-name">${d.name}</div>
+          <div class="hbar-track" style="margin-top:5px;height:6px;"><div class="hbar-fill" style="width:${(d.count/max*100).toFixed(0)}%;background:var(--pink);"></div></div>
+        </div>
+        <div class="diag-count">${d.count}</div>
+      </div>
+    `).join('');
+    el('diagnosesTableBody').innerHTML = diagnoses.map(d=>`<tr><td>${d.name}</td><td>${d.count}</td></tr>`).join('');
+  }
+  function renderRxList(){
+    const max = Math.max(...prescriptions.map(d=>d.count));
+    el('rxList').innerHTML = prescriptions.map((d,i)=>`
+      <div class="diag-row">
+        <div class="diag-rank" style="background:var(--green-bg);color:var(--green);">${i+1}</div>
+        <div style="flex:1;">
+          <div class="diag-name">${d.name}</div>
+          <div class="hbar-track" style="margin-top:5px;height:6px;"><div class="hbar-fill" style="width:${(d.count/max*100).toFixed(0)}%;background:var(--green);"></div></div>
+        </div>
+        <div class="diag-count">${d.count}</div>
+      </div>
+    `).join('');
+  }
+
+  /* ============ REVENUE CHART ============ */
+  function renderRevenueChart(){
+    const max = Math.max(...revenueData.map(d=>d.revenue));
+    el('revenueChart').innerHTML = revenueData.map(d=>`
+      <div class="bar-col">
+        <div class="bar-fill" style="height:${(d.revenue/max*100).toFixed(0)}%;background:var(--green);position:relative;">
+          <span class="bar-val" style="position:absolute;top:-16px;left:50%;transform:translateX(-50%);">₦${d.revenue}k</span>
+        </div>
+        <div class="bar-label">${d.label}</div>
+      </div>
+    `).join('');
+    el('revenueTableBody').innerHTML = revenueData.map(d=>`<tr><td>${d.label}</td><td>₦${d.revenue},000</td></tr>`).join('');
+  }
+
+  /* ============ BILLING DONUT ============ */
+  function renderBillingDonut(){
+    const total = billing.reduce((s,d)=>s+d.amount,0);
+    let acc = 0;
+    const stops = billing.map(d=>{
+      const start = (acc/total*360);
+      acc += d.amount;
+      const end = (acc/total*360);
+      return `${d.color} ${start}deg ${end}deg`;
+    }).join(', ');
+    el('billingDonut').style.background = `conic-gradient(${stops})`;
+
+    el('billingLegend').innerHTML = billing.map(d=>{
+      const pct = (d.amount/total*100).toFixed(1);
+      return `
+        <div class="donut-legend-row">
+          <span class="donut-dot" style="background:${d.color};"></span>
+          ${d.name}
+          <span class="donut-amt">${fmtNaira(d.amount)} · ${pct}%</span>
+        </div>`;
+    }).join('');
+
+    el('billingTableBody').innerHTML = billing.map(d=>{
+      const pct = (d.amount/total*100).toFixed(1);
+      return `<tr><td>${d.name}</td><td>${fmtNaira(d.amount)}</td><td>${pct}%</td></tr>`;
+    }).join('');
+  }
+
+  function renderAll(){
+    renderVolumeChart();
+    renderApptBreakdown();
+    renderDoctorUtil();
+    renderDeptPerf();
+    renderDiagList();
+    renderRxList();
+    renderRevenueChart();
+    renderBillingDonut();
+  }
+
+  /* ============ EXPORT: CSV (per-section + global) ============ */
+  function tableToCsv(table){
+    const rows = Array.from(table.querySelectorAll('tr'));
+    return rows.map(row =>
+      Array.from(row.querySelectorAll('th,td'))
+        .map(cell => `"${cell.textContent.trim().replace(/"/g,'""')}"`)
+        .join(',')
+    ).join('\n');
+  }
+  function downloadCsv(csv, filename){
+    const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+  document.querySelectorAll('[data-export-table]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const table = el(btn.dataset.exportTable);
+      if(!table) return;
+      downloadCsv(tableToCsv(table), btn.dataset.exportTable + '.csv');
+    });
+  });
+  el('exportCsvBtn').addEventListener('click', ()=>{
+    // Combines every section's table into one CSV for a full export.
+    const tables = document.querySelectorAll('table[id]');
+    let combined = '';
+    tables.forEach(t=>{ combined += `\n"${t.id}"\n` + tableToCsv(t) + '\n'; });
+    downloadCsv(combined.trim(), 'shiloh-reports-export.csv');
+  });
+  el('exportPdfBtn').addEventListener('click', ()=>{
+    // Hook this up to a real PDF generation endpoint in production
+    // (e.g. ReportsAPI.exportPdf({...filters})). For now it reuses the
+    // browser's print-to-PDF flow, which already respects the @media
+    // print rules above (sidebar/filters hidden, sections un-boxed).
+    window.print();
+  });
+  el('printBtn').addEventListener('click', ()=> window.print());
+
+  renderAll();
+
+  if(window.ShilohSidebar){
+    window.ShilohSidebar.attach('#sidebarPlaceholder', {
+      activeFile: 'reports.html',
+      user: { name: 'Admin Tolu', role: 'System Admin', avatar: 'https://i.pravatar.cc/64?img=47' }
+    });
+  }
+})();
+</script>
+
+</body>
+</html>

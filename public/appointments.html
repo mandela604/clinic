@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shiloh Clinic & Maternity — Appointments</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root{
+    --navy:#0b1a4d;--blue-accent:#2f6fed;--bg:#f4f6fb;--card:#fff;--border:#eef0f6;
+    --text-dark:#1c2440;--text-mid:#6b7280;--text-light:#9aa1b3;
+    --green:#12b76a;--green-bg:#e9f9f0;--blue:#2f6fed;--blue-bg:#eaf1ff;
+    --purple:#8b5cf6;--purple-bg:#f4efff;--orange:#f79009;--orange-bg:#fff4e5;
+    --pink:#ee46bc;--pink-bg:#fdeefa;--red:#f04438;--red-bg:#feecec;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text-dark);display:flex;min-height:100vh;font-size:13px;}
+  .main{flex:1;min-width:0;padding:20px 26px 50px;}
+  .topbar{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;gap:16px;flex-wrap:wrap;}
+  .page-title{font-size:20px;font-weight:800;color:var(--text-dark);}
+  .breadcrumb{font-size:11.5px;color:var(--text-light);font-weight:600;margin-top:3px;}
+  .breadcrumb a{color:var(--blue);text-decoration:none;}
+  .topbar-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .btn{display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:10px;font-size:12.5px;font-weight:700;cursor:pointer;border:1px solid var(--border);background:#fff;color:var(--text-dark);white-space:nowrap;}
+  .btn:hover{background:var(--bg);}
+  .btn-primary{background:var(--blue-accent);border-color:var(--blue-accent);color:#fff;box-shadow:0 4px 10px rgba(47,111,237,0.28);}
+  .btn-primary:hover{background:#2560d9;}
+
+  .stats-row{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:18px;}
+  .stat-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;display:flex;flex-direction:column;}
+  .stat-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:6px;}
+  .stat-ic{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+  .stat-label{font-size:11px;color:var(--text-mid);font-weight:600;}
+  .stat-value{font-size:22px;font-weight:800;color:var(--text-dark);margin:4px 0 2px;line-height:1;}
+  .stat-sub{font-size:10.5px;color:var(--text-light);}
+  .ic-blue{background:var(--blue-bg);color:var(--blue);}
+  .ic-green{background:var(--green-bg);color:var(--green);}
+  .ic-purple{background:var(--purple-bg);color:var(--purple);}
+  .ic-orange{background:var(--orange-bg);color:var(--orange);}
+  .ic-pink{background:var(--pink-bg);color:var(--pink);}
+  .ic-red{background:var(--red-bg);color:var(--red);}
+
+  .view-tabs{display:flex;gap:6px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:4px;width:fit-content;margin-bottom:18px;}
+  .view-tab{display:flex;align-items:center;gap:7px;padding:8px 16px;border-radius:7px;font-size:12.6px;font-weight:700;color:var(--text-mid);cursor:pointer;}
+  .view-tab.active{background:var(--blue-bg);color:var(--blue-accent);}
+  .view-tab:hover:not(.active){color:var(--text-dark);}
+
+  .filter-bar{display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap;}
+  .search-box{flex:1;min-width:240px;position:relative;}
+  .search-box input{width:100%;padding:10px 14px 10px 36px;border:1px solid var(--border);border-radius:10px;font-size:12.8px;background:#fff;font-family:inherit;outline:none;}
+  .search-box input:focus{border-color:var(--blue-accent);box-shadow:0 0 0 3px var(--blue-bg);}
+  .search-box i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-light);font-size:12px;}
+  .filter-group{display:flex;flex-direction:column;gap:3px;}
+  .filter-group label{font-size:11px;color:var(--text-mid);font-weight:600;}
+  .filter-select{padding:9px 12px;border:1px solid var(--border);border-radius:10px;font-size:12.5px;background:#fff;min-width:120px;color:var(--text-dark);font-family:inherit;}
+
+  .table-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+  .table-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;flex-wrap:wrap;gap:10px;}
+  .table-title{font-size:14.5px;font-weight:800;color:var(--text-dark);}
+  .table-actions{display:flex;gap:8px;align-items:center;}
+  .view-toggle{display:flex;border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+  .view-toggle .icon-btn{border:none;border-radius:0;width:36px;height:36px;}
+  .view-toggle .icon-btn.selected{background:var(--blue-bg);color:var(--blue-accent);}
+  .icon-btn{width:36px;height:36px;border:1px solid var(--border);border-radius:10px;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-mid);flex-shrink:0;}
+  .icon-btn:hover{background:var(--bg);}
+
+  table{width:100%;border-collapse:collapse;}
+  thead tr{border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:#fafbfc;}
+  th{text-align:left;padding:11px 12px;font-size:11px;color:var(--text-light);font-weight:700;text-transform:uppercase;letter-spacing:.02em;white-space:nowrap;}
+  td{padding:11px 12px;font-size:12.6px;border-bottom:1px solid var(--border);white-space:nowrap;color:var(--text-dark);}
+  tbody tr{cursor:pointer;transition:background .1s;}
+  tbody tr:hover{background:#fafbfc;}
+  .patient-cell{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;}
+  .avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:800;flex-shrink:0;}
+  .patient-name{font-weight:700;color:var(--text-dark);font-size:12.6px;}
+  .patient-sub{font-size:11px;color:var(--text-light);}
+  .appt-id{font-weight:800;color:var(--blue-accent);font-size:12.2px;}
+  .datetime-cell div:first-child{font-weight:700;color:var(--text-dark);font-size:12.4px;}
+  .datetime-cell div:last-child{font-size:11px;color:var(--text-light);}
+
+  .badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;}
+  .badge i{font-size:8px;}
+  .badge-confirmed{background:var(--blue-bg);color:#1d54c9;}
+  .badge-checked{background:var(--green-bg);color:#0a8a52;}
+  .badge-pending{background:var(--orange-bg);color:#c56c05;}
+  .badge-cancelled{background:var(--red-bg);color:#c1362b;}
+  .badge-noshow{background:#f1f2f6;color:var(--text-mid);}
+  .type-chip{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+  .type-consultation{background:var(--blue-bg);color:var(--blue-accent);}
+  .type-antenatal{background:var(--pink-bg);color:#c22a94;}
+  .type-familyplanning{background:var(--purple-bg);color:#6b3fd6;}
+  .type-followup{background:var(--green-bg);color:#0a8a52;}
+  .type-labtest{background:var(--orange-bg);color:#c56c05;}
+
+  .row-actions{display:flex;gap:6px;align-items:center;}
+  .row-actions .icon-btn{width:30px;height:30px;}
+
+  .grid-wrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;padding:16px 20px;}
+  .appt-card{border:1px solid var(--border);border-radius:12px;padding:13px;cursor:pointer;transition:all .15s;}
+  .appt-card:hover{border-color:var(--blue-accent);box-shadow:0 4px 12px rgba(47,111,237,0.1);}
+  .appt-card-top{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  .appt-card-row{display:flex;justify-content:space-between;font-size:11.5px;color:var(--text-mid);margin-top:6px;}
+  .appt-card-row b{color:var(--text-dark);font-weight:700;}
+
+  .cal-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px;}
+  .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+  .cal-month-label{font-size:15px;font-weight:800;}
+  .cal-nav{display:flex;gap:8px;align-items:center;}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+  .cal-dow{font-size:10.5px;font-weight:800;color:var(--text-light);text-transform:uppercase;text-align:center;padding-bottom:6px;}
+  .cal-cell{border:1px solid var(--border);border-radius:10px;min-height:80px;padding:7px;cursor:pointer;display:flex;flex-direction:column;gap:5px;}
+  .cal-cell:hover{border-color:var(--blue-accent);}
+  .cal-cell.other-month{opacity:.35;}
+  .cal-cell.today{border-color:var(--blue-accent);background:var(--blue-bg);}
+  .cal-daynum{font-size:12px;font-weight:800;color:var(--text-dark);}
+  .cal-dots{display:flex;flex-wrap:wrap;gap:3px;}
+  .cal-dot{width:7px;height:7px;border-radius:50%;}
+  .cal-count{font-size:10px;font-weight:700;color:var(--text-mid);margin-top:auto;}
+
+  .day-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px;}
+  .day-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+  .day-date-label{font-size:15px;font-weight:800;}
+  .day-slot{display:flex;gap:14px;padding:10px 0;border-bottom:1px solid var(--border);}
+  .day-slot:last-child{border-bottom:none;}
+  .day-slot-time{width:70px;flex-shrink:0;font-size:11.5px;font-weight:800;color:var(--text-light);padding-top:2px;}
+  .day-slot-items{flex:1;display:flex;flex-direction:column;gap:8px;}
+  .day-appt{display:flex;align-items:center;gap:10px;background:var(--bg);border-radius:10px;padding:9px 11px;}
+  .day-appt-empty{font-size:11.5px;color:var(--text-light);font-weight:600;padding:6px 0;}
+
+  .empty-state{padding:50px 20px;text-align:center;color:var(--text-light);}
+  .empty-state i{font-size:30px;margin-bottom:10px;display:block;}
+  .empty-state h4{color:var(--text-dark);font-size:14px;margin-bottom:4px;}
+
+  .table-footer{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;flex-wrap:wrap;gap:10px;}
+  .footer-text{font-size:12px;color:var(--text-mid);}
+  .pagination{display:flex;gap:6px;align-items:center;}
+  .page-btn{min-width:32px;height:32px;padding:0 8px;border:1px solid var(--border);border-radius:8px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:12.5px;color:var(--text-dark);cursor:pointer;}
+  .page-btn:hover{background:var(--bg);}
+  .page-btn.active{background:var(--blue-accent);color:#fff;border-color:var(--blue-accent);}
+  .page-btn:disabled{opacity:.4;cursor:not-allowed;}
+  .per-page{padding:7px 10px;border:1px solid var(--border);border-radius:8px;font-size:12.2px;color:var(--text-dark);font-family:inherit;background:#fff;}
+
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;padding:11px 20px;border-radius:10px;font-size:12.5px;font-weight:700;box-shadow:0 10px 30px rgba(10,15,40,0.3);opacity:0;pointer-events:none;transition:.22s;z-index:300;display:flex;align-items:center;gap:9px;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .toast i{color:var(--green);}
+
+  /* ── Hover Micro-interactions ──────────────────────────────────────── */
+  .appt-card{transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;}
+  .appt-card:hover{transform:translateY(-4px) scale(1.015);box-shadow:0 8px 24px rgba(47,111,237,0.12);}
+
+  tbody tr{transition:transform .15s ease,background .15s ease,box-shadow .15s ease;}
+  tbody tr:hover{transform:translateY(-2px) scale(1.005);box-shadow:0 4px 12px rgba(47,111,237,0.08);}
+
+  .day-appt{transition:transform .15s ease,box-shadow .15s ease,background .15s ease;}
+  .day-appt:hover{transform:translateY(-2px) scale(1.008);box-shadow:0 4px 12px rgba(47,111,237,0.08);background:var(--blue-bg);}
+
+  .cal-cell{transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease;}
+  .cal-cell:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 4px 12px rgba(47,111,237,0.1);}
+
+  .btn-primary{transition:transform .15s ease,box-shadow .15s ease,background .15s ease;}
+  .btn-primary:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 6px 16px rgba(47,111,237,0.3);}
+  .btn-primary:active{transform:translateY(0) scale(0.98);}
+
+  .btn{transition:transform .15s ease,box-shadow .15s ease,background .15s ease;}
+  .btn:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 4px 12px rgba(0,0,0,0.06);}
+
+  .icon-btn{transition:transform .15s ease,box-shadow .15s ease,color .15s ease,border-color .15s ease,background .15s ease;}
+  .icon-btn:hover{transform:scale(1.12);box-shadow:0 2px 8px rgba(47,111,237,0.15);}
+
+  .page-btn{transition:transform .15s ease,background .15s ease,color .15s ease;}
+  .page-btn:hover:not(:disabled):not(.active){transform:translateY(-2px) scale(1.08);box-shadow:0 3px 8px rgba(0,0,0,0.06);}
+  .page-btn.active{transform:scale(1.05);box-shadow:0 3px 10px rgba(47,111,237,0.25);}
+
+  .stat-card{transition:transform .2s ease,box-shadow .2s ease;}
+  .stat-card:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 6px 18px rgba(0,0,0,0.07);}
+
+  .badge{transition:transform .15s ease;}
+  tbody tr:hover .badge,.day-appt:hover .badge{transform:scale(1.06);}
+
+  .type-chip{transition:transform .15s ease;}
+  tbody tr:hover .type-chip,.day-appt:hover .type-chip{transform:scale(1.06);}
+
+  .avatar{transition:transform .2s ease,box-shadow .2s ease;}
+  tbody tr:hover .avatar,.day-appt:hover .avatar,.appt-card:hover .avatar{transform:scale(1.1);box-shadow:0 3px 10px rgba(0,0,0,0.1);}
+
+  .patient-name{transition:color .15s ease;}
+  tbody tr:hover .patient-name,.day-appt:hover .patient-name{color:var(--blue);}
+
+  .appt-id{transition:transform .15s ease;}
+  tbody tr:hover .appt-id{transform:scale(1.04);}
+
+  .view-tab{transition:transform .15s ease,background .15s ease,color .15s ease;}
+  .view-tab:hover:not(.active){transform:translateY(-1px) scale(1.03);}
+
+  .cal-nav .icon-btn:hover{transform:rotate(90deg) scale(1.1);}
+
+  .filter-select{transition:border-color .15s ease,box-shadow .15s ease;}
+  .filter-select:focus{transform:scale(1.01);}
+
+  .search-box input{transition:border-color .15s ease,box-shadow .15s ease;}
+  .search-box input:focus{transform:scale(1.005);}
+
+  .day-slot{transition:background .15s ease;}
+
+  @media(max-width:1200px){.stats-row{grid-template-columns:repeat(3,1fr);}}
+  @media(max-width:720px){.stats-row{grid-template-columns:repeat(2,1fr);}.cal-grid{grid-template-columns:repeat(7,minmax(40px,1fr));}}
+</style>
+</head>
+<body>
+
+<div id="sidebarPlaceholder"></div>
+
+<main class="main">
+  <div class="topbar">
+    <div>
+      <div class="page-title">Appointments</div>
+      <div class="breadcrumb"><a href="dashboard.html">Dashboard</a> / Appointments / All Appointments</div>
+    </div>
+    <div class="topbar-actions">
+      <div class="btn" onclick="refreshAll()"><i class="fa-solid fa-rotate"></i> Refresh</div>
+      <div class="btn btn-primary" onclick="bookAppointment()"><i class="fa-solid fa-plus"></i> New Appointment</div>
+    </div>
+  </div>
+
+  <div class="stats-row" id="statsRow"></div>
+
+  <div class="view-tabs" id="viewTabs">
+    <div class="view-tab active" data-view="list"><i class="fa-solid fa-list"></i> List</div>
+    <div class="view-tab" data-view="calendar"><i class="fa-regular fa-calendar"></i> Calendar</div>
+    <div class="view-tab" data-view="day"><i class="fa-regular fa-clock"></i> Day</div>
+  </div>
+
+  <div class="filter-bar">
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Search by name, ID, doctor...">
+      <i class="fa-solid fa-magnifying-glass"></i>
+    </div>
+    <div class="filter-group"><select class="filter-select" id="doctorFilter"><option value="all">All Doctors</option></select></div>
+    <div class="filter-group"><select class="filter-select" id="typeFilter">
+      <option value="all">All Types</option><option value="Consultation">Consultation</option><option value="Follow-up">Follow-up</option><option value="Antenatal">Antenatal</option><option value="Lab Review">Lab Review</option><option value="Check-up">Check-up</option>
+    </select></div>
+    <div class="filter-group"><select class="filter-select" id="statusFilter">
+      <option value="all">All Status</option><option value="Scheduled">Scheduled</option><option value="Confirmed">Confirmed</option><option value="Completed">Completed</option><option value="Cancelled">Cancelled</option>
+    </select></div>
+  </div>
+
+  <!-- LIST VIEW -->
+  <div id="listView">
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title" id="resultsTitle">Appointments</div>
+        <div class="table-actions">
+          <div class="view-toggle">
+            <div class="icon-btn selected" id="tvListBtn"><i class="fa-solid fa-list" style="font-size:13px;"></i></div>
+            <div class="icon-btn" id="tvGridBtn"><i class="fa-solid fa-grip" style="font-size:13px;"></i></div>
+          </div>
+        </div>
+      </div>
+      <div id="tableArea"></div>
+      <div class="table-footer" id="tableFooter">
+        <div class="footer-text" id="footerInfo"></div>
+        <div class="pagination" id="pagination"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CALENDAR VIEW -->
+  <div id="calendarView" style="display:none;">
+    <div class="cal-card">
+      <div class="cal-head">
+        <div class="cal-month-label" id="calMonthLabel"></div>
+        <div class="cal-nav">
+          <div class="icon-btn" id="calPrev"><i class="fa-solid fa-chevron-left" style="font-size:11px;"></i></div>
+          <div class="btn" id="calToday" style="padding:7px 12px;font-size:11.5px;">Today</div>
+          <div class="icon-btn" id="calNext"><i class="fa-solid fa-chevron-right" style="font-size:11px;"></i></div>
+        </div>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+    </div>
+  </div>
+
+  <!-- DAY VIEW -->
+  <div id="dayView" style="display:none;">
+    <div class="day-card">
+      <div class="day-head">
+        <div class="day-date-label" id="dayDateLabel"></div>
+        <div class="cal-nav">
+          <div class="icon-btn" id="dayPrev"><i class="fa-solid fa-chevron-left" style="font-size:11px;"></i></div>
+          <div class="btn" id="dayToday" style="padding:7px 12px;font-size:11.5px;">Today</div>
+          <div class="icon-btn" id="dayNext"><i class="fa-solid fa-chevron-right" style="font-size:11px;"></i></div>
+        </div>
+      </div>
+      <div id="daySlots"></div>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast"><i class="fa-solid fa-circle-check"></i><span id="toastText"></span></div>
+
+<script src="shiloh-sidebar.js"></script>
+<script src="../services/api.js"></script>
+<script src="../services/appointment-service.js"></script>
+<script src="appointment-form.js"></script>
+<script src="appointment-detail.js"></script>
+<script>
+  const TODAY = new Date().toISOString().slice(0,10);
+  let currentView = 'list';
+  let tableView = 'list';
+  let calMonth = new Date();
+  let selectedDay = TODAY;
+
+  const TYPE_MAP = {
+    'Consultation': { cls:'type-consultation', label:'Consultation' },
+    'Follow-up': { cls:'type-followup', label:'Follow-up' },
+    'Antenatal': { cls:'type-antenatal', label:'Antenatal' },
+    'Lab Review': { cls:'type-labtest', label:'Lab Review' },
+    'Check-up': { cls:'type-consultation', label:'Check-up' },
+    'Family Planning': { cls:'type-familyplanning', label:'Family Planning' },
+  };
+  const STATUS_MAP = {
+    'Scheduled': { cls:'badge-confirmed', label:'Scheduled' },
+    'Confirmed': { cls:'badge-confirmed', label:'Confirmed' },
+    'Completed': { cls:'badge-checked', label:'Completed' },
+    'Cancelled': { cls:'badge-cancelled', label:'Cancelled' },
+    'Pending': { cls:'badge-pending', label:'Pending' },
+    'No-Show': { cls:'badge-noshow', label:'No-Show' },
+  };
+  const AVATAR_COLORS = ['#2563eb','#7c3aed','#db2777','#059669','#d97706','#dc2626','#0891b2','#4f46e5'];
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    ShilohSidebar.attach('#sidebarPlaceholder', { activeFile: 'appointments.html', user: { name: 'Receptionist', role: 'Front Desk', avatar: 'https://i.pravatar.cc/64?img=47' } });
+    await AppointmentService.init();
+    renderStats();
+    renderTable();
+    bindEvents();
+  });
+
+  function renderStats() {
+    const s = AppointmentService.getStats();
+    document.getElementById('statsRow').innerHTML = `
+      <div class="stat-card"><div class="stat-top"><div class="stat-ic ic-blue"><i class="fa-solid fa-calendar-days"></i></div><div class="stat-label">Today's Appointments</div></div><div class="stat-value">${s.today}</div></div>
+      <div class="stat-card"><div class="stat-top"><div class="stat-ic ic-green"><i class="fa-solid fa-circle-check"></i></div><div class="stat-label">Completed</div></div><div class="stat-value">${s.completed}</div></div>
+      <div class="stat-card"><div class="stat-top"><div class="stat-ic ic-orange"><i class="fa-solid fa-hourglass-half"></i></div><div class="stat-label">Pending / Scheduled</div></div><div class="stat-value">${s.pending}</div></div>
+      <div class="stat-card"><div class="stat-top"><div class="stat-ic ic-purple"><i class="fa-solid fa-calendar-week"></i></div><div class="stat-label">This Week</div></div><div class="stat-value">${s.thisWeek}</div></div>
+      <div class="stat-card"><div class="stat-top"><div class="stat-ic ic-pink"><i class="fa-solid fa-users"></i></div><div class="stat-label">Total Patients</div></div><div class="stat-value">${s.totalPatients}</div></div>
+      <div class="stat-card"><div class="stat-top"><div class="stat-ic ic-red"><i class="fa-solid fa-triangle-exclamation"></i></div><div class="stat-label">Cancelled</div></div><div class="stat-value">${s.cancelled}</div></div>`;
+  }
+
+  function applyFilters() {
+    AppointmentService.search(document.getElementById('searchInput').value);
+    AppointmentService.filterByDoctor(document.getElementById('doctorFilter').value);
+    AppointmentService.filterByType(document.getElementById('typeFilter').value);
+    AppointmentService.filterByStatus(document.getElementById('statusFilter').value);
+    renderTable();
+  }
+
+  function renderCurrentView() {
+    if (currentView === 'list') renderTable();
+    else if (currentView === 'calendar') renderCalendar();
+    else if (currentView === 'day') renderDaySchedule();
+  }
+
+  function renderTable() {
+    const filtered = AppointmentService.getFiltered();
+    const page = AppointmentService.getPage(AppointmentService.state.currentPage);
+    const total = filtered.length;
+    const totalPages = AppointmentService.getTotalPages();
+
+    document.getElementById('resultsTitle').textContent = `Appointments (${total})`;
+    document.getElementById('footerInfo').textContent = `Showing ${total?(AppointmentService.state.currentPage-1)*AppointmentService.state.perPage+1:0} to ${Math.min(AppointmentService.state.currentPage*AppointmentService.state.perPage,total)} of ${total}`;
+
+    const area = document.getElementById('tableArea');
+    if (!page.length) { area.innerHTML = '<div class="empty-state"><i class="fa-regular fa-calendar-xmark"></i><h4>No appointments found</h4></div>'; document.getElementById('pagination').innerHTML = ''; return; }
+
+    if (tableView === 'list') {
+      const rows = page.map((a,i) => {
+        const t = TYPE_MAP[a.type] || { cls:'type-consultation', label:a.type };
+        const s = STATUS_MAP[a.status] || { cls:'badge-pending', label:a.status };
+        const colorIdx = (a.patientId || '').charCodeAt(a.patientId.length - 1) % AVATAR_COLORS.length;
+        const initials = a.patientName.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+        return `<tr onclick="AppointmentDetail.open('${a.id}')">
+          <td>${(AppointmentService.state.currentPage-1)*AppointmentService.state.perPage+i+1}</td>
+          <td><span class="appt-id">${a.id}</span></td>
+          <td><div class="patient-cell"><div class="avatar" style="background:${AVATAR_COLORS[colorIdx]};">${initials}</div><div><div class="patient-name">${a.patientName}</div><div class="patient-sub">${a.patientId||''}</div></div></div></td>
+          <td><div class="datetime-cell"><div>${a.time}</div><div>${a.date}</div></div></td>
+          <td><span class="type-chip ${t.cls}">${t.label}</span></td>
+          <td>${a.doctor}</td>
+          <td>${a.department||'—'}</td>
+          <td><span class="badge ${s.cls}"><i class="fa-solid fa-circle"></i>${s.label}</span></td>
+          <td><div class="row-actions"><div class="icon-btn" onclick="event.stopPropagation();AppointmentDetail.open('${a.id}')" title="View"><i class="fa-regular fa-eye"></i></div></div></td>
+        </tr>`;
+      }).join('');
+      area.innerHTML = `<div style="overflow-x:auto;"><table><thead><tr><th>#</th><th>ID</th><th>Patient</th><th>Date & Time</th><th>Type</th><th>Doctor</th><th>Department</th><th>Status</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+    } else {
+      area.innerHTML = `<div class="grid-wrap">${page.map(a => {
+        const t = TYPE_MAP[a.type] || { cls:'type-consultation', label:a.type };
+        const s = STATUS_MAP[a.status] || { cls:'badge-pending', label:a.status };
+        const colorIdx = (a.patientId || '').charCodeAt(a.patientId.length - 1) % AVATAR_COLORS.length;
+        const initials = a.patientName.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+        return `<div class="appt-card" onclick="AppointmentDetail.open('${a.id}')">
+          <div class="appt-card-top"><div class="avatar" style="background:${AVATAR_COLORS[colorIdx]};">${initials}</div><div><div class="patient-name">${a.patientName}</div><div class="patient-sub">${a.id}</div></div></div>
+          <div class="appt-card-row"><span>When</span><b>${a.date}, ${a.time}</b></div>
+          <div class="appt-card-row"><span>Doctor</span><b>${a.doctor}</b></div>
+          <div class="appt-card-row"><span>Type</span><b><span class="type-chip ${t.cls}">${t.label}</span></b></div>
+          <div class="appt-card-row"><span>Status</span><b><span class="badge ${s.cls}">${s.label}</span></b></div>
+        </div>`;
+      }).join('')}</div>`;
+    }
+    renderPagination(totalPages);
+  }
+
+  function renderCalendar() {
+    const year = calMonth.getFullYear();
+    const month = calMonth.getMonth();
+    document.getElementById('calMonthLabel').textContent = calMonth.toLocaleDateString('en-US', { month:'long', year:'numeric' });
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const daysInPrev = new Date(year, month, 0).getDate();
+    const dots = ['var(--blue)','var(--green)','var(--orange)','var(--purple)','var(--pink)'];
+    let html = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d => `<div class="cal-dow">${d}</div>`).join('');
+    for (let i = 0; i < firstDay; i++) html += `<div class="cal-cell other-month"><div class="cal-daynum">${daysInPrev - firstDay + i + 1}</div></div>`;
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const dayAppts = AppointmentService.getAll().filter(a => a.date === dateStr);
+      const isToday = dateStr === TODAY;
+      html += `<div class="cal-cell${isToday?' today':''}" onclick="selectDay('${dateStr}')">
+        <div class="cal-daynum">${d}</div>
+        <div class="cal-dots">${dayAppts.slice(0,5).map((_,i) => `<div class="cal-dot" style="background:${dots[i%dots.length]};"></div>`).join('')}</div>
+        ${dayAppts.length ? `<div class="cal-count">${dayAppts.length} appt${dayAppts.length>1?'s':''}</div>` : ''}
+      </div>`;
+    }
+    const totalCells = firstDay + daysInMonth;
+    const remaining = (7 - (totalCells % 7)) % 7;
+    for (let i = 1; i <= remaining; i++) html += `<div class="cal-cell other-month"><div class="cal-daynum">${i}</div></div>`;
+    document.getElementById('calGrid').innerHTML = html;
+  }
+
+  function renderDaySchedule() {
+    const d = new Date(selectedDay + 'T00:00:00');
+    document.getElementById('dayDateLabel').textContent = d.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
+    const dayAppts = AppointmentService.getAll().filter(a => a.date === selectedDay).sort((a,b) => a.time.localeCompare(b.time));
+    const hours = ['08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00'];
+    document.getElementById('daySlots').innerHTML = hours.map(h => {
+      const slotAppts = dayAppts.filter(a => a.time.startsWith(h.split(':')[0]));
+      return `<div class="day-slot"><div class="day-slot-time">${h}</div><div class="day-slot-items">
+        ${slotAppts.length ? slotAppts.map(a => {
+          const t = TYPE_MAP[a.type] || { cls:'type-consultation', label:a.type };
+          const s = STATUS_MAP[a.status] || { cls:'badge-pending', label:a.status };
+          const colorIdx = (a.patientId || '').charCodeAt(a.patientId.length - 1) % AVATAR_COLORS.length;
+          const initials = a.patientName.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+          return `<div class="day-appt" onclick="AppointmentDetail.open('${a.id}')">
+            <div class="avatar" style="background:${AVATAR_COLORS[colorIdx]};width:28px;height:28px;font-size:10px;">${initials}</div>
+            <div style="flex:1;"><div style="font-weight:700;font-size:12.5px;">${a.patientName}</div><div style="font-size:11px;color:var(--text-mid);">${a.doctor} · ${a.time}</div></div>
+            <span class="type-chip ${t.cls}" style="font-size:10px;">${t.label}</span>
+            <span class="badge ${s.cls}" style="font-size:10px;"><i class="fa-solid fa-circle"></i>${s.label}</span>
+          </div>`;
+        }).join('') : '<div class="day-appt-empty">No appointments</div>'}
+      </div></div>`;
+    }).join('');
+  }
+
+  function selectDay(dateStr) { selectedDay = dateStr; currentView = 'day'; document.querySelectorAll('#viewTabs .view-tab').forEach(t => t.classList.toggle('active', t.dataset.view === 'day')); document.getElementById('listView').style.display = 'none'; document.getElementById('calendarView').style.display = 'none'; document.getElementById('dayView').style.display = ''; renderDaySchedule(); }
+
+  function renderPagination(totalPages) {
+    const el = document.getElementById('pagination');
+    if (totalPages <= 1) { el.innerHTML = ''; return; }
+    const cp = AppointmentService.state.currentPage;
+    let html = `<div class="page-btn" onclick="goPage(${cp-1})" ${cp===1?'disabled':''}><i class="fa-solid fa-chevron-left" style="font-size:10px;"></i></div>`;
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || (i >= cp-1 && i <= cp+1)) html += `<div class="page-btn ${i===cp?'active':''}" onclick="goPage(${i})">${i}</div>`;
+      else if (i === cp-2 || i === cp+2) html += '<div class="page-btn" style="pointer-events:none;opacity:.4;">...</div>';
+    }
+    html += `<div class="page-btn" onclick="goPage(${cp+1})" ${cp===totalPages?'disabled':''}><i class="fa-solid fa-chevron-right" style="font-size:10px;"></i></div>`;
+    html += `<select class="per-page" onchange="changePerPage(this.value)"><option value="10" ${AppointmentService.state.perPage===10?'selected':''}>10</option><option value="25" ${AppointmentService.state.perPage===25?'selected':''}>25</option><option value="50" ${AppointmentService.state.perPage===50?'selected':''}>50</option></select>`;
+    el.innerHTML = html;
+  }
+
+  function goPage(p) { AppointmentService.setPage(p); renderTable(); }
+  function changePerPage(v) { AppointmentService.setPerPage(parseInt(v)); renderTable(); }
+  function goToProfile(hospNo) { if (hospNo) window.location.href = 'patient-profile.html?hosp=' + encodeURIComponent(hospNo); }
+  function bookAppointment() {
+    AppointmentForm.open({
+      onCreated: (appt) => {
+        renderStats();
+        renderTable();
+        showToast('Appointment ' + appt.id + ' booked');
+      }
+    });
+  }
+  function refreshAll() { document.getElementById('searchInput').value = ''; document.getElementById('doctorFilter').value = 'all'; document.getElementById('typeFilter').value = 'all'; document.getElementById('statusFilter').value = 'all'; AppointmentService.resetFilters(); renderStats(); renderTable(); showToast('Refreshed'); }
+  function showToast(msg) { const t = document.getElementById('toast'); document.getElementById('toastText').textContent = msg; t.classList.add('show'); clearTimeout(showToast._tm); showToast._tm = setTimeout(() => t.classList.remove('show'), 2400); }
+
+  function bindEvents() {
+    let debounce;
+    document.getElementById('searchInput').addEventListener('input', () => { clearTimeout(debounce); debounce = setTimeout(applyFilters, 300); });
+    document.getElementById('doctorFilter').addEventListener('change', applyFilters);
+    document.getElementById('typeFilter').addEventListener('change', applyFilters);
+    document.getElementById('statusFilter').addEventListener('change', applyFilters);
+    document.querySelectorAll('#viewTabs .view-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('#viewTabs .view-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentView = tab.dataset.view;
+        document.getElementById('listView').style.display = currentView === 'list' ? '' : 'none';
+        document.getElementById('calendarView').style.display = currentView === 'calendar' ? '' : 'none';
+        document.getElementById('dayView').style.display = currentView === 'day' ? '' : 'none';
+        renderCurrentView();
+      });
+    });
+    document.getElementById('tvListBtn').addEventListener('click', () => { tableView = 'list'; document.getElementById('tvListBtn').classList.add('selected'); document.getElementById('tvGridBtn').classList.remove('selected'); renderTable(); });
+    document.getElementById('tvGridBtn').addEventListener('click', () => { tableView = 'grid'; document.getElementById('tvGridBtn').classList.add('selected'); document.getElementById('tvListBtn').classList.remove('selected'); renderTable(); });
+    document.getElementById('calPrev').addEventListener('click', () => { calMonth.setMonth(calMonth.getMonth()-1); renderCalendar(); });
+    document.getElementById('calNext').addEventListener('click', () => { calMonth.setMonth(calMonth.getMonth()+1); renderCalendar(); });
+    document.getElementById('calToday').addEventListener('click', () => { calMonth = new Date(); renderCalendar(); });
+    document.getElementById('dayPrev').addEventListener('click', () => { const d = new Date(selectedDay+'T00:00:00'); d.setDate(d.getDate()-1); selectedDay = d.toISOString().slice(0,10); renderDaySchedule(); });
+    document.getElementById('dayNext').addEventListener('click', () => { const d = new Date(selectedDay+'T00:00:00'); d.setDate(d.getDate()+1); selectedDay = d.toISOString().slice(0,10); renderDaySchedule(); });
+    document.getElementById('dayToday').addEventListener('click', () => { selectedDay = TODAY; renderDaySchedule(); });
+  }
+</script>
+</body>
+</html>

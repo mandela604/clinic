@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shiloh Clinic & Maternity — Login</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root{--navy:#0d1b4c;--blue:#2563eb;--bg:#f4f6fb;--card:#fff;--border:#eef0f6;--text-dark:#1e293b;--text-mid:#64748b;--text-light:#94a3b8;--red:#ef4444;--red-bg:#fee2e2;--green:#16a34a;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:var(--bg);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+  .auth-wrap{width:100%;max-width:420px;}
+  .logo{text-align:center;margin-bottom:20px;}
+  .logo-icon{width:48px;height:48px;background:var(--blue);border-radius:12px;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:22px;margin-bottom:10px;}
+  .logo-text{font-size:18px;font-weight:800;color:var(--navy);line-height:1.2;}
+  .logo-sub{font-size:12px;color:var(--text-mid);margin-top:2px;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px 24px;box-shadow:0 4px 20px rgba(13,27,76,0.06);}
+  .card-title{font-size:18px;font-weight:800;color:var(--text-dark);margin-bottom:4px;}
+  .card-sub{font-size:12.5px;color:var(--text-light);margin-bottom:20px;}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:11px;font-weight:700;color:var(--text-mid);text-transform:uppercase;letter-spacing:.03em;margin-bottom:6px;}
+  .input-wrap{position:relative;}
+  .input-wrap i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-light);font-size:13px;}
+  .field input{width:100%;border:1px solid var(--border);border-radius:10px;padding:11px 12px 11px 36px;font-size:13px;color:var(--text-dark);outline:none;background:#fff;font-family:inherit;}
+  .field input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1);}
+  .field.invalid input{border-color:var(--red);}
+  .field-err{font-size:11px;color:var(--red);margin-top:4px;display:none;}
+  .field.invalid .field-err{display:block;}
+  .btn{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;background:var(--blue);color:#fff;border:1px solid var(--blue);border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;margin-top:6px;}
+  .btn:hover{background:#1d4ed8;}
+  .btn:disabled{opacity:.6;cursor:not-allowed;}
+  .alert{display:none;padding:10px 12px;border-radius:10px;font-size:12.5px;font-weight:600;margin-bottom:14px;}
+  .alert.err{display:block;background:var(--red-bg);color:var(--red);border:1px solid #fecaca;}
+  .alert.ok{display:block;background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;}
+  .foot{text-align:center;margin-top:16px;font-size:12.5px;color:var(--text-mid);}
+  .foot a{color:var(--blue);font-weight:700;text-decoration:none;}
+  .foot a:hover{text-decoration:underline;}
+</style>
+</head>
+<body>
+<div class="auth-wrap">
+  <div class="logo">
+    <div class="logo-icon"><i class="fa-solid fa-heart-pulse"></i></div>
+    <div class="logo-text">Shiloh Clinic & Maternity</div>
+    <div class="logo-sub">Compassionate care, every step of the way</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Welcome back</div>
+    <div class="card-sub">Sign in to continue to your dashboard</div>
+    <div class="alert err" id="alertErr"></div>
+    <div class="field" id="fUser"><label>Username or Email</label><div class="input-wrap"><i class="fa-regular fa-user"></i><input type="text" id="username" placeholder="e.g. admin or admin@shiloh.clinic" autocomplete="username"></div><div class="field-err">Required</div></div>
+    <div class="field" id="fPass"><label>Password</label><div class="input-wrap"><i class="fa-solid fa-lock"></i><input type="password" id="password" placeholder="Enter your password" autocomplete="current-password"></div><div class="field-err">Required</div></div>
+    <button class="btn" id="loginBtn"><i class="fa-solid fa-right-to-bracket"></i> Sign In</button>
+    <div class="foot">No account yet? <a href="signup.html">Create account</a> — first user becomes Admin</div>
+  </div>
+</div>
+<script>
+const API = (function(){ try { if (window.__SHILOH_API__) return window.__SHILOH_API__; var loc = location; if (loc.protocol === 'file:') return 'http://localhost:5001/api'; var h = loc.hostname; var isLocal = (h === 'localhost' || h === '127.0.0.1'); if (isLocal && loc.port && loc.port !== '5001') return 'http://localhost:5001/api'; return loc.origin + '/api'; } catch (e) { return 'http://localhost:5001/api'; } })();
+const $ = id => document.getElementById(id);
+function showErr(msg){ const a=$('alertErr'); a.textContent=msg; a.className='alert err'; a.style.display='block'; }
+function clearErr(){ const a=$('alertErr'); a.style.display='none'; }
+$('loginBtn').addEventListener('click', async ()=>{
+  clearErr();
+  let ok=true;
+  const u=$('username').value.trim(), p=$('password').value;
+  $('fUser').classList.toggle('invalid', !u);
+  $('fPass').classList.toggle('invalid', !p);
+  if(!u || !p){ ok=false; }
+  if(!ok) return;
+  $('loginBtn').disabled=true; $('loginBtn').innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Signing in...';
+  try{
+    const res = await fetch(API + '/auth/login', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(u.includes('@') ? {email:u, password:p} : {username:u, password:p})
+    });
+    const data = await res.json();
+    if(!res.ok) throw new Error(data.error || 'Login failed');
+    localStorage.setItem('shiloh_token', data.token);
+    localStorage.setItem('shiloh_user', JSON.stringify(data.user));
+    window.location.href = 'dashboard.html';
+  } catch(e){ showErr(e.message); }
+  finally{ $('loginBtn').disabled=false; $('loginBtn').innerHTML='<i class="fa-solid fa-right-to-bracket"></i> Sign In'; }
+});
+document.addEventListener('keydown', e=>{ if(e.key==='Enter') $('loginBtn').click(); });
+</script>
+</body>
+</html>

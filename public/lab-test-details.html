@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Shiloh Clinic &amp; Maternity - Test Order Details</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root{
+    --navy:#0d1b4c;
+    --navy-active:#1e3a8a;
+    --blue:#2563eb;
+    --blue-light:#eef2ff;
+    --text-dark:#1e293b;
+    --text-gray:#64748b;
+    --border:#e5e7eb;
+    --bg:#f5f6f8;
+    --green:#16a34a;
+    --green-bg:#dcfce7;
+    --orange:#f97316;
+    --orange-bg:#fff1e6;
+    --purple:#8b5cf6;
+    --purple-bg:#f1eaff;
+    --pink:#ec4899;
+    --pink-bg:#fde8f2;
+    --red:#ef4444;
+    --red-bg:#fee2e2;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background:var(--bg);
+    color:var(--text-dark);
+    display:flex;
+    min-height:100vh;
+  }
+  a{ text-decoration:none; }
+
+  .main{
+    flex:1;
+    padding:22px 28px;
+    overflow-x:auto;
+    min-width:0;
+  }
+  .topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    margin-bottom:20px;
+    flex-wrap:wrap;
+    gap:14px;
+  }
+  .topbar-left{display:flex; align-items:center; gap:14px;}
+  .back-btn{
+    width:40px; height:40px; border-radius:10px; background:#fff; border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; color:var(--text-gray); cursor:pointer; flex-shrink:0;
+  }
+  .back-btn:hover{ background:#f8fafc; }
+  .page-title{font-size:22px; font-weight:700; color:#0f172a;}
+  .breadcrumb{font-size:12.5px; color:var(--text-gray); margin-top:4px;}
+  .topbar-actions{display:flex; gap:10px; flex-wrap:wrap;}
+
+  .btn{
+    display:flex; align-items:center; gap:7px; padding:9px 16px; border-radius:8px; font-size:13.5px;
+    font-weight:600; cursor:pointer; border:1px solid var(--border); background:#fff; color:#334155; white-space:nowrap;
+    font-family:inherit;
+  }
+  .btn:hover{ background:#f8fafc; }
+  .btn svg{width:15px;height:15px;}
+  .btn-primary{background:var(--blue); color:#fff; border:1px solid var(--blue);}
+  .btn-primary:hover{ background:#1d4ed8; }
+  .btn-green{background:var(--green); color:#fff; border:1px solid var(--green);}
+  .btn-green:hover{background:#0e9c5c;}
+  .btn-danger{background:#fff; color:var(--red); border:1px solid var(--red-bg);}
+  .btn-danger:hover{background:var(--red-bg);}
+  .btn:disabled{opacity:.5; cursor:not-allowed;}
+
+  /* ---------- NOT FOUND STATE ---------- */
+  .not-found{
+    background:#fff; border:1px solid var(--border); border-radius:14px; padding:60px 20px; text-align:center;
+  }
+  .not-found i{font-size:44px; color:#cbd5e1; margin-bottom:14px; display:block;}
+  .not-found h2{font-size:16px; font-weight:700; color:#0f172a; margin-bottom:6px;}
+  .not-found p{font-size:13px; color:var(--text-gray); margin-bottom:18px;}
+
+  /* ---------- LAYOUT ---------- */
+  .view-grid{display:grid; grid-template-columns:1fr 320px; gap:16px; align-items:start;}
+  .col-left{display:flex; flex-direction:column; gap:16px;}
+  .col-right{display:flex; flex-direction:column; gap:16px; position:sticky; top:16px;}
+
+  .panel{background:#fff; border:1px solid var(--border); border-radius:14px; padding:20px;}
+  .panel-title{display:flex; align-items:center; justify-content:space-between; gap:9px; margin-bottom:16px; flex-wrap:wrap;}
+  .panel-title-text{display:flex; align-items:center; gap:9px; font-size:14px; font-weight:700; color:#0f172a;}
+  .panel-title-text i{color:var(--blue); font-size:14px;}
+  .panel-title-text.pt-pink i{color:var(--pink);}
+  .panel-title-text.pt-orange i{color:var(--orange);}
+  .panel-title-text.pt-teal i{color:#0891b2;}
+  .panel-title-text.pt-purple i{color:var(--purple);}
+
+  /* ---------- CRITICAL BANNER ---------- */
+  .critical-banner{
+    display:flex; align-items:center; gap:12px; background:var(--red-bg); border:1px solid #fac3bd;
+    color:var(--red); border-radius:12px; padding:14px 16px; font-size:13px; font-weight:700;
+  }
+  .critical-banner i{font-size:18px; flex-shrink:0;}
+
+  /* ---------- PATIENT CARD ---------- */
+  .patient-card{display:flex; align-items:center; gap:16px; flex-wrap:wrap;}
+  .patient-avatar{
+    width:64px; height:64px; border-radius:50%; background-size:cover; background-position:center;
+    background-color:#cbd5e1; flex-shrink:0;
+  }
+  .patient-name{font-size:16px; font-weight:800; color:#0f172a;}
+  .patient-chips{display:flex; gap:6px; margin:6px 0 8px; flex-wrap:wrap;}
+  .p-chip{font-size:10.5px; font-weight:700; padding:3px 10px; border-radius:20px; background:var(--blue-light); color:var(--blue);}
+  .patient-lines{display:flex; flex-direction:column; gap:5px;}
+  .p-line{display:flex; align-items:center; gap:8px; font-size:12px; color:var(--text-gray); font-weight:500;}
+  .p-line i{width:13px; color:#94a3b8; font-size:11px; text-align:center;}
+  .p-line strong{color:#0f172a; font-weight:700;}
+
+  /* ---------- INFO GRID ---------- */
+  .info-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:14px;}
+  .info-item{display:flex; flex-direction:column; gap:5px;}
+  .info-label{font-size:10.5px; color:var(--text-gray); font-weight:700; text-transform:uppercase; letter-spacing:.03em;}
+  .info-value{font-size:13.5px; font-weight:700; color:#0f172a;}
+  .info-value.muted{color:var(--text-gray); font-weight:600;}
+
+  .test-tag{font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:7px; display:inline-block; background:var(--purple-bg); color:var(--purple);}
+  .status-pill{
+    display:inline-flex; align-items:center; gap:6px; padding:4px 11px; border-radius:20px; font-size:11.5px; font-weight:700; white-space:nowrap;
+  }
+  .status-pill .dot{width:6px;height:6px;border-radius:50%; flex-shrink:0;}
+  .priority-chip{
+    display:inline-block; padding:3px 10px; border-radius:20px; font-size:11.5px; font-weight:700;
+  }
+  .priority-routine{background:#f1f5f9; color:#64748b;}
+  .priority-urgent{background:var(--orange-bg); color:#c56c05;}
+  .priority-stat{background:var(--red-bg); color:var(--red);}
+
+  /* ---------- RESULT ---------- */
+  .result-box{
+    background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:16px;
+    display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap;
+  }
+  .result-main{display:flex; flex-direction:column; gap:4px;}
+  .result-label{font-size:11px; color:var(--text-gray); font-weight:700; text-transform:uppercase; letter-spacing:.03em;}
+  .result-value-big{font-size:20px; font-weight:800; color:#0f172a;}
+  .result-value-big.normal{color:var(--green);}
+  .result-value-big.critical{color:var(--red);}
+  .result-empty{font-size:13px; color:var(--text-gray); font-weight:600;}
+  .result-notes{
+    margin-top:12px; background:#fff; border:1px solid var(--border); border-radius:9px; padding:12px;
+    font-size:12.5px; color:#334155; line-height:1.55; white-space:pre-wrap;
+  }
+
+  /* ---------- TIMELINE ---------- */
+  .timeline{display:flex; flex-direction:column;}
+  .tl-step{display:flex; gap:14px; position:relative; padding-bottom:22px;}
+  .tl-step:last-child{padding-bottom:0;}
+  .tl-line{
+    position:absolute; left:15px; top:32px; bottom:0; width:2px; background:var(--border);
+  }
+  .tl-step:last-child .tl-line{display:none;}
+  .tl-step.done .tl-line{background:var(--green);}
+  .tl-dot{
+    width:32px; height:32px; border-radius:50%; background:#f1f5f9; color:#94a3b8; display:flex; align-items:center;
+    justify-content:center; font-size:13px; flex-shrink:0; z-index:1; border:2px solid #fff; box-shadow:0 0 0 1px var(--border);
+  }
+  .tl-step.done .tl-dot{background:var(--green); color:#fff; box-shadow:0 0 0 1px var(--green);}
+  .tl-step.current .tl-dot{background:var(--blue); color:#fff; box-shadow:0 0 0 1px var(--blue);}
+  .tl-step.critical .tl-dot{background:var(--red); color:#fff; box-shadow:0 0 0 1px var(--red);}
+  .tl-step.forwarded .tl-dot{background:var(--purple); color:#fff; box-shadow:0 0 0 1px var(--purple);}
+  .tl-content{padding-top:4px;}
+  .tl-title{font-size:13px; font-weight:700; color:#0f172a;}
+  .tl-sub{font-size:11.5px; color:var(--text-gray); font-weight:500; margin-top:2px;}
+
+  /* ---------- ACTIONS CARD ---------- */
+  .status-display{display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;}
+  .status-display-label{font-size:11px; color:var(--text-gray); font-weight:700; text-transform:uppercase; letter-spacing:.03em;}
+  .action-stack{display:flex; flex-direction:column; gap:8px;}
+  .action-stack .btn{justify-content:center; width:100%;}
+  .action-hint{font-size:11px; color:var(--text-gray); font-weight:600; margin-bottom:10px;}
+  .done-hint{
+    display:flex; align-items:center; gap:8px; font-size:12px; color:var(--green); font-weight:700;
+    background:var(--green-bg); border-radius:9px; padding:10px 12px;
+  }
+
+  /* ---------- FORWARD TO DEPARTMENT ---------- */
+  .dept-list{display:flex; flex-direction:column; gap:8px;}
+  .dept-row{
+    display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px;
+    border:1px solid var(--border); border-radius:10px;
+  }
+  .dept-row.sent{background:var(--purple-bg); border-color:#e3d5fc;}
+  .dept-info{display:flex; align-items:center; gap:10px; min-width:0;}
+  .dept-icon{
+    width:30px; height:30px; border-radius:8px; background:#f1f5f9; color:#64748b; display:flex; align-items:center;
+    justify-content:center; font-size:12.5px; flex-shrink:0;
+  }
+  .dept-row.sent .dept-icon{background:var(--purple); color:#fff;}
+  .dept-name{font-size:12.5px; font-weight:700; color:#0f172a;}
+  .dept-sub{font-size:10.5px; color:var(--text-gray); font-weight:600;}
+  .dept-toggle-btn{
+    font-size:11px; font-weight:700; padding:6px 12px; border-radius:7px; cursor:pointer; white-space:nowrap;
+    border:1px solid var(--border); background:#fff; color:#334155;
+  }
+  .dept-toggle-btn:hover{background:var(--bg);}
+  .dept-toggle-btn.sent{background:var(--purple); color:#fff; border-color:var(--purple);}
+  .dept-toggle-btn.sent:hover{background:#7c3aed;}
+  .dept-toggle-btn:disabled{opacity:.55; cursor:not-allowed;}
+  .dept-lock-hint{font-size:10px; color:var(--purple); font-weight:700; margin-top:2px;}
+
+  .summary-row{display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border); gap:10px;}
+  .summary-row:last-child{border-bottom:none;}
+  .summary-label{font-size:11.5px; color:var(--text-gray); font-weight:600;}
+  .summary-value{font-size:12px; font-weight:700; color:#0f172a; text-align:right;}
+
+  /* ---------- MODAL ---------- */
+  .modal-overlay{
+    display:none; position:fixed; inset:0; background:rgba(15,23,42,0.45);
+    align-items:center; justify-content:center; z-index:1000; padding:16px;
+  }
+  .modal-overlay.open{ display:flex; }
+  .modal-box{
+    background:#fff; border-radius:12px; width:100%; max-width:420px;
+    box-shadow:0 20px 40px rgba(15,23,42,0.2); overflow:hidden;
+  }
+  .modal-header{
+    display:flex; justify-content:space-between; align-items:center; padding:16px 18px; border-bottom:1px solid var(--border);
+  }
+  .modal-title{font-size:15px; font-weight:700; color:#0f172a;}
+  .modal-close{
+    width:28px;height:28px; border-radius:7px; display:flex;align-items:center;justify-content:center;
+    cursor:pointer; color:#64748b; font-size:18px; line-height:1;
+  }
+  .modal-close:hover{ background:var(--bg); }
+  .modal-body{ padding:18px; display:flex; flex-direction:column; gap:14px; }
+  .modal-field{display:flex; flex-direction:column; gap:6px;}
+  .modal-field label{font-size:11.5px; font-weight:700; color:var(--text-gray);}
+  .modal-field input, .modal-field select, .modal-field textarea{
+    border:1px solid var(--border); border-radius:9px; padding:10px 12px; font-size:12.5px;
+    color:var(--text-dark); font-family:inherit; outline:none; width:100%;
+  }
+  .modal-field input:focus, .modal-field select:focus, .modal-field textarea:focus{
+    border-color:var(--blue); box-shadow:0 0 0 3px var(--blue-light);
+  }
+  .modal-field textarea{resize:none; min-height:70px;}
+  .class-toggle{display:flex; gap:8px;}
+  .class-btn{
+    flex:1; text-align:center; padding:9px; border-radius:9px; border:1.5px solid var(--border);
+    font-size:12.5px; font-weight:700; color:#64748b; cursor:pointer;
+  }
+  .class-btn[data-class="normal"].selected{background:var(--green-bg); border-color:#a7e2bd; color:var(--green);}
+  .class-btn[data-class="critical"].selected{background:var(--red-bg); border-color:#fac3bd; color:var(--red);}
+  .modal-footer{ display:flex; justify-content:flex-end; gap:10px; padding:14px 18px; border-top:1px solid var(--border); }
+
+  .toast{
+    position:fixed; bottom:24px; right:24px; background:#0f172a; color:#fff;
+    padding:12px 18px; border-radius:9px; font-size:13px; box-shadow:0 8px 24px rgba(0,0,0,0.2);
+    z-index:1200; opacity:0; transform:translateY(10px); transition:all .2s ease; pointer-events:none;
+  }
+  .toast.show{ opacity:1; transform:translateY(0); }
+
+  @media (max-width:1000px){
+    .view-grid{grid-template-columns:1fr;}
+    .col-right{position:static;}
+    .info-grid{grid-template-columns:repeat(2,1fr);}
+  }
+  @media print{
+    #sidebarPlaceholder, .topbar-actions, .col-right .action-stack, .col-right .dept-list, .modal-overlay{display:none !important;}
+    .main{padding:0;}
+    .view-grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<div id="sidebarPlaceholder"></div>
+
+<div class="main">
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="back-btn" id="backBtn"><i class="fa-solid fa-arrow-left"></i></div>
+      <div>
+        <div class="page-title" id="pageTitle">Test Order Details</div>
+        <div class="breadcrumb" id="breadcrumb">Dashboard / Laboratory / Test Orders / —</div>
+      </div>
+    </div>
+    <div class="topbar-actions" id="topbarActions" style="display:none;">
+      <div class="btn" id="printBtn"><i class="fa-solid fa-print"></i> Print</div>
+    </div>
+  </div>
+
+  <!-- NOT FOUND -->
+  <div class="not-found" id="notFoundState" style="display:none;">
+    <i class="fa-solid fa-vial-circle-check"></i>
+    <h2>Test order not found</h2>
+    <p id="notFoundText">We couldn't find a test order matching that ID. It may have been removed, or the link may be out of date.</p>
+    <a href="laboratory.html" class="btn btn-primary" style="display:inline-flex;">Back to Laboratory</a>
+  </div>
+
+  <!-- ORDER DETAILS -->
+  <div class="view-grid" id="viewGrid" style="display:none;">
+
+    <!-- LEFT COLUMN -->
+    <div class="col-left">
+
+      <div class="critical-banner" id="criticalBanner" style="display:none;">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <div>This result is flagged <strong>Critical</strong> and requires urgent clinical review.</div>
+      </div>
+
+      <!-- Patient card -->
+      <div class="panel">
+        <div class="patient-card">
+          <div class="patient-avatar" id="patientAvatar"></div>
+          <div style="flex:1; min-width:200px;">
+            <div class="patient-name" id="patientName">—</div>
+            <div class="patient-chips" id="patientChips"></div>
+          </div>
+          <div class="patient-lines" id="patientLines"></div>
+        </div>
+      </div>
+
+      <!-- Order info -->
+      <div class="panel">
+        <div class="panel-title"><div class="panel-title-text pt-purple"><i class="fa-solid fa-flask"></i> Order Information</div></div>
+        <div class="info-grid">
+          <div class="info-item"><div class="info-label">Order ID</div><div class="info-value" id="infoId">—</div></div>
+          <div class="info-item"><div class="info-label">Test</div><div class="info-value" id="infoTest">—</div></div>
+          <div class="info-item"><div class="info-label">Sample Type</div><div class="info-value muted" id="infoSample">—</div></div>
+          <div class="info-item"><div class="info-label">Priority</div><div class="info-value" id="infoPriority">—</div></div>
+          <div class="info-item"><div class="info-label">Ordered By</div><div class="info-value" id="infoBy">—</div></div>
+          <div class="info-item"><div class="info-label">Ordered At</div><div class="info-value" id="infoTime">—</div></div>
+          <div class="info-item"><div class="info-label">Status</div><div class="info-value" id="infoStatus">—</div></div>
+          <div class="info-item"><div class="info-label">Completed On</div><div class="info-value muted" id="infoCompleted">—</div></div>
+        </div>
+      </div>
+
+      <!-- Result -->
+      <div class="panel">
+        <div class="panel-title"><div class="panel-title-text pt-orange"><i class="fa-solid fa-notes-medical"></i> Result</div></div>
+        <div class="result-box" id="resultBox"></div>
+        <div class="result-notes" id="resultNotesBox" style="display:none;"></div>
+      </div>
+
+      <!-- Timeline -->
+      <div class="panel">
+        <div class="panel-title"><div class="panel-title-text pt-teal"><i class="fa-regular fa-clock"></i> Order Timeline</div></div>
+        <div class="timeline" id="timeline"></div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="col-right">
+
+      <div class="panel">
+        <div class="status-display">
+          <div class="status-display-label">Current Status</div>
+          <span class="status-pill" id="statusBadge"><span class="dot"></span><span id="statusBadgeLabel">—</span></span>
+        </div>
+        <div class="action-hint" id="actionHint">Update status</div>
+        <div class="action-stack" id="actionStack"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title"><div class="panel-title-text pt-pink"><i class="fa-solid fa-share-from-square"></i> Forward To Department</div></div>
+        <div class="dept-list" id="deptList"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title"><div class="panel-title-text"><i class="fa-regular fa-file-lines"></i> Summary</div></div>
+        <div class="summary-row"><div class="summary-label">Hospital No.</div><div class="summary-value" id="sumHosp">—</div></div>
+        <div class="summary-row"><div class="summary-label">Patient</div><div class="summary-value" id="sumPatient">—</div></div>
+        <div class="summary-row"><div class="summary-label">Test</div><div class="summary-value" id="sumTest">—</div></div>
+        <div class="summary-row"><div class="summary-label">Ordered By</div><div class="summary-value" id="sumBy">—</div></div>
+        <div class="summary-row"><div class="summary-label">Ordered At</div><div class="summary-value" id="sumTime">—</div></div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- RESULT ENTRY MODAL -->
+<div class="modal-overlay" id="resultModalOverlay">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title" id="resultModalTitle">Complete Test &amp; Enter Result</div>
+      <div class="modal-close" id="resultModalClose">&times;</div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-field">
+        <label>Result Value</label>
+        <input type="text" id="modalResultValue" placeholder="e.g. 32%, Reactive, Negative...">
+      </div>
+      <div class="modal-field">
+        <label>Classification</label>
+        <div class="class-toggle" id="modalClassToggle">
+          <div class="class-btn selected" data-class="normal"><i class="fa-solid fa-check"></i> Normal</div>
+          <div class="class-btn" data-class="critical"><i class="fa-solid fa-triangle-exclamation"></i> Critical</div>
+        </div>
+      </div>
+      <div class="modal-field">
+        <label>Lab Notes (Optional)</label>
+        <textarea id="modalResultNotes" placeholder="Any observations for the ordering doctor..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="btn" id="resultModalCancel">Cancel</div>
+      <div class="btn btn-primary" id="resultModalSave">Save &amp; Complete</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="shiloh-sidebar.js"></script>
+<script src="../services/api.js"></script>
+<script src="../services/lab-service.js"></script>
+<script>
+(async function(){
+  const el = id => document.getElementById(id);
+
+  const priorityLabels = {
+    routine:{label:"Routine", cls:"priority-routine"},
+    urgent:{label:"Urgent", cls:"priority-urgent"},
+    stat:{label:"STAT", cls:"priority-stat"},
+  };
+  const statusLabels = {
+    pending:{label:"Pending", bg:"#fff1e6", fg:"#c56c05"},
+    collected:{label:"Sample Collected", bg:"#f1eaff", fg:"#8b5cf6"},
+    progress:{label:"In Progress", bg:"#eef2ff", fg:"#2563eb"},
+    completed:{label:"Completed", bg:"#dcfce7", fg:"#16a34a"},
+    critical:{label:"Critical", bg:"#fee2e2", fg:"#ef4444"},
+    cancelled:{label:"Cancelled", bg:"#f1f5f9", fg:"#64748b"},
+  };
+  const STATUS_ORDER = ["pending","collected","progress"];
+
+  const DEPARTMENTS = [
+    {key:"nursing", label:"Nursing", icon:"fa-user-nurse", sub:"Ward &amp; bedside care team"},
+    {key:"pharmacy", label:"Pharmacy", icon:"fa-pills", sub:"Dispensing &amp; medication review"},
+    {key:"admission", label:"Admission", icon:"fa-hospital", sub:"Inpatient administration"},
+    {key:"consultation", label:"Consultation", icon:"fa-user-doctor", sub:"Ordering doctor's review"},
+  ];
+
+  async function loadOrders(){
+    try {
+      await LabService.init();
+      return LabService.getAll();
+    } catch (e) { window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error'); return []; }
+  }
+
+  function escapeHtml(str){
+    return String(str==null?'':str).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function showToast(msg){
+    const t = el('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(()=>t.classList.remove('show'), 2400);
+  }
+  function fmtDateNice(iso){
+    if(!iso) return '—';
+    try{ return new Date(iso+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }
+    catch(e){ return iso; }
+  }
+  function nowDate(){ return new Date().toISOString().slice(0,10); }
+  function nowTime(){
+    return new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  }
+
+  function getOrderId(){
+    const params = new URLSearchParams(window.location.search);
+    return params.get('order');
+  }
+
+  let allOrders = [];
+  let orderId = getOrderId();
+  let order = null;
+  try {
+    allOrders = await loadOrders();
+  } catch (e) { window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error'); }
+  order = orderId ? allOrders.find(o => o.id === orderId) : allOrders[0];
+  if(!orderId && order) orderId = order.id;
+
+  /* ============ ENSURE RUNTIME FIELDS ============ */
+  function defaultHistory(o){
+    const h = [{label:'Order Placed', date:o.date, time:o.time}];
+    if(o.status==='cancelled'){
+      h.push({label:'Order Cancelled', date:o.date, time:o.time});
+      return h;
+    }
+    if(o.status==='pending') return h;
+    h.push({label:'Sample Collected', date:o.date, time:o.time});
+    if(o.status==='collected') return h;
+    h.push({label:'In Progress', date:o.date, time:o.time});
+    if(o.status==='progress') return h;
+    if(o.status==='completed'){
+      h.push({label:'Completed — Result: ' + (o.result || 'Recorded'), date:o.date, time:o.time});
+    } else if(o.status==='critical'){
+      h.push({label:'Critical Result Flagged — ' + (o.result || 'Recorded'), date:o.date, time:o.time, critical:true});
+    }
+    return h;
+  }
+  function ensureFields(o){
+    if(!Array.isArray(o.history)) o.history = defaultHistory(o);
+    if(!Array.isArray(o.forwardedDepts)){
+      o.forwardedDepts = (o.status==='completed'||o.status==='critical') ? ['consultation'] : [];
+      if(o.forwardedDepts.includes('consultation') && !o.history.some(h=>h.label && h.label.includes('Forwarded to Consultation'))){
+        o.history.push({label:'Automatically forwarded to Consultation', date:o.date, time:o.time, forwarded:true});
+      }
+    }
+    if(o.resultNotes===undefined) o.resultNotes = '';
+    if(o.completedOn===undefined) o.completedOn = (o.status==='completed'||o.status==='critical') ? o.date : null;
+  }
+  if(order) ensureFields(order);
+
+  async function persist(){
+    try {
+      await LabService.updateOrder(order.id, order);
+    } catch (e) { window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error'); }
+  }
+
+  /* ============ RENDER ============ */
+  function renderNotFound(){
+    el('notFoundState').style.display = 'block';
+    el('viewGrid').style.display = 'none';
+    el('topbarActions').style.display = 'none';
+    el('pageTitle').textContent = 'Test Order Not Found';
+    el('breadcrumb').textContent = 'Dashboard / Laboratory / Test Orders / Not Found';
+    if(orderId){
+      el('notFoundText').textContent = `We couldn't find a test order with ID "${orderId}". It may have been removed, or the link may be out of date.`;
+    }
+  }
+
+  function renderPatientCard(){
+    el('patientAvatar').style.backgroundImage = `url('https://i.pravatar.cc/120?img=${order.img || 1}')`;
+    el('patientName').textContent = order.name || 'Unknown Patient';
+    el('patientChips').innerHTML = `<span class="p-chip">${escapeHtml(order.hosp)}</span><span class="test-tag">${escapeHtml(order.test)}</span>`;
+    el('patientLines').innerHTML = `
+      <div class="p-line"><i class="fa-solid fa-envelope"></i> ${escapeHtml(order.email || '—')}</div>
+      <div class="p-line"><i class="fa-solid fa-vial"></i> ${escapeHtml(order.sample)}</div>
+    `;
+  }
+
+  function renderInfo(){
+    const s = statusLabels[order.status] || statusLabels.pending;
+    const pr = priorityLabels[order.priority] || priorityLabels.routine;
+
+    el('infoId').textContent = order.id;
+    el('infoTest').textContent = order.test;
+    el('infoSample').textContent = order.sample;
+    el('infoPriority').innerHTML = `<span class="priority-chip ${pr.cls}">${pr.label}</span>`;
+    el('infoBy').textContent = order.by || 'Not assigned';
+    el('infoTime').textContent = `${fmtDateNice(order.date)}, ${order.time}`;
+    el('infoStatus').innerHTML = `<span class="status-pill" style="background:${s.bg};color:${s.fg};"><span class="dot" style="background:${s.fg};"></span>${s.label}</span>`;
+    el('infoCompleted').textContent = order.completedOn ? fmtDateNice(order.completedOn) : 'Not yet completed';
+
+    el('criticalBanner').style.display = order.status === 'critical' ? 'flex' : 'none';
+  }
+
+  function renderResult(){
+    const box = el('resultBox');
+    if(order.result){
+      const cls = order.resultClass === 'critical' ? 'critical' : 'normal';
+      box.innerHTML = `
+        <div class="result-main">
+          <div class="result-label">Result</div>
+          <div class="result-value-big ${cls}">${escapeHtml(order.result)}</div>
+        </div>
+        <span class="badge" style="font-size:11.5px;font-weight:700;padding:5px 12px;border-radius:20px;background:${cls==='critical'?'#fee2e2':'#dcfce7'};color:${cls==='critical'?'#ef4444':'#16a34a'};">
+          ${cls==='critical' ? 'Flagged Critical' : 'Within Normal Range'}
+        </span>`;
+    } else {
+      box.innerHTML = `
+        <div class="result-main">
+          <div class="result-label">Result</div>
+          <div class="result-empty">No result recorded yet — result is entered when the test is marked as completed.</div>
+        </div>`;
+    }
+    const notesBox = el('resultNotesBox');
+    if(order.resultNotes && order.resultNotes.trim()){
+      notesBox.style.display = 'block';
+      notesBox.textContent = order.resultNotes;
+    } else {
+      notesBox.style.display = 'none';
+    }
+  }
+
+  function tlIconFor(label){
+    if(label.includes('Placed')) return 'fa-file-circle-plus';
+    if(label.includes('Collected')) return 'fa-vial';
+    if(label.includes('Progress')) return 'fa-flask-vial';
+    if(label.includes('Critical')) return 'fa-triangle-exclamation';
+    if(label.includes('Completed')) return 'fa-circle-check';
+    if(label.includes('Forwarded') || label.includes('forwarded')) return 'fa-share-from-square';
+    if(label.includes('Cancelled')) return 'fa-ban';
+    return 'fa-circle';
+  }
+
+  function renderTimeline(){
+    const hist = order.history || [];
+    const html = hist.map((h, i)=>{
+      const isLast = i === hist.length - 1;
+      let stepClass = 'done';
+      if(h.critical) stepClass = 'critical';
+      else if(h.forwarded) stepClass = 'forwarded';
+      else if(isLast && !['completed','critical','cancelled'].includes(order.status)) stepClass = 'current';
+      return `
+        <div class="tl-step ${stepClass}">
+          <div class="tl-line"></div>
+          <div class="tl-dot"><i class="fa-solid ${tlIconFor(h.label)}"></i></div>
+          <div class="tl-content">
+            <div class="tl-title">${escapeHtml(h.label)}</div>
+            <div class="tl-sub">${fmtDateNice(h.date)} · ${escapeHtml(h.time || '')}</div>
+          </div>
+        </div>`;
+    }).join('');
+    el('timeline').innerHTML = html;
+  }
+
+  function renderStatusAndActions(){
+    const s = statusLabels[order.status] || statusLabels.pending;
+    el('statusBadge').style.background = s.bg;
+    el('statusBadge').style.color = s.fg;
+    el('statusBadge').querySelector('.dot').style.background = s.fg;
+    el('statusBadgeLabel').textContent = s.label;
+
+    const stack = el('actionStack');
+    const hint = el('actionHint');
+
+    if(order.status === 'completed' || order.status === 'critical'){
+      hint.style.display = 'none';
+      stack.innerHTML = `
+        <div class="done-hint"><i class="fa-solid fa-circle-check"></i> Test completed — result on file</div>
+        <div class="btn" data-action="reopen"><i class="fa-solid fa-rotate-left"></i> Reopen &amp; Amend Result</div>`;
+      return;
+    }
+    if(order.status === 'cancelled'){
+      hint.style.display = 'none';
+      stack.innerHTML = `<div class="btn" disabled><i class="fa-solid fa-ban"></i> Order Cancelled</div>`;
+      return;
+    }
+
+    hint.style.display = 'block';
+    let buttons = '';
+    if(order.status === 'pending'){
+      buttons += `<div class="btn btn-primary" data-action="advance" data-to="collected"><i class="fa-solid fa-vial"></i> Mark Sample Collected</div>`;
+    } else if(order.status === 'collected'){
+      buttons += `<div class="btn btn-primary" data-action="advance" data-to="progress"><i class="fa-solid fa-flask-vial"></i> Mark In Progress</div>`;
+    } else if(order.status === 'progress'){
+      buttons += `<div class="btn btn-green" data-action="complete"><i class="fa-solid fa-circle-check"></i> Complete Test &amp; Enter Result</div>`;
+    }
+    buttons += `<div class="btn btn-danger" data-action="cancel"><i class="fa-solid fa-ban"></i> Cancel Order</div>`;
+    stack.innerHTML = buttons;
+  }
+
+  function renderDepartments(){
+    const list = el('deptList');
+    list.innerHTML = DEPARTMENTS.map(d=>{
+      const sent = order.forwardedDepts.includes(d.key);
+      const isAutoConsult = d.key === 'consultation' && (order.status === 'completed' || order.status === 'critical');
+      return `
+        <div class="dept-row ${sent ? 'sent' : ''}">
+          <div class="dept-info">
+            <div class="dept-icon"><i class="fa-solid ${d.icon}"></i></div>
+            <div>
+              <div class="dept-name">${d.label}</div>
+              <div class="dept-sub">${sent ? (isAutoConsult ? 'Auto-sent on completion' : 'Sent') : d.sub}</div>
+            </div>
+          </div>
+          <div class="dept-toggle-btn ${sent ? 'sent' : ''}" data-dept="${d.key}" ${isAutoConsult ? 'disabled title="Automatically sent when a test is completed"' : ''}>
+            ${sent ? 'Sent <i class="fa-solid fa-check" style="margin-left:4px;"></i>' : 'Send'}
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function renderSummary(){
+    el('sumHosp').textContent = order.hosp || '—';
+    el('sumPatient').textContent = order.name || '—';
+    el('sumTest').textContent = order.test || '—';
+    el('sumBy').textContent = order.by || 'Not assigned';
+    el('sumTime').textContent = `${fmtDateNice(order.date)}, ${order.time}`;
+  }
+
+  function renderAll(){
+    el('notFoundState').style.display = 'none';
+    el('viewGrid').style.display = 'grid';
+    el('pageTitle').textContent = order.test || 'Test Order Details';
+    el('breadcrumb').textContent = `Dashboard / Laboratory / Test Orders / ${order.id}`;
+    el('topbarActions').style.display = 'flex';
+    renderPatientCard();
+    renderInfo();
+    renderResult();
+    renderTimeline();
+    renderStatusAndActions();
+    renderDepartments();
+    renderSummary();
+  }
+
+  /* ============ ACTIONS ============ */
+  const STAGE_LABEL = {collected:'Sample Collected', progress:'In Progress'};
+
+  el('actionStack').addEventListener('click', async (e)=>{
+    const btn = e.target.closest('[data-action]');
+    if(!btn) return;
+    const action = btn.dataset.action;
+
+    if(action === 'advance'){
+      const to = btn.dataset.to;
+      if(!confirm(`Mark ${order.id} as "${STAGE_LABEL[to]}"?`)) return;
+      order.status = to;
+      order.history.push({label: STAGE_LABEL[to], date: nowDate(), time: nowTime()});
+      await persist();
+      showToast(`${order.id} marked as ${STAGE_LABEL[to]}`);
+      renderAll();
+    } else if(action === 'complete'){
+      openResultModal(false);
+    } else if(action === 'reopen'){
+      if(!confirm(`Reopen ${order.id} to amend the result? Status will return to "In Progress".`)) return;
+      order.status = 'progress';
+      order.history.push({label:'Reopened for Amendment', date: nowDate(), time: nowTime()});
+      await persist();
+      showToast(`${order.id} reopened for amendment`);
+      renderAll();
+    } else if(action === 'cancel'){
+      if(!confirm(`Cancel test order ${order.id} for ${order.name}? This cannot be undone.`)) return;
+      order.status = 'cancelled';
+      order.history.push({label:'Order Cancelled', date: nowDate(), time: nowTime()});
+      await persist();
+      showToast(`${order.id} cancelled`);
+      renderAll();
+    }
+  });
+
+  /* ============ RESULT MODAL ============ */
+  let modalClass = 'normal';
+  function openResultModal(isAmend){
+    el('resultModalTitle').textContent = isAmend ? 'Amend Result' : 'Complete Test & Enter Result';
+    el('modalResultValue').value = order.result || '';
+    el('modalResultNotes').value = order.resultNotes || '';
+    modalClass = order.resultClass || 'normal';
+    document.querySelectorAll('.class-btn').forEach(b=> b.classList.toggle('selected', b.dataset.class === modalClass));
+    el('resultModalOverlay').classList.add('open');
+  }
+  function closeResultModal(){ el('resultModalOverlay').classList.remove('open'); }
+
+  el('modalClassToggle').addEventListener('click', (e)=>{
+    const b = e.target.closest('.class-btn');
+    if(!b) return;
+    modalClass = b.dataset.class;
+    document.querySelectorAll('.class-btn').forEach(x=> x.classList.toggle('selected', x===b));
+  });
+  el('resultModalClose').addEventListener('click', closeResultModal);
+  el('resultModalCancel').addEventListener('click', closeResultModal);
+  el('resultModalOverlay').addEventListener('click', (e)=>{ if(e.target === el('resultModalOverlay')) closeResultModal(); });
+
+  el('resultModalSave').addEventListener('click', async ()=>{
+    const value = el('modalResultValue').value.trim();
+    if(!value){ showToast('Please enter a result value'); return; }
+    const notes = el('modalResultNotes').value.trim();
+
+    order.result = value;
+    order.resultClass = modalClass;
+    order.resultNotes = notes;
+    order.status = modalClass === 'critical' ? 'critical' : 'completed';
+    order.completedOn = nowDate();
+
+    const label = modalClass === 'critical'
+      ? `Critical Result Flagged — ${value}`
+      : `Completed — Result: ${value}`;
+    order.history.push({label, date: nowDate(), time: nowTime(), critical: modalClass === 'critical'});
+
+    if(!order.forwardedDepts.includes('consultation')){
+      order.forwardedDepts.push('consultation');
+      order.history.push({label:'Automatically forwarded to Consultation', date: nowDate(), time: nowTime(), forwarded:true});
+    }
+
+    await persist();
+    closeResultModal();
+    showToast(modalClass === 'critical'
+      ? `${order.id} flagged critical — sent to Consultation`
+      : `${order.id} completed — sent to Consultation`);
+    renderAll();
+  });
+
+  /* ============ DEPARTMENT FORWARDING ============ */
+  el('deptList').addEventListener('click', async (e)=>{
+    const btn = e.target.closest('[data-dept]');
+    if(!btn || btn.hasAttribute('disabled')) return;
+    const key = btn.dataset.dept;
+    const dept = DEPARTMENTS.find(d=>d.key===key);
+    const alreadySent = order.forwardedDepts.includes(key);
+
+    if(alreadySent){
+      if(!confirm(`Remove ${order.id} from ${dept.label}'s queue?`)) return;
+      order.forwardedDepts = order.forwardedDepts.filter(k=>k!==key);
+      order.history.push({label:`Removed from ${dept.label}`, date: nowDate(), time: nowTime()});
+      showToast(`Removed from ${dept.label}`);
+    } else {
+      order.forwardedDepts.push(key);
+      order.history.push({label:`Forwarded to ${dept.label}`, date: nowDate(), time: nowTime(), forwarded:true});
+      showToast(`${order.id} forwarded to ${dept.label}`);
+    }
+    await persist();
+    renderAll();
+  });
+
+  /* ============ PRINT / BACK ============ */
+  el('printBtn').addEventListener('click', ()=>{
+    showToast('Preparing test order for print…');
+    setTimeout(()=> window.print(), 250);
+  });
+  el('backBtn').addEventListener('click', ()=>{
+    if(window.history.length > 1) window.history.back(); else window.location.href = 'laboratory.html';
+  });
+
+  /* ============ INIT ============ */
+  if(!order){
+    renderNotFound();
+  } else {
+    renderAll();
+  }
+
+  if(window.ShilohSidebar){
+    window.ShilohSidebar.attach('#sidebarPlaceholder', {
+      activeFile: 'laboratory.html',
+      user: { name: 'Lab Tech Uche', role: 'Laboratory', avatar: 'https://i.pravatar.cc/64?img=47' }
+    });
+  }
+})();
+</script>
+
+</body>
+</html>

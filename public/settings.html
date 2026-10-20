@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shiloh Clinic &amp; Maternity — Settings</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root{
+    --navy:#0d1b4c; --blue-accent:#2563eb; --bg:#f4f6fb; --card:#ffffff; --border:#eef0f6;
+    --text-dark:#1c2440; --text-mid:#6b7280; --text-light:#9aa1b3;
+    --green:#12b76a; --green-bg:#e9f9f0;
+    --blue:#2563eb; --blue-bg:#eaf1ff;
+    --purple:#8b5cf6; --purple-bg:#f4efff;
+    --orange:#f79009; --orange-bg:#fff4e5;
+    --pink:#ec4899; --pink-bg:#fdeefa;
+    --red:#f04438; --red-bg:#feecec;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif;
+    background:var(--bg); color:var(--text-dark); font-size:13px;
+    display:flex; min-height:100vh;
+  }
+  .main{flex:1;min-width:0;padding:20px 26px 40px;}
+
+  .topbar{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;gap:16px;flex-wrap:wrap;}
+  .page-title{font-size:20px;font-weight:800;color:var(--text-dark);}
+  .breadcrumb{font-size:11.5px;color:var(--text-light);font-weight:600;margin-top:3px;}
+  .topbar-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .btn-primary{
+    display:flex;align-items:center;gap:8px;background:var(--blue-accent);border:1px solid var(--blue-accent);
+    border-radius:10px;padding:10px 16px;font-size:12.5px;font-weight:700;color:#fff;white-space:nowrap;cursor:pointer;
+    box-shadow:0 4px 10px rgba(37,99,235,0.28);
+  }
+  .btn-primary:hover{background:#1d4ed8;}
+  .btn-secondary{
+    display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border);
+    border-radius:10px;padding:9px 16px;font-size:12.5px;font-weight:700;color:var(--text-mid);white-space:nowrap;cursor:pointer;
+  }
+  .btn-secondary:hover{background:var(--bg);color:var(--text-dark);}
+  .btn-danger{
+    display:flex;align-items:center;gap:8px;background:#fff;color:var(--red);border:1px solid var(--red-bg);
+    border-radius:10px;padding:9px 16px;font-size:12.5px;font-weight:700;cursor:pointer;
+  }
+  .btn-danger:hover{background:var(--red-bg);}
+
+  /* unsaved-changes strip */
+  .unsaved-strip{
+    display:none;align-items:center;justify-content:space-between;gap:12px;background:#fff8ec;border:1px solid #ffe6bf;
+    border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:12.5px;color:#8a5a0a;font-weight:600;
+  }
+  .unsaved-strip.show{display:flex;}
+  .unsaved-strip i{color:var(--orange);margin-right:6px;}
+
+  /* stat cards */
+  .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px;}
+  .stat-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;}
+  .stat-top{display:flex;align-items:center;gap:10px;}
+  .stat-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;}
+  .stat-label{font-size:12px;color:var(--text-mid);font-weight:600;}
+  .stat-value{font-size:19px;font-weight:800;color:var(--text-dark);}
+  .stat-sub{font-size:10.5px;color:var(--text-light);}
+  .ic-blue{background:var(--blue-bg);color:var(--blue);}
+  .ic-green{background:var(--green-bg);color:var(--green);}
+  .ic-orange{background:var(--orange-bg);color:var(--orange);}
+  .ic-purple{background:var(--purple-bg);color:var(--purple);}
+
+  /* tabs */
+  .tabs-bar{
+    display:flex;align-items:center;gap:4px;background:var(--card);border:1px solid var(--border);
+    border-radius:14px;padding:6px;margin-bottom:18px;overflow-x:auto;
+  }
+  .tab-item{
+    display:flex;align-items:center;gap:8px;padding:9px 16px;border-radius:9px;font-size:12.5px;font-weight:700;color:var(--text-mid);
+    white-space:nowrap;cursor:pointer;flex-shrink:0;
+  }
+  .tab-item i{font-size:12px;}
+  .tab-item.active{background:var(--blue-accent);color:#fff;box-shadow:0 4px 10px rgba(37,99,235,0.3);}
+  .tab-item:hover:not(.active){color:var(--text-dark);}
+
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;}
+
+  .panel{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px 22px;margin-bottom:16px;}
+  .panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:10px;flex-wrap:wrap;}
+  .panel-title{font-size:14.5px;font-weight:800;color:var(--text-dark);}
+  .panel-sub{font-size:11.5px;color:var(--text-light);font-weight:600;margin-top:2px;}
+  .panel-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:0 20px;}
+
+  .form-group{margin-bottom:14px;}
+  .form-label{font-size:11px;font-weight:800;color:var(--text-mid);text-transform:uppercase;letter-spacing:.03em;margin-bottom:6px;display:block;}
+  .form-hint{font-size:10.5px;color:var(--text-light);font-weight:600;margin-top:5px;}
+  .form-input, .form-select, .form-textarea{
+    width:100%;border:1px solid var(--border);border-radius:9px;padding:9px 12px;font-family:inherit;
+    font-size:12.5px;color:var(--text-dark);outline:none;background:#fff;
+  }
+  .form-textarea{resize:vertical;min-height:64px;}
+  .form-input:focus, .form-select:focus, .form-textarea:focus{border-color:var(--blue-accent);}
+  .input-suffix-wrap{position:relative;}
+  .input-suffix-wrap input{padding-right:34px;}
+  .input-suffix{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:11.5px;color:var(--text-light);font-weight:700;}
+
+  /* logo uploader */
+  .logo-row{display:flex;align-items:center;gap:16px;margin-bottom:20px;}
+  .logo-preview{
+    width:64px;height:64px;border-radius:14px;background:linear-gradient(135deg,#2563eb,#7b4cf0);
+    display:flex;align-items:center;justify-content:center;color:#fff;font-size:24px;flex-shrink:0;
+  }
+  .logo-actions{display:flex;gap:8px;}
+
+  /* toggle switch (shared) */
+  .toggle-switch{ position:relative; width:38px;height:21px; border-radius:20px; background:#e2e8f0; flex-shrink:0; cursor:pointer; transition:.15s;}
+  .toggle-switch.on{background:var(--green);}
+  .toggle-knob{ position:absolute; top:2.5px; left:2.5px; width:16px;height:16px;border-radius:50%;background:#fff; box-shadow:0 1px 2px rgba(0,0,0,0.15); transition:left .15s; }
+  .toggle-switch.on .toggle-knob{left:19.5px;}
+
+  /* department table */
+  table{width:100%;border-collapse:collapse;}
+  thead th{text-align:left;font-size:10.5px;letter-spacing:.03em;color:var(--text-light);text-transform:uppercase;font-weight:700;padding:10px 10px;border-bottom:1px solid var(--border);white-space:nowrap;}
+  tbody td{padding:12px 10px;border-bottom:1px solid var(--border);font-size:12.5px;vertical-align:middle;color:var(--text-dark);font-weight:600;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover{background:#fafbfe;}
+  .dept-name-cell{display:flex;align-items:center;gap:10px;}
+  .dept-icon{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;}
+  .dept-sub{font-size:10.5px;color:var(--text-light);font-weight:600;}
+  .badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+  .badge .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+  .badge-active{background:var(--green-bg);color:var(--green);}
+  .badge-active .dot{background:var(--green);}
+  .badge-inactive{background:#f1f5f9;color:#64748b;}
+  .badge-inactive .dot{background:#94a3b8;}
+  .row-actions{display:flex;align-items:center;gap:6px;}
+  .icon-btn{width:28px;height:28px;border-radius:8px;border:1px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;color:var(--text-mid);font-size:11px;cursor:pointer;}
+  .icon-btn:hover{color:var(--blue);border-color:var(--blue-bg);background:var(--blue-bg);}
+  .icon-btn.danger:hover{color:var(--red);border-color:var(--red-bg);background:var(--red-bg);}
+
+  /* working hours rows */
+  .hours-row{display:grid;grid-template-columns:120px 90px 1fr 1fr 1fr 70px;align-items:center;gap:14px;padding:11px 0;border-bottom:1px solid var(--border);}
+  .hours-row:last-child{border-bottom:none;}
+  .hours-day{font-size:12.5px;font-weight:800;color:var(--text-dark);}
+  .hours-closed-label{font-size:11px;color:var(--text-light);font-weight:700;}
+  .hours-time-group{display:flex;align-items:center;gap:8px;}
+  .hours-time-group label{font-size:10px;color:var(--text-light);font-weight:700;white-space:nowrap;}
+  .hours-head-row{display:grid;grid-template-columns:120px 90px 1fr 1fr 1fr 70px;gap:14px;padding-bottom:8px;border-bottom:1px solid var(--border);margin-bottom:2px;}
+  .hours-head-row span{font-size:10.5px;letter-spacing:.03em;color:var(--text-light);text-transform:uppercase;font-weight:700;}
+
+  /* backup card */
+  .backup-info-card{
+    display:flex;align-items:center;justify-content:space-between;gap:14px;background:var(--bg);border:1px solid var(--border);
+    border-radius:12px;padding:14px 16px;margin-bottom:16px;flex-wrap:wrap;
+  }
+  .backup-info-left{display:flex;align-items:center;gap:12px;}
+  .backup-info-ic{width:38px;height:38px;border-radius:10px;background:var(--green-bg);color:var(--green);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+  .backup-info-title{font-size:12.5px;font-weight:800;color:var(--text-dark);}
+  .backup-info-sub{font-size:11px;color:var(--text-light);font-weight:600;margin-top:2px;}
+
+  .export-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 0;border-bottom:1px solid var(--border);}
+  .export-row:last-child{border-bottom:none;}
+  .export-left{display:flex;align-items:center;gap:12px;}
+  .export-ic{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+  .export-title{font-size:12.5px;font-weight:700;color:var(--text-dark);}
+  .export-sub{font-size:11px;color:var(--text-light);font-weight:600;margin-top:2px;}
+
+  .danger-zone{border:1px dashed var(--red-bg);background:#fffbfb;border-radius:12px;padding:16px 18px;}
+  .danger-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 0;}
+  .danger-title{font-size:12.5px;font-weight:700;color:var(--text-dark);}
+  .danger-sub{font-size:11px;color:var(--text-light);font-weight:600;margin-top:2px;max-width:420px;}
+
+  /* modal */
+  .modal-overlay{
+    position:fixed;inset:0;background:rgba(15,20,40,0.45);display:none;align-items:flex-start;justify-content:center;
+    z-index:300;padding:40px 20px;overflow-y:auto;
+  }
+  .modal-overlay.open{display:flex;}
+  .modal-box{background:#fff;border-radius:16px;max-width:480px;width:100%;padding:22px;box-shadow:0 20px 60px rgba(10,15,40,0.25);}
+  .modal-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;gap:10px;}
+  .modal-title{font-size:15px;font-weight:800;color:var(--text-dark);}
+  .modal-subtitle{font-size:11.5px;color:var(--text-light);margin-top:3px;font-weight:600;}
+  .modal-close{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text-mid);cursor:pointer;flex-shrink:0;}
+  .modal-close:hover{background:var(--bg);}
+  .modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border);}
+  .form-err{font-size:10.5px;color:var(--red);font-weight:700;margin-top:4px;display:none;}
+  .form-group.invalid .form-input{border-color:var(--red);}
+  .form-group.invalid .form-err{display:block;}
+
+  .confirm-icon{
+    width:48px;height:48px;border-radius:50%;background:var(--red-bg);color:var(--red);
+    display:flex;align-items:center;justify-content:center;margin-bottom:12px;font-size:18px;
+  }
+  .confirm-text{font-size:13px;color:var(--text-mid);line-height:1.5;}
+  .confirm-text b{color:var(--text-dark);}
+
+  .toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;
+    padding:11px 20px;border-radius:10px;font-size:12.5px;font-weight:700;box-shadow:0 10px 30px rgba(10,15,40,0.3);
+    opacity:0;pointer-events:none;transition:.22s; z-index:400; display:flex; align-items:center; gap:9px;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .toast i{color:var(--green);}
+  .toast.err i{color:var(--red);}
+
+  @media (max-width:1200px){
+    .stats-row{grid-template-columns:repeat(2,1fr);}
+    .panel-grid-2{grid-template-columns:1fr;}
+  }
+  @media (max-width:900px){
+    .hours-row, .hours-head-row{grid-template-columns:90px 70px 1fr;}
+    .hours-time-group:nth-child(5){display:none;}
+    .hours-head-row span:nth-child(5){display:none;}
+  }
+  @media (max-width:720px){
+    table{display:block;overflow-x:auto;}
+    .notif-row{flex-direction:column;}
+    .notif-channels{gap:16px;}
+  }
+</style>
+</head>
+<body>
+
+<div id="sidebarPlaceholder"></div>
+<script src="shiloh-sidebar.js"></script>
+
+<main class="main">
+
+  <div class="topbar">
+    <div>
+      <div class="page-title">Settings</div>
+      <div class="breadcrumb">Dashboard / Administration / Settings</div>
+    </div>
+    <div class="topbar-actions">
+      <div class="btn-secondary" id="resetDefaultsBtn"><i class="fa-solid fa-rotate-left"></i> Reset to Defaults</div>
+      <div class="btn-primary" id="saveAllBtn"><i class="fa-solid fa-floppy-disk"></i> Save Changes</div>
+    </div>
+  </div>
+
+  <div class="unsaved-strip" id="unsavedStrip">
+    <div><i class="fa-solid fa-circle-exclamation"></i> You have unsaved changes on this page.</div>
+    <div class="btn-primary" style="padding:7px 14px;" id="unsavedSaveBtn">Save Now</div>
+  </div>
+
+  <!-- stat cards -->
+  <div class="stats-row" style="grid-template-columns:repeat(2,1fr);">
+    <div class="stat-card">
+      <div class="stat-top"><div class="stat-icon ic-green"><i class="fa-regular fa-clock"></i></div><div class="stat-label">Open Days / Week</div></div>
+      <div class="stat-value" id="statOpenDays">—</div>
+      <div class="stat-sub" id="statEmergencyNote">Standard schedule</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-top"><div class="stat-icon ic-orange"><i class="fa-solid fa-database"></i></div><div class="stat-label">Last Backup</div></div>
+      <div class="stat-value" id="statBackup" style="font-size:15px;">—</div>
+      <div class="stat-sub" id="statBackupSub">—</div>
+    </div>
+  </div>
+
+  <!-- tabs -->
+  <div class="tabs-bar" id="tabsBar">
+    <div class="tab-item active" data-tab="general"><i class="fa-solid fa-hospital"></i> Clinic Information</div>
+    <div class="tab-item" data-tab="hours"><i class="fa-regular fa-clock"></i> Working Hours</div>
+    <div class="tab-item" data-tab="backup"><i class="fa-solid fa-database"></i> Backup &amp; Data</div>
+  </div>
+
+  <!-- ===================== GENERAL / CLINIC INFO ===================== -->
+  <div class="tab-panel active" id="panel-general">
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <div class="panel-title">Clinic Identity</div>
+          <div class="panel-sub">This appears on printed cards, invoices and patient-facing documents</div>
+        </div>
+      </div>
+      <div class="logo-row">
+        <div class="logo-preview" id="logoPreview"><i class="fa-solid fa-heart-pulse"></i></div>
+        <div class="logo-actions">
+          <div class="btn-secondary" id="changeLogoBtn"><i class="fa-solid fa-image"></i> Change Logo</div>
+          <div class="btn-secondary" id="removeLogoBtn"><i class="fa-solid fa-trash"></i> Remove</div>
+        </div>
+      </div>
+      <div class="panel-grid-2">
+        <div>
+          <div class="form-group"><label class="form-label">Clinic Name</label><input class="form-input" id="cName" value="Shiloh Clinic &amp; Maternity"></div>
+          <div class="form-group"><label class="form-label">Tagline</label><input class="form-input" id="cTagline" value="Compassionate care, every step of the way"></div>
+          <div class="form-group"><label class="form-label">Registration / License No.</label><input class="form-input" id="cLicense" value="RN-LIC-2019-00842"></div>
+        </div>
+        <div>
+          <div class="form-group"><label class="form-label">Phone (Primary)</label><input class="form-input" id="cPhone1" value="0803 123 4567"></div>
+          <div class="form-group"><label class="form-label">Phone (Secondary)</label><input class="form-input" id="cPhone2" value="0705 765 4321"></div>
+          <div class="form-group"><label class="form-label">Email Address</label><input class="form-input" id="cEmail" value="frontdesk@shiloh.clinic"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><div class="panel-title">Address</div></div>
+      <div class="panel-grid-2">
+        <div>
+          <div class="form-group"><label class="form-label">Street Address</label><input class="form-input" id="cStreet" value="12 Mission Road, Uromi"></div>
+          <div class="form-group"><label class="form-label">City / Town</label><input class="form-input" id="cCity" value="Uromi"></div>
+        </div>
+        <div>
+          <div class="form-group"><label class="form-label">State</label><input class="form-input" id="cState" value="Edo State"></div>
+          <div class="form-group"><label class="form-label">Country</label><input class="form-input" id="cCountry" value="Nigeria"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><div class="panel-title">Regional Preferences</div></div>
+      <div class="panel-grid-2">
+        <div>
+          <div class="form-group">
+            <label class="form-label">Timezone</label>
+            <select class="form-select" id="cTimezone">
+              <option value="Africa/Lagos" selected>Africa/Lagos (WAT, GMT+1)</option>
+              <option value="Africa/Accra">Africa/Accra (GMT)</option>
+              <option value="Africa/Nairobi">Africa/Nairobi (EAT, GMT+3)</option>
+              <option value="Africa/Johannesburg">Africa/Johannesburg (SAST, GMT+2)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Currency</label>
+            <select class="form-select" id="cCurrency">
+              <option value="NGN" selected>Nigerian Naira (₦)</option>
+              <option value="GHS">Ghanaian Cedi (₵)</option>
+              <option value="KES">Kenyan Shilling (KSh)</option>
+              <option value="USD">US Dollar ($)</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <div class="form-group">
+            <label class="form-label">Date Format</label>
+            <select class="form-select" id="cDateFormat">
+              <option value="MMM D, YYYY" selected>May 17, 2025</option>
+              <option value="DD/MM/YYYY">17/05/2025</option>
+              <option value="MM/DD/YYYY">05/17/2025</option>
+              <option value="YYYY-MM-DD">2025-05-17</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Time Format</label>
+            <select class="form-select" id="cTimeFormat">
+              <option value="12" selected>12-hour (9:30 AM)</option>
+              <option value="24">24-hour (09:30)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== WORKING HOURS ===================== -->
+  <div class="tab-panel" id="panel-hours">
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <div class="panel-title">Clinic Working Hours</div>
+          <div class="panel-sub">Sets the hours reflected in appointment booking and front-desk scheduling</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:12px;font-weight:700;color:var(--text-mid);">Emergency services 24/7</span>
+          <div class="toggle-switch on" id="emergencyToggle"><div class="toggle-knob"></div></div>
+        </div>
+      </div>
+      <div class="hours-head-row">
+        <span>Day</span><span>Open</span><span>Opening Time</span><span>Closing Time</span><span>Break</span><span style="width:70px;text-align:center;">Actions</span>
+      </div>
+      <div id="hoursRows"></div>
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
+        <div class="btn-primary" id="addHoursBtn"><i class="fa-solid fa-plus"></i> Add Hours</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== BACKUP & DATA ===================== -->
+  <div class="tab-panel" id="panel-backup">
+    <div class="panel">
+      <div class="panel-head"><div class="panel-title">Automatic Backups</div></div>
+      <div class="backup-info-card">
+        <div class="backup-info-left">
+          <div class="backup-info-ic"><i class="fa-solid fa-circle-check"></i></div>
+          <div>
+            <div class="backup-info-title">Last successful backup</div>
+            <div class="backup-info-sub" id="lastBackupText">Today at 3:00 AM · 214 MB</div>
+          </div>
+        </div>
+        <div class="btn-primary" id="backupNowBtn"><i class="fa-solid fa-cloud-arrow-up"></i> Backup Now</div>
+      </div>
+      <div class="policy-row">
+        <div><div class="policy-label">Enable automatic backups</div></div>
+        <div class="toggle-switch on" id="backupAutoToggle"><div class="toggle-knob"></div></div>
+      </div>
+      <div class="policy-row">
+        <div><div class="policy-label">Backup frequency</div></div>
+        <select class="form-select" style="width:160px;" id="backupFrequency">
+          <option>Every 6 hours</option>
+          <option selected>Daily</option>
+          <option>Weekly</option>
+        </select>
+      </div>
+      <div class="policy-row">
+        <div><div class="policy-label">Retention period</div><div class="policy-sub">How long backups are kept before being deleted</div></div>
+        <select class="form-select" style="width:160px;" id="backupRetention">
+          <option>7 days</option>
+          <option selected>30 days</option>
+          <option>90 days</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><div class="panel-title">Export Data</div></div>
+      <div class="export-row">
+        <div class="export-left"><div class="export-ic" style="background:var(--blue-bg);color:var(--blue);"><i class="fa-solid fa-user-group"></i></div><div><div class="export-title">Patient Records</div><div class="export-sub">Demographics, visit history and medical notes</div></div></div>
+        <div class="btn-secondary" data-export="patients"><i class="fa-solid fa-download"></i> Export</div>
+      </div>
+      <div class="export-row">
+        <div class="export-left"><div class="export-ic" style="background:var(--orange-bg);color:var(--orange);"><i class="fa-regular fa-credit-card"></i></div><div><div class="export-title">Billing &amp; Invoices</div><div class="export-sub">All invoices, payments and receivables</div></div></div>
+        <div class="btn-secondary" data-export="billing"><i class="fa-solid fa-download"></i> Export</div>
+      </div>
+      <div class="export-row">
+        <div class="export-left"><div class="export-ic" style="background:var(--purple-bg);color:var(--purple);"><i class="fa-solid fa-flask"></i></div><div><div class="export-title">Laboratory Results</div><div class="export-sub">Test orders and result history</div></div></div>
+        <div class="btn-secondary" data-export="lab"><i class="fa-solid fa-download"></i> Export</div>
+      </div>
+      <div class="export-row">
+        <div class="export-left"><div class="export-ic" style="background:var(--red-bg);color:var(--red);"><i class="fa-solid fa-clipboard-list"></i></div><div><div class="export-title">Audit Logs</div><div class="export-sub">System-wide activity trail</div></div></div>
+        <div class="btn-secondary" data-export="audit"><i class="fa-solid fa-download"></i> Export</div>
+      </div>
+    </div>
+
+    <div class="panel danger-zone">
+      <div class="panel-head" style="margin-bottom:6px;"><div class="panel-title" style="color:var(--red);">Danger Zone</div></div>
+      <div class="danger-row">
+        <div><div class="danger-title">Clear demo data</div><div class="danger-sub">Removes sample patients, visits and records used for testing. This cannot be undone.</div></div>
+        <div class="btn-danger" id="clearDemoBtn"><i class="fa-solid fa-broom"></i> Clear Demo Data</div>
+      </div>
+      <div class="danger-row">
+        <div><div class="danger-title">Factory reset system</div><div class="danger-sub">Restores Shiloh Clinic to its original, empty state. All records will be permanently deleted.</div></div>
+        <div class="btn-danger" id="factoryResetBtn"><i class="fa-solid fa-triangle-exclamation"></i> Factory Reset</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ============ WORKING HOURS MODAL ============ -->
+<div class="modal-overlay" id="hoursModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div><div class="modal-title" id="hoursModalTitle">Add Working Hours</div></div>
+      <div class="modal-close" data-close="hoursModal"><i class="fa-solid fa-xmark"></i></div>
+    </div>
+    <div class="form-group" id="hoursDayGroup">
+      <label class="form-label">Day</label>
+      <select class="form-select" id="hoursDay">
+        <option>Monday</option>
+        <option>Tuesday</option>
+        <option>Wednesday</option>
+        <option>Thursday</option>
+        <option>Friday</option>
+        <option>Saturday</option>
+        <option>Sunday</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Status</label>
+      <select class="form-select" id="hoursStatus">
+        <option value="open">Open</option>
+        <option value="closed">Closed</option>
+      </select>
+    </div>
+    <div id="hoursTimeFields">
+      <div class="form-group">
+        <label class="form-label">Opening Time</label>
+        <input type="time" class="form-input" id="hoursStart" value="08:00">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Closing Time</label>
+        <input type="time" class="form-input" id="hoursEnd" value="18:00">
+      </div>
+      <div class="panel-grid-2">
+        <div class="form-group">
+          <label class="form-label">Break Start</label>
+          <input type="time" class="form-input" id="hoursBreakStart" value="13:00">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Break End</label>
+          <input type="time" class="form-input" id="hoursBreakEnd" value="14:00">
+        </div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <div class="btn-secondary" data-close="hoursModal">Cancel</div>
+      <div class="btn-primary" id="hoursSaveBtn"><i class="fa-solid fa-floppy-disk"></i> Save</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ GENERIC CONFIRM MODAL ============ -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div></div>
+      <div class="modal-close" data-close="confirmModal"><i class="fa-solid fa-xmark"></i></div>
+    </div>
+    <div class="confirm-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+    <div class="modal-title" style="margin-bottom:8px;" id="confirmTitle">Are you sure?</div>
+    <div class="confirm-text" id="confirmText"></div>
+    <div class="modal-actions">
+      <div class="btn-secondary" data-close="confirmModal">Cancel</div>
+      <div class="btn-danger" id="confirmActionBtn">Confirm</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><i class="fa-solid fa-circle-check"></i><span id="toastText">Saved</span></div>
+
+<script>
+(function(){
+  const el = id => document.getElementById(id);
+  const esc = s => (s == null ? '' : String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+  /* ============ STATE ============ */
+  let dirty = false;
+  function markDirty(){ dirty = true; el('unsavedStrip').classList.add('show'); }
+  function clearDirty(){ dirty = false; el('unsavedStrip').classList.remove('show'); }
+
+  let hours = [
+    { day:'Monday', open:true, start:'08:00', end:'18:00', breakStart:'13:00', breakEnd:'14:00' },
+    { day:'Tuesday', open:true, start:'08:00', end:'18:00', breakStart:'13:00', breakEnd:'14:00' },
+    { day:'Wednesday', open:true, start:'08:00', end:'18:00', breakStart:'13:00', breakEnd:'14:00' },
+    { day:'Thursday', open:true, start:'08:00', end:'18:00', breakStart:'13:00', breakEnd:'14:00' },
+    { day:'Friday', open:true, start:'08:00', end:'18:00', breakStart:'13:00', breakEnd:'14:00' },
+    { day:'Saturday', open:true, start:'09:00', end:'15:00', breakStart:'', breakEnd:'' },
+    { day:'Sunday', open:false, start:'', end:'', breakStart:'', breakEnd:'' },
+  ];
+
+  let emergency247 = true;
+  let backupAuto = true;
+  let lastBackup = { text: 'Today at 3:00 AM · 214 MB' };
+
+  /* ============ TOAST ============ */
+  function showToast(msg, isErr){
+    const t = el('toast');
+    el('toastText').textContent = msg;
+    t.classList.toggle('err', !!isErr);
+    t.classList.add('show');
+    clearTimeout(showToast._tm);
+    showToast._tm = setTimeout(()=>t.classList.remove('show'), 2200);
+  }
+
+  /* ============ TABS ============ */
+  document.querySelectorAll('.tab-item').forEach(tab=>{
+    tab.addEventListener('click', ()=>{
+      document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+      tab.classList.add('active');
+      el('panel-' + tab.dataset.tab).classList.add('active');
+    });
+  });
+
+  /* ============ TOGGLE SWITCH HELPER ============ */
+  function wireToggle(elm, onChange){
+    elm.addEventListener('click', ()=>{
+      elm.classList.toggle('on');
+      markDirty();
+      if(onChange) onChange(elm.classList.contains('on'));
+    });
+  }
+
+  /* track plain inputs as dirty triggers */
+  document.querySelectorAll('.form-input, .form-select, .form-textarea').forEach(inp=>{
+    inp.addEventListener('input', markDirty);
+    inp.addEventListener('change', markDirty);
+  });
+
+  /* ============ STATS ============ */
+  function renderStats(){
+    const openDays = hours.filter(h=>h.open).length;
+    el('statOpenDays').textContent = openDays + ' / 7';
+    el('statEmergencyNote').textContent = emergency247 ? 'Plus 24/7 emergency care' : 'Standard schedule only';
+    el('statBackup').textContent = backupAuto ? 'Today, 3:00 AM' : 'Manual only';
+    el('statBackupSub').textContent = backupAuto ? '214 MB · auto-backup on' : 'Auto-backup disabled';
+  }
+
+  /* ============ WORKING HOURS ============ */
+  let editingHoursIndex = -1;
+
+  function renderHours(){
+    el('hoursRows').innerHTML = hours.map((h,i)=>`
+      <div class="hours-row">
+        <div class="hours-day">${h.day}</div>
+        <div class="toggle-switch ${h.open?'on':''}" data-hour-toggle="${i}"><div class="toggle-knob"></div></div>
+        ${h.open ? `
+          <div class="hours-time-group"><label>From</label><input type="time" class="form-input" data-hour-field="${i}" data-hour-key="start" value="${h.start}"></div>
+          <div class="hours-time-group"><label>To</label><input type="time" class="form-input" data-hour-field="${i}" data-hour-key="end" value="${h.end}"></div>
+          <div class="hours-time-group"><label>Break</label><input type="time" class="form-input" data-hour-field="${i}" data-hour-key="breakStart" value="${h.breakStart}" style="max-width:90px;"><span style="color:var(--text-light);">–</span><input type="time" class="form-input" data-hour-field="${i}" data-hour-key="breakEnd" value="${h.breakEnd}" style="max-width:90px;"></div>
+        ` : `<div class="hours-closed-label">Closed</div><div></div><div></div>`}
+        <div style="display:flex;align-items:center;justify-content:center;gap:6px;">
+          <div class="icon-btn" data-edit-hours="${i}" title="Edit"><i class="fa-solid fa-pen"></i></div>
+          <div class="icon-btn danger" data-delete-hours="${i}" title="Delete"><i class="fa-solid fa-trash"></i></div>
+        </div>
+      </div>
+    `).join('');
+    document.querySelectorAll('[data-hour-toggle]').forEach(t=>{
+      t.addEventListener('click', ()=>{
+        const i = Number(t.dataset.hourToggle);
+        hours[i].open = !hours[i].open;
+        if(hours[i].open && !hours[i].start){ hours[i].start='08:00'; hours[i].end='18:00'; }
+        renderHours(); renderStats(); markDirty();
+      });
+    });
+    document.querySelectorAll('[data-hour-field]').forEach(inp=>{
+      inp.addEventListener('change', ()=>{
+        const i = Number(inp.dataset.hourField);
+        hours[i][inp.dataset.hourKey] = inp.value;
+        markDirty();
+      });
+    });
+    document.querySelectorAll('[data-edit-hours]').forEach(b=>{
+      b.addEventListener('click', ()=>{
+        editingHoursIndex = Number(b.dataset.editHours);
+        openHoursModal(editingHoursIndex);
+      });
+    });
+    document.querySelectorAll('[data-delete-hours]').forEach(b=>{
+      b.addEventListener('click', ()=>{
+        const i = Number(b.dataset.deleteHours);
+        openConfirm(`Delete ${hours[i].day} hours?`, 'This will remove the working hours for this day.', ()=>{
+          hours.splice(i, 1);
+          renderHours(); renderStats(); markDirty();
+          showToast('Hours deleted');
+        });
+      });
+    });
+  }
+
+  function openHoursModal(index){
+    const isEdit = index >= 0;
+    el('hoursModalTitle').textContent = isEdit ? 'Edit Working Hours' : 'Add Working Hours';
+    el('hoursDayGroup').style.display = isEdit ? 'none' : 'block';
+    if(isEdit){
+      const h = hours[index];
+      el('hoursDay').value = h.day;
+      el('hoursStatus').value = h.open ? 'open' : 'closed';
+      el('hoursStart').value = h.start || '08:00';
+      el('hoursEnd').value = h.end || '18:00';
+      el('hoursBreakStart').value = h.breakStart || '13:00';
+      el('hoursBreakEnd').value = h.breakEnd || '14:00';
+    } else {
+      const usedDays = hours.map(h=>h.day);
+      const available = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].filter(d=>!usedDays.includes(d));
+      el('hoursDay').innerHTML = available.map(d=>`<option>${d}</option>`).join('') || '<option>No days available</option>';
+      el('hoursStatus').value = 'open';
+      el('hoursStart').value = '08:00';
+      el('hoursEnd').value = '18:00';
+      el('hoursBreakStart').value = '13:00';
+      el('hoursBreakEnd').value = '14:00';
+    }
+    toggleTimeFields();
+    el('hoursModal').classList.add('open');
+  }
+
+  function toggleTimeFields(){
+    el('hoursTimeFields').style.display = el('hoursStatus').value === 'open' ? 'block' : 'none';
+  }
+
+  el('hoursStatus').addEventListener('change', toggleTimeFields);
+
+  el('addHoursBtn').addEventListener('click', ()=>{
+    editingHoursIndex = -1;
+    openHoursModal(-1);
+  });
+
+  el('hoursSaveBtn').addEventListener('click', ()=>{
+    const status = el('hoursStatus').value;
+    const day = el('hoursDay').value;
+    if(editingHoursIndex >= 0){
+      hours[editingHoursIndex].open = status === 'open';
+      hours[editingHoursIndex].start = el('hoursStart').value;
+      hours[editingHoursIndex].end = el('hoursEnd').value;
+      hours[editingHoursIndex].breakStart = el('hoursBreakStart').value;
+      hours[editingHoursIndex].breakEnd = el('hoursBreakEnd').value;
+      showToast('Hours updated');
+    } else {
+      hours.push({
+        day,
+        open: status === 'open',
+        start: el('hoursStart').value,
+        end: el('hoursEnd').value,
+        breakStart: el('hoursBreakStart').value,
+        breakEnd: el('hoursBreakEnd').value
+      });
+      showToast('Hours added');
+    }
+    el('hoursModal').classList.remove('open');
+    renderHours(); renderStats(); markDirty();
+  });
+
+  wireToggle(el('emergencyToggle'), on=>{ emergency247 = on; renderStats(); });
+
+  /* ============ BACKUP ============ */
+  wireToggle(el('backupAutoToggle'), on=>{ backupAuto = on; renderStats(); });
+  el('backupNowBtn').addEventListener('click', ()=>{
+    el('backupNowBtn').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Backing up…';
+    setTimeout(()=>{
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+      el('lastBackupText').textContent = `Just now, ${timeStr} · 214 MB`;
+      el('backupNowBtn').innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Backup Now';
+      renderStats();
+      showToast('Backup completed successfully');
+    }, 1200);
+  });
+
+  document.querySelectorAll('[data-export]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      showToast(`Preparing export — you'll get a download link shortly (demo)`);
+    });
+  });
+
+  /* ============ DANGER ZONE ============ */
+  el('clearDemoBtn').addEventListener('click', ()=>{
+    openConfirm('Clear all demo data?', 'This removes sample patients, visits, invoices and lab results used for testing. Real records you have added will not be affected. This cannot be undone.', ()=>{
+      showToast('Demo data cleared');
+    });
+  });
+  el('factoryResetBtn').addEventListener('click', ()=>{
+    openConfirm('Factory reset the system?', 'This will permanently delete every patient, visit, invoice and user record, restoring Shiloh Clinic to its original empty state. This action cannot be undone.', ()=>{
+      showToast('Factory reset started (demo)');
+    });
+  });
+
+  /* ============ CONFIRM MODAL ============ */
+  let confirmCallback = null;
+  function openConfirm(title, text, cb){
+    el('confirmTitle').textContent = title;
+    el('confirmText').textContent = text;
+    confirmCallback = cb;
+    el('confirmModal').classList.add('open');
+  }
+  el('confirmActionBtn').addEventListener('click', ()=>{
+    if(confirmCallback) confirmCallback();
+    el('confirmModal').classList.remove('open');
+    confirmCallback = null;
+  });
+
+  /* ============ LOGO ============ */
+  el('changeLogoBtn').addEventListener('click', ()=>{ markDirty(); showToast('Logo upload (demo) — pick a file from your device'); });
+  el('removeLogoBtn').addEventListener('click', ()=>{
+    el('logoPreview').innerHTML = '<i class="fa-solid fa-hospital"></i>';
+    markDirty();
+    showToast('Logo removed');
+  });
+
+  /* ============ MODAL PLUMBING ============ */
+  document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click', ()=>el(b.dataset.close).classList.remove('open')));
+  document.querySelectorAll('.modal-overlay').forEach(ov=>ov.addEventListener('click', e=>{ if(e.target===ov) ov.classList.remove('open'); }));
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape') document.querySelectorAll('.modal-overlay.open').forEach(ov=>ov.classList.remove('open')); });
+
+  /* ============ SAVE / RESET ============ */
+  function saveAll(){
+    clearDirty();
+    showToast('Settings saved successfully');
+  }
+  el('saveAllBtn').addEventListener('click', saveAll);
+  el('unsavedSaveBtn').addEventListener('click', saveAll);
+  el('resetDefaultsBtn').addEventListener('click', ()=>{
+    openConfirm('Reset all settings to defaults?', 'Every tab on this page will revert to the original Shiloh Clinic configuration. Unsaved changes will be lost.', ()=>{
+      location.reload();
+    });
+  });
+
+  /* ============ INIT ============ */
+  renderHours();
+  renderStats();
+
+  if(window.ShilohSidebar){
+    window.ShilohSidebar.attach('#sidebarPlaceholder', {
+      activeFile: 'settings.html',
+      user: { name: 'Admin Tolu', role: 'System Admin', avatar: 'https://i.pravatar.cc/64?img=47' }
+    });
+  }
+})();
+</script>
+
+</body>
+</html>

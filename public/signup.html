@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shiloh Clinic & Maternity — Create Account</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root{--navy:#0d1b4c;--blue:#2563eb;--bg:#f4f6fb;--card:#fff;--border:#eef0f6;--text-dark:#1e293b;--text-mid:#64748b;--text-light:#94a3b8;--red:#ef4444;--red-bg:#fee2e2;--green:#16a34a;--orange:#f97316;--orange-bg:#fff1e6;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:var(--bg);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+  .auth-wrap{width:100%;max-width:480px;}
+  .logo{text-align:center;margin-bottom:20px;}
+  .logo-icon{width:48px;height:48px;background:var(--blue);border-radius:12px;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:22px;margin-bottom:10px;}
+  .logo-text{font-size:18px;font-weight:800;color:var(--navy);line-height:1.2;}
+  .logo-sub{font-size:12px;color:var(--text-mid);margin-top:2px;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px 24px;box-shadow:0 4px 20px rgba(13,27,76,0.06);}
+  .card-title{font-size:18px;font-weight:800;color:var(--text-dark);margin-bottom:4px;}
+  .card-sub{font-size:12.5px;color:var(--text-light);margin-bottom:16px;}
+  .notice{display:flex;gap:8px;background:var(--orange-bg);border:1px solid #ffedd5;border-radius:10px;padding:10px 12px;font-size:11.5px;color:#9a3412;font-weight:600;margin-bottom:16px;}
+  .notice i{margin-top:1px;flex-shrink:0;}
+  .field{margin-bottom:12px;}
+  .field label{display:block;font-size:11px;font-weight:700;color:var(--text-mid);text-transform:uppercase;letter-spacing:.03em;margin-bottom:6px;}
+  .field label .req{color:var(--red);}
+  .field input, .field select{width:100%;border:1px solid var(--border);border-radius:10px;padding:11px 12px;font-size:13px;color:var(--text-dark);outline:none;background:#fff;font-family:inherit;}
+  .field input:focus, .field select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1);}
+  .field.invalid input, .field.invalid select{border-color:var(--red);}
+  .field-err{font-size:11px;color:var(--red);margin-top:4px;display:none;}
+  .field.invalid .field-err{display:block;}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .btn{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;background:var(--blue);color:#fff;border:1px solid var(--blue);border-radius:10px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;margin-top:4px;}
+  .btn:hover{background:#1d4ed8;}
+  .btn:disabled{opacity:.6;cursor:not-allowed;}
+  .alert{display:none;padding:10px 12px;border-radius:10px;font-size:12.5px;font-weight:600;margin-bottom:14px;}
+  .alert.err{display:block;background:var(--red-bg);color:var(--red);border:1px solid #fecaca;}
+  .foot{text-align:center;margin-top:16px;font-size:12.5px;color:var(--text-mid);}
+  .foot a{color:var(--blue);font-weight:700;text-decoration:none;}
+  .foot a:hover{text-decoration:underline;}
+  @media(max-width:480px){.row{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="auth-wrap">
+  <div class="logo">
+    <div class="logo-icon"><i class="fa-solid fa-heart-pulse"></i></div>
+    <div class="logo-text">Shiloh Clinic & Maternity</div>
+    <div class="logo-sub">Compassionate care, every step of the way</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Create account</div>
+    <div class="card-sub">Set up your Shiloh Clinic account</div>
+    <div class="notice"><i class="fa-solid fa-circle-info"></i><span><b>First account becomes Admin</b> — you will have full access to create Roles, Users and all modules.</span></div>
+    <div class="alert err" id="alertErr"></div>
+    <div class="field" id="fName"><label>Full Name <span class="req">*</span></label><input type="text" id="name" placeholder="e.g. Tolu Bankole"></div>
+    <div class="row">
+      <div class="field" id="fUser"><label>Username <span class="req">*</span></label><input type="text" id="username" placeholder="e.g. tolu.bankole"></div>
+      <div class="field" id="fPhone"><label>Phone</label><input type="text" id="phone" placeholder="0803 123 4567"></div>
+    </div>
+    <div class="field" id="fEmail"><label>Email <span class="req">*</span></label><input type="email" id="email" placeholder="e.g. tolu@shiloh.clinic"></div>
+    <div class="row">
+      <div class="field" id="fPass"><label>Password <span class="req">*</span> <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-light)">min 6</span></label><input type="password" id="password" placeholder="Min. 6 characters"></div>
+      <div class="field" id="fConfirm"><label>Confirm <span class="req">*</span></label><input type="password" id="confirm" placeholder="Re-enter"></div>
+    </div>
+    <button class="btn" id="signupBtn"><i class="fa-solid fa-user-plus"></i> Create Account</button>
+    <div class="foot">Already have an account? <a href="login.html">Sign in</a></div>
+  </div>
+</div>
+<script>
+const API = (function(){ try { if (window.__SHILOH_API__) return window.__SHILOH_API__; var loc = location; if (loc.protocol === 'file:') return 'http://localhost:5001/api'; var h = loc.hostname; var isLocal = (h === 'localhost' || h === '127.0.0.1'); if (isLocal && loc.port && loc.port !== '5001') return 'http://localhost:5001/api'; return loc.origin + '/api'; } catch (e) { return 'http://localhost:5001/api'; } })();
+const $ = id => document.getElementById(id);
+function showErr(m){ const a=$('alertErr'); a.textContent=m; a.className='alert err'; a.style.display='block'; }
+function clearErr(){ $('alertErr').style.display='none'; }
+function isEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+// Guard: after first user, signup is closed — redirect to login
+(async ()=>{
+  try{
+    const r = await fetch(API + '/auth/setup-status');
+    const d = await r.json();
+    if(!d.needsSetup){
+      document.body.innerHTML = '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:Segoe UI, sans-serif;padding:20px;"><div style="background:#fff;border:1px solid #eef0f6;border-radius:16px;padding:28px;max-width:420px;text-align:center;"><div style="width:48px;height:48px;background:#2563eb;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:22px;margin-bottom:12px;"><i class="fa-solid fa-lock"></i></div><div style="font-size:16px;font-weight:800;color:#0d1b4c;">Registration is closed</div><div style="font-size:13px;color:#64748b;margin-top:6px;">The first administrator already exists. Please sign in, or contact an Administrator to create your account via <b>Users → Add New User</b>.</div><a href="login.html" style="display:inline-flex;align-items:center;gap:8px;margin-top:16px;background:#2563eb;color:#fff;padding:10px 16px;border-radius:10px;text-decoration:none;font-weight:700;font-size:13px;"><i class="fa-solid fa-right-to-bracket"></i> Go to Login</a></div></div>';
+      // also hide signup link behavior
+    }
+  }catch(e){}
+})();
+$('signupBtn').addEventListener('click', async ()=>{
+  clearErr();
+  const name=$('name').value.trim(), username=$('username').value.trim(), email=$('email').value.trim(), phone=$('phone').value.trim(), pass=$('password').value, confirm=$('confirm').value;
+  let ok=true;
+  $('fName').classList.toggle('invalid', !name);
+  $('fUser').classList.toggle('invalid', !username);
+  $('fEmail').classList.toggle('invalid', !email || !isEmail(email));
+  $('fPass').classList.toggle('invalid', pass.length < 6);
+  $('fConfirm').classList.toggle('invalid', confirm !== pass || !confirm);
+  if(!name || !username || !email || !isEmail(email) || pass.length < 6 || confirm !== pass) ok=false;
+  if(!ok){ showErr('Please fix the highlighted fields'); return; }
+  $('signupBtn').disabled=true; $('signupBtn').innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Creating...';
+  try{
+    const res = await fetch(API + '/auth/register', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ name, username, email, phone, password: pass })
+    });
+    const data = await res.json();
+    if(!res.ok) throw new Error(data.error || 'Registration failed');
+    localStorage.setItem('shiloh_token', data.token);
+    localStorage.setItem('shiloh_user', JSON.stringify(data.user));
+    // First user is Admin per backend — go to dashboard
+    window.location.href = 'dashboard.html';
+  } catch(e){ showErr(e.message); }
+  finally{ $('signupBtn').disabled=false; $('signupBtn').innerHTML='<i class="fa-solid fa-user-plus"></i> Create Account'; }
+});
+</script>
+</body>
+</html>
