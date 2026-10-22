@@ -165,22 +165,25 @@ const AppointmentForm = {
       let appt = null;
       try {
         appt = await AppointmentService.createAppointment({
-        patientId: patientSel.value,
-        patientName: patientOpt.dataset.name,
-        hospitalNo: patientOpt.dataset.hosp,
-        department: dept,
-        doctor,
-        date,
-        time,
-        type,
-        reason
-      });
-
-      btn.style.pointerEvents = '';
-      btn.style.opacity = '';
-      btn.innerHTML = 'Book Appointment';
+          patientId: patientSel.value,
+          patientName: patientOpt.dataset.name,
+          hospitalNo: patientOpt.dataset.hosp,
+          department: dept,
+          doctor,
+          date,
+          time,
+          type,
+          reason
+        });
+      } catch (e) {
+        if (window.ShilohAPI) window.ShilohAPI.toast(e.message || 'Could not book appointment.', 'error');
+      } finally {
+        btn.style.pointerEvents = '';
+        btn.style.opacity = '';
+        btn.innerHTML = 'Book Appointment';
+      }
+      if (!appt) return;
       this.close();
-      if (!appt && window.ShilohAPI) window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error');
       if (this._onCreated) this._onCreated(appt);
     }, 500);
   },

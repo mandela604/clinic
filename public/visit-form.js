@@ -175,21 +175,24 @@ const VisitForm = {
       let visit = null;
       try {
         visit = await VisitService.createVisit({
-        patientId: patientSel.value,
-        patientName: patientOpt.dataset.name,
-        hospitalNo: patientOpt.dataset.hosp,
-        department: dept,
-        doctor,
-        reason,
-        appointmentId: apptRadio ? apptRadio.value : null,
-        consultationRequested: consult
-      });
-
-      btn.style.pointerEvents = '';
-      btn.style.opacity = '';
-      btn.innerHTML = 'Create Visit';
+          patientId: patientSel.value,
+          patientName: patientOpt.dataset.name,
+          hospitalNo: patientOpt.dataset.hosp,
+          department: dept,
+          doctor,
+          reason,
+          appointmentId: apptRadio ? apptRadio.value : null,
+          consultationRequested: consult
+        });
+      } catch (e) {
+        if (window.ShilohAPI) window.ShilohAPI.toast(e.message || 'Could not create visit.', 'error');
+      } finally {
+        btn.style.pointerEvents = '';
+        btn.style.opacity = '';
+        btn.innerHTML = 'Create Visit';
+      }
+      if (!visit) return;
       this.close();
-      if (!visit && window.ShilohAPI) window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error');
       if (this._onCreated) this._onCreated(visit);
     }, 500);
   },
