@@ -302,7 +302,7 @@ function setLoading(btn, loading) {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-  ShilohSidebar.attach('#sidebarPlaceholder', { activeFile: 'pharmacy.html', user: { name: 'Pharmacist Tunde', role: 'Pharmacy', avatar: 'https://i.pravatar.cc/64?img=47' } });
+  ShilohSidebar.attach('#sidebarPlaceholder', { activeFile: 'pharmacy.html' });
   await PharmacyService.init();
   populateSelects();
   renderStats();

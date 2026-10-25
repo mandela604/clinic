@@ -103,6 +103,13 @@
   .field select{appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M0 0l5 6 5-6z' fill='%239aa1b3'/></svg>"); background-repeat:no-repeat; background-position:right 12px center;}
   .field textarea{resize:none; min-height:76px;}
   .char-count{font-size:10.5px; color:var(--text-light); text-align:right; margin-top:-4px;}
+  .field-err{display:none; font-size:10.5px; color:var(--red); font-weight:600; margin-top:4px;}
+  .field.invalid input, .field.invalid select, .field.invalid textarea{border-color:var(--red);}
+  .field.invalid .field-err{display:block;}
+  .input-wrap{flex-wrap:wrap;}
+  .input-wrap .field-err{width:100%;}
+  .consent-box.invalid{outline:1px solid var(--red); outline-offset:2px; border-radius:8px;}
+  .btn.is-busy{opacity:.55; pointer-events:none;}
 
   .divider-panel{margin-top:4px;}
 
@@ -116,10 +123,11 @@
     display:flex; align-items:center; justify-content:center; position:relative; margin-bottom:14px; overflow:hidden;
   }
   .photo-box i.avatar-ic{font-size:64px; color:#c7d7fb;}
+  .photo-preview{display:none; width:100%; height:100%; object-fit:cover;}
   .photo-upload-btn{
     position:absolute; bottom:10px; right:10px; width:32px; height:32px; border-radius:50%;
     background:var(--blue); color:#fff; display:flex; align-items:center; justify-content:center;
-    border:3px solid #fff; cursor:pointer; font-size:12px;
+    border:3px solid #fff; cursor:pointer; font-size:12px; padding:0;
   }
   .info-row{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;}
   .info-label{font-size:11px; color:var(--text-light); font-weight:600;}
@@ -179,19 +187,20 @@
   <!-- topbar -->
   <div class="topbar">
     <div class="topbar-left">
-      <div class="back-btn"><i class="fa-solid fa-arrow-left"></i></div>
+      <div class="back-btn" id="backBtn"><i class="fa-solid fa-arrow-left"></i></div>
       <div class="topbar-title">
         <h1>Patient Registration</h1>
         <p>Register a new patient and create patient record</p>
       </div>
     </div>
     <div class="topbar-actions">
-      <div class="btn btn-outline"><i class="fa-solid fa-qrcode"></i> Scan QR / Barcode</div>
-      <div class="btn btn-outline"><i class="fa-solid fa-rotate-left"></i> Clear Form</div>
-      <div class="btn btn-primary"><i class="fa-solid fa-user-check"></i> Save & Check In</div>
+      <div class="btn btn-outline" id="scanBtn"><i class="fa-solid fa-qrcode"></i> Scan QR / Barcode</div>
+      <div class="btn btn-outline" id="clearTopBtn"><i class="fa-solid fa-rotate-left"></i> Clear Form</div>
+      <div class="btn btn-primary" id="saveCheckInTopBtn"><i class="fa-solid fa-user-check"></i> Save &amp; Check In</div>
     </div>
   </div>
 
+  <form id="regForm" novalidate>
   <div class="form-grid">
 
     <!-- LEFT COLUMN -->
@@ -201,28 +210,28 @@
       <div class="panel">
         <div class="panel-title"><i class="fa-regular fa-user"></i> Personal Information</div>
         <div class="field-grid cols-4">
-          <div class="field"><label>Title</label><select><option>Mr.</option><option>Mrs.</option><option>Miss</option><option>Dr.</option></select></div>
-          <div class="field"><label>First Name<span class="req">*</span></label><input type="text" value="John"></div>
-          <div class="field"><label>Middle Name</label><input type="text" value="Oluwaseyi"></div>
-          <div class="field"><label>Last Name<span class="req">*</span></label><input type="text" value="Adekunle"></div>
+          <div class="field"><label>Title</label><select id="title"><option>Mr.</option><option>Mrs.</option><option>Miss</option><option>Dr.</option></select></div>
+          <div class="field" data-required="firstName"><label>First Name<span class="req">*</span></label><input type="text" id="firstName" placeholder="e.g. John"><div class="field-err">First name is required</div></div>
+          <div class="field"><label>Middle Name</label><input type="text" id="middleName" placeholder="e.g. Oluwaseyi"></div>
+          <div class="field" data-required="lastName"><label>Last Name<span class="req">*</span></label><input type="text" id="lastName" placeholder="e.g. Adekunle"><div class="field-err">Last name is required</div></div>
 
-          <div class="field">
+          <div class="field" data-required="dateOfBirth">
             <label>Date of Birth<span class="req">*</span></label>
-            <div class="input-wrap"><i class="fa-regular fa-calendar"></i><input type="text" value="15 / 06 / 1990"></div>
+            <div class="input-wrap"><i class="fa-regular fa-calendar"></i><input type="date" id="dateOfBirth"><div class="field-err">Date of birth is required</div></div>
           </div>
-          <div class="field"><label>Age</label><input type="text" value="34 Years"></div>
-          <div class="field"><label>Gender<span class="req">*</span></label><select><option>Male</option><option>Female</option></select></div>
-          <div class="field"><label>Marital Status</label><select><option>Married</option><option>Single</option><option>Divorced</option><option>Widowed</option></select></div>
+          <div class="field"><label>Age</label><input type="text" id="age" readonly placeholder="Calculated from date of birth"></div>
+          <div class="field" data-required="gender"><label>Gender<span class="req">*</span></label><select id="gender"><option value="">Select gender</option><option>Male</option><option>Female</option><option>Other</option></select><div class="field-err">Gender is required</div></div>
+          <div class="field"><label>Marital Status</label><select id="maritalStatus"><option value="">Select status</option><option>Single</option><option>Married</option><option>Divorced</option><option>Widowed</option></select></div>
 
-          <div class="field"><label>Nationality<span class="req">*</span></label><select><option>Nigerian</option></select></div>
-          <div class="field"><label>State of Origin<span class="req">*</span></label><select><option>Edo State</option></select></div>
-          <div class="field"><label>LGA</label><select><option>Uromi</option></select></div>
-          <div class="field"><label>Religion</label><select><option>Christianity</option><option>Islam</option><option>Other</option></select></div>
+          <div class="field"><label>Nationality</label><select id="nationality"><option value="">Select nationality</option><option>Nigerian</option><option>Other</option></select></div>
+          <div class="field" data-required="stateOfOrigin"><label>State of Origin<span class="req">*</span></label><input type="text" id="stateOfOrigin" list="ngStates" placeholder="e.g. Edo State"><div class="field-err">State of origin is required</div></div>
+          <div class="field"><label>LGA</label><input type="text" id="lga" placeholder="e.g. Esan North East"></div>
+          <div class="field"><label>Religion</label><select id="religion"><option value="">Select religion</option><option>Christianity</option><option>Islam</option><option>Other</option></select></div>
 
-          <div class="field"><label>Occupation</label><input type="text" value="Business"></div>
-          <div class="field"><label>Employer / Business Name</label><input type="text" value="Adekunle Enterprises"></div>
-          <div class="field"><label>Blood Group</label><select><option>O+</option><option>O-</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option></select></div>
-          <div class="field"><label>Genotype</label><select><option>AA</option><option>AS</option><option>SS</option><option>AC</option></select></div>
+          <div class="field"><label>Occupation</label><input type="text" id="occupation" placeholder="e.g. Business"></div>
+          <div class="field"><label>Employer / Business Name</label><input type="text" id="employer" placeholder="e.g. Adekunle Enterprises"></div>
+          <div class="field"><label>Blood Group</label><select id="bloodType"><option value="">Unknown</option><option>O+</option><option>O-</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option></select></div>
+          <div class="field"><label>Genotype</label><select id="genotype"><option value="">Unknown</option><option>AA</option><option>AS</option><option>SS</option><option>AC</option></select></div>
         </div>
       </div>
 
@@ -230,29 +239,29 @@
       <div class="panel">
         <div class="panel-title"><i class="fa-solid fa-phone"></i> Contact Information</div>
         <div class="field-grid cols-3">
-          <div class="field">
+          <div class="field" data-required="phonePrimary">
             <label>Phone Number (Primary)<span class="req">*</span></label>
-            <div class="input-wrap"><i class="fa-solid fa-phone"></i><input type="text" value="0803 123 4567"></div>
+            <div class="input-wrap"><i class="fa-solid fa-phone"></i><input type="tel" id="phonePrimary" placeholder="0803 123 4567"><div class="field-err">Phone number is required</div></div>
           </div>
           <div class="field">
             <label>Phone Number (Secondary)</label>
-            <div class="input-wrap"><i class="fa-solid fa-phone"></i><input type="text" value="0705 765 4321"></div>
+            <div class="input-wrap"><i class="fa-solid fa-phone"></i><input type="tel" id="phoneSecondary" placeholder="0705 765 4321"></div>
           </div>
           <div class="field">
             <label>Email Address</label>
-            <div class="input-wrap"><i class="fa-regular fa-envelope"></i><input type="text" value="johnadekunle@example.com"></div>
+            <div class="input-wrap"><i class="fa-regular fa-envelope"></i><input type="email" id="email" placeholder="name@example.com"></div>
           </div>
         </div>
         <div class="field-grid cols-4" style="margin-top:14px;">
-          <div class="field" style="grid-column:span 2;">
+          <div class="field" style="grid-column:span 2;" data-required="address">
             <label>Residential Address<span class="req">*</span></label>
-            <div class="input-wrap"><i class="fa-solid fa-location-dot"></i><input type="text" value="12 Mission Road, Uromi, Edo State"></div>
+            <div class="input-wrap"><i class="fa-solid fa-location-dot"></i><input type="text" id="address" placeholder="House number, street, area"><div class="field-err">Address is required</div></div>
           </div>
-          <div class="field"><label>State<span class="req">*</span></label><select><option>Edo State</option></select></div>
-          <div class="field"><label>LGA<span class="req">*</span></label><select><option>Esan North East</option></select></div>
+          <div class="field" data-required="state"><label>State<span class="req">*</span></label><input type="text" id="state" list="ngStates" placeholder="e.g. Edo State"><div class="field-err">State is required</div></div>
+          <div class="field" data-required="lgaResidence"><label>LGA<span class="req">*</span></label><input type="text" id="lgaResidence" placeholder="e.g. Esan North East"><div class="field-err">LGA is required</div></div>
         </div>
         <div class="field-grid cols-4" style="margin-top:14px;">
-          <div class="field"><label>City / Town<span class="req">*</span></label><input type="text" value="Uromi"></div>
+          <div class="field" data-required="city"><label>City / Town<span class="req">*</span></label><input type="text" id="city" placeholder="e.g. Uromi"><div class="field-err">City / town is required</div></div>
         </div>
       </div>
 
@@ -262,41 +271,41 @@
           <div>
             <div class="panel-title"><i class="fa-solid fa-circle-info"></i> Additional Information</div>
             <div class="field-grid cols-2">
-              <div class="field"><label>ID Type</label><select><option>National ID</option><option>Driver's License</option><option>Voter's Card</option><option>Passport</option></select></div>
-              <div class="field"><label>ID Number</label><input type="text" value="12345678901"></div>
+              <div class="field"><label>ID Type</label><select id="idType"><option value="">Select ID type</option><option>National ID</option><option>Driver's License</option><option>Voter's Card</option><option>Passport</option></select></div>
+              <div class="field"><label>ID Number</label><input type="text" id="idNumber" placeholder="Enter ID number"></div>
               <div class="field">
                 <label>Date Issued</label>
-                <div class="input-wrap"><i class="fa-regular fa-calendar"></i><input type="text" value="10 / 01 / 2020"></div>
+                <div class="input-wrap"><i class="fa-regular fa-calendar"></i><input type="date" id="idDateIssued"></div>
               </div>
               <div class="field">
                 <label>Expiry Date</label>
-                <div class="input-wrap"><i class="fa-regular fa-calendar"></i><input type="text" value="10 / 01 / 2030"></div>
+                <div class="input-wrap"><i class="fa-regular fa-calendar"></i><input type="date" id="idExpiryDate"></div>
               </div>
-              <div class="field"><label>Preferred Language</label><select><option>English</option><option>Pidgin</option><option>Yoruba</option><option>Igbo</option><option>Hausa</option></select></div>
-              <div class="field"><label>How did you hear about us?</label><select><option>Walk-in</option><option>Referral</option><option>Social Media</option><option>Advertisement</option></select></div>
-              <div class="field" style="grid-column:span 2;"><label>Patient Category</label><select><option>General Outpatient</option><option>Antenatal</option><option>Pediatric</option><option>Emergency</option></select></div>
+              <div class="field"><label>Preferred Language</label><select id="preferredLanguage"><option value="">Select language</option><option>English</option><option>Pidgin</option><option>Yoruba</option><option>Igbo</option><option>Hausa</option></select></div>
+              <div class="field"><label>How did you hear about us?</label><select id="howDidYouHear"><option value="">Select option</option><option>Walk-in</option><option>Referral</option><option>Social Media</option><option>Advertisement</option></select></div>
+              <div class="field" style="grid-column:span 2;"><label>Patient Category</label><select id="patientCategory"><option value="">Select category</option><option>General Outpatient</option><option>Antenatal</option><option>Pediatric</option><option>Emergency</option></select></div>
               <div class="field" style="grid-column:span 2;">
                 <label>Notes / Medical History (Optional)</label>
-                <textarea placeholder="Add any relevant notes or known medical history..."></textarea>
-                <div class="char-count">0 / 500</div>
+                <textarea id="notes" maxlength="500" placeholder="Add any relevant notes or known medical history..."></textarea>
+                <div class="char-count"><span id="notesCount">0</span> / 500</div>
               </div>
             </div>
           </div>
           <div>
             <div class="panel-title pt-pink"><i class="fa-solid fa-triangle-exclamation"></i> Emergency Contact</div>
             <div class="field-grid cols-2">
-              <div class="field"><label>Contact Name<span class="req">*</span></label><input type="text" value="Mrs. Mary Adekunle"></div>
-              <div class="field"><label>Relationship<span class="req">*</span></label><select><option>Wife</option><option>Husband</option><option>Parent</option><option>Sibling</option><option>Other</option></select></div>
-              <div class="field" style="grid-column:span 2;">
+              <div class="field" data-required="emName"><label>Contact Name<span class="req">*</span></label><input type="text" id="emName" placeholder="e.g. Mary Adekunle"><div class="field-err">Contact name is required</div></div>
+              <div class="field" data-required="emRelationship"><label>Relationship<span class="req">*</span></label><select id="emRelationship"><option value="">Select relationship</option><option>Wife</option><option>Husband</option><option>Parent</option><option>Sibling</option><option>Other</option></select><div class="field-err">Relationship is required</div></div>
+              <div class="field" style="grid-column:span 2;" data-required="emPhone">
                 <label>Phone Number<span class="req">*</span></label>
-                <div class="input-wrap"><i class="fa-solid fa-phone"></i><input type="text" value="0803 222 3344"></div>
+                <div class="input-wrap"><i class="fa-solid fa-phone"></i><input type="tel" id="emPhone" placeholder="0803 123 4567"><div class="field-err">Phone number is required</div></div>
               </div>
               <div class="field" style="grid-column:span 2;">
                 <label>Address</label>
-                <div class="input-wrap"><i class="fa-solid fa-location-dot"></i><input type="text" value="12 Mission Road, Uromi, Edo State"></div>
+                <div class="input-wrap"><i class="fa-solid fa-location-dot"></i><input type="text" id="emAddress" placeholder="House number, street, area"></div>
               </div>
               <div class="field" style="grid-column:span 2;">
-                <label class="checkbox-row"><input type="checkbox" checked> Same as patient address</label>
+                <label class="checkbox-row"><input type="checkbox" id="sameAddress"> Same as patient address</label>
               </div>
             </div>
           </div>
@@ -310,16 +319,18 @@
 
       <div class="panel">
         <div class="panel-title"><i class="fa-regular fa-image"></i> Patient Photo</div>
-        <div class="photo-box">
-          <i class="fa-solid fa-user avatar-ic"></i>
-          <div class="photo-upload-btn"><i class="fa-solid fa-camera"></i></div>
+        <div class="photo-box" id="photoBox">
+          <i class="fa-solid fa-user avatar-ic" id="photoIcon"></i>
+          <img class="photo-preview" id="photoPreview" alt="Patient photo">
+          <input type="file" id="photoInput" accept="image/*" hidden>
+          <button type="button" class="photo-upload-btn" id="photoBtn" title="Upload patient photo" aria-label="Upload patient photo"><i class="fa-solid fa-camera"></i></button>
         </div>
         <div class="info-row">
           <div>
             <div class="info-label">Hospital No. (Auto)</div>
-            <div class="info-value">SHC-000123</div>
+            <div class="info-value" id="hospNoValue">Auto-generated</div>
           </div>
-          <span class="avail-chip">Available</span>
+          <span class="avail-chip">On save</span>
         </div>
         <div class="qr-box">
           <div class="info-label">QR Code (Auto)</div>
@@ -330,9 +341,9 @@
 
       <div class="panel">
         <div class="panel-title"><i class="fa-regular fa-file-lines"></i> Registration Summary</div>
-        <div class="summary-row"><div class="summary-label">Registration Date</div><div class="summary-value">May 17, 2025 09:30 AM</div></div>
-        <div class="summary-row"><div class="summary-label">Registered By</div><div class="summary-value">Receptionist</div></div>
-        <div class="summary-row"><div class="summary-label">Department</div><div class="summary-value">Reception</div></div>
+        <div class="summary-row"><div class="summary-label">Registration Date</div><div class="summary-value" id="sumDate">—</div></div>
+        <div class="summary-row"><div class="summary-label">Registered By</div><div class="summary-value" id="sumUser">—</div></div>
+        <div class="summary-row"><div class="summary-label">Department</div><div class="summary-value" id="sumDept">—</div></div>
         <div class="summary-row"><div class="summary-label">Patient Type</div><span class="type-chip-sm">New Patient</span></div>
         <div class="summary-row"><div class="summary-label">Status</div><span class="status-chip-sm">Active</span></div>
 
@@ -343,10 +354,11 @@
 
         <div style="margin-top:18px;">
           <div class="consent-title">Consent</div>
-          <div class="consent-box">
-            <input type="checkbox" checked>
+          <div class="consent-box" id="consentBox">
+            <input type="checkbox" id="consent">
             <div>I confirm that the information provided is correct to the best of my knowledge. I consent to the processing of my data as per the hospital's <a href="#">privacy policy</a>.</div>
           </div>
+          <div class="field-err" id="consentErr" style="display:none;margin-top:6px;">Consent is required to register the patient</div>
         </div>
       </div>
 
@@ -354,12 +366,30 @@
   </div>
 
   <div class="bottom-actions">
-    <div class="btn btn-outline">Cancel</div>
-    <div class="btn btn-outline"><i class="fa-regular fa-square-plus"></i> Save & New</div>
-    <div class="btn btn-dark"><i class="fa-regular fa-floppy-disk"></i> Save Patient</div>
+    <div class="btn btn-outline" id="cancelBtn">Cancel</div>
+    <div class="btn btn-outline" id="saveNewBtn"><i class="fa-regular fa-square-plus"></i> Save &amp; New</div>
+    <div class="btn btn-dark" id="saveBtn"><i class="fa-regular fa-floppy-disk"></i> Save Patient</div>
   </div>
+  </form>
 
 </main>
 
+<datalist id="ngStates">
+  <option>Abia</option><option>Adamawa</option><option>Akwa Ibom</option><option>Anambra</option>
+  <option>Bauchi</option><option>Bayelsa</option><option>Benue</option><option>Borno</option>
+  <option>Cross River</option><option>Delta</option><option>Ebonyi</option><option>Edo</option>
+  <option>Ekiti</option><option>Enugu</option><option>FCT Abuja</option><option>Gombe</option>
+  <option>Imo</option><option>Jigawa</option><option>Kaduna</option><option>Kano</option>
+  <option>Katsina</option><option>Kebbi</option><option>Kogi</option><option>Kwara</option>
+  <option>Lagos</option><option>Nasarawa</option><option>Niger</option><option>Ogun</option>
+  <option>Ondo</option><option>Osun</option><option>Oyo</option><option>Plateau</option>
+  <option>Rivers</option><option>Sokoto</option><option>Taraba</option><option>Yobe</option>
+  <option>Zamfara</option>
+</datalist>
+
+<script src="../services/api.js"></script>
+<script src="../services/patient-service.js"></script>
+<script src="../services/visit-service.js"></script>
+<script src="registration-form.js"></script>
 </body>
 </html>

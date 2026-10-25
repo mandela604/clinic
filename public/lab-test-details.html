@@ -538,7 +538,8 @@
   }
 
   function renderPatientCard(){
-    el('patientAvatar').style.backgroundImage = `url('https://i.pravatar.cc/120?img=${order.img || 1}')`;
+    el('patientAvatar').style.backgroundImage = 'none';
+    el('patientAvatar').textContent = window.ShilohAvatar.initials(order.name || 'Unknown Patient');
     el('patientName').textContent = order.name || 'Unknown Patient';
     el('patientChips').innerHTML = `<span class="p-chip">${escapeHtml(order.hosp)}</span><span class="test-tag">${escapeHtml(order.test)}</span>`;
     el('patientLines').innerHTML = `
@@ -829,8 +830,7 @@
 
   if(window.ShilohSidebar){
     window.ShilohSidebar.attach('#sidebarPlaceholder', {
-      activeFile: 'laboratory.html',
-      user: { name: 'Lab Tech Uche', role: 'Laboratory', avatar: 'https://i.pravatar.cc/64?img=47' }
+      activeFile: 'laboratory.html'
     });
   }
 })();

@@ -280,7 +280,7 @@ function openModal(id) { document.getElementById(id).classList.add('open'); }
 function setLoading(btn, loading) { if (!btn) return; if (loading) { btn.classList.add('loading'); btn._oldHTML = btn.innerHTML; } else { btn.classList.remove('loading'); if (btn._oldHTML) btn.innerHTML = btn._oldHTML; } }
 
 document.addEventListener('DOMContentLoaded', async () => {
-  ShilohSidebar.attach('#sidebarPlaceholder', { activeFile: 'laboratory.html', user: { name: 'Lab Tech Uche', role: 'Laboratory', avatar: 'https://i.pravatar.cc/64?img=47' } });
+  ShilohSidebar.attach('#sidebarPlaceholder', { activeFile: 'laboratory.html' });
   await LabService.init();
   renderStats();
   renderTable();
@@ -327,7 +327,7 @@ function renderTable() {
     return `<tr onclick="goToView('${o.id}')">
       <td>${(LabService.state.currentPage-1)*LabService.state.perPage+i+1}</td>
       <td><span class="order-id">${o.id}</span></td>
-      <td><div class="patient-cell"><div class="avatar"><img src="https://i.pravatar.cc/80?img=${o.img}" alt=""></div><div><div class="patient-name">${esc(o.name)}</div></div></div></td>
+      <td><div class="patient-cell"><div class="avatar" style="display:flex;align-items:center;justify-content:center;background:#e0e9ff;color:#1d4ed8;font-weight:800;font-size:11px;">${window.ShilohAvatar.initials(o.name)}</div><div><div class="patient-name">${esc(o.name)}</div></div></div></td>
       <td data-col="hosp">${esc(o.hosp)}</td>
       <td><div class="test-cell"><div class="test-name">${esc(o.test)}</div><div class="sample-type">${esc(o.sample)}</div></div></td>
       <td data-col="priority"><span class="priority-chip ${pr.cls}">${pr.label}</span></td>
@@ -344,7 +344,7 @@ function renderTable() {
     const s = statusLabels[o.status];
     const resultHtml = o.result ? '<span class="result-value '+(o.resultClass||'')+'">'+esc(o.result)+'</span>' : '<span class="result-dash">&mdash;</span>';
     return `<div class="order-card" onclick="goToView('${o.id}')">
-      <div class="order-card-top"><div class="patient-cell"><div class="avatar"><img src="https://i.pravatar.cc/80?img=${o.img}" alt=""></div><div><div class="patient-name">${esc(o.name)}</div></div></div><span class="priority-chip ${pr.cls}">${pr.label}</span></div>
+      <div class="order-card-top"><div class="patient-cell"><div class="avatar" style="display:flex;align-items:center;justify-content:center;background:#e0e9ff;color:#1d4ed8;font-weight:800;font-size:11px;">${window.ShilohAvatar.initials(o.name)}</div><div><div class="patient-name">${esc(o.name)}</div></div></div><span class="priority-chip ${pr.cls}">${pr.label}</span></div>
       <div class="order-card-meta"><div class="test-name">${esc(o.test)}</div><div class="sample-type">${esc(o.sample)} &middot; ${esc(o.hosp)}</div></div>
       <div class="order-card-row"><span class="order-id">${o.id}</span><span class="badge ${s.cls}"><span class="dot"></span>${s.label}</span></div>
       <div class="order-card-footer"><div style="font-size:11.5px;color:var(--text-light);">${esc(o.by)} &middot; ${o.time}</div><div>${resultHtml}</div></div>

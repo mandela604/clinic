@@ -80,7 +80,6 @@ exports.create = async (req, res, next) => {
       checkin: b.checkin || new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
       age: b.age || '',
       gender: b.gender || '',
-      img: b.img || Math.floor(Math.random() * 60) + 1,
       bp: b.bp || '', temp: b.temp || '', pulse: b.pulse || '', spo2: b.spo2 || '', weight: b.weight || ''
     });
     res.status(201).json(toClient(doc, 0));

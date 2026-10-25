@@ -112,6 +112,28 @@ const PatientService = {
     }
   },
 
+  async updatePatient(id, patch) {
+    try {
+      const res = await fetch(this.API_BASE + '/patients/' + encodeURIComponent(id), {
+        method: 'PUT',
+        headers: this._headers(true),
+        body: JSON.stringify(patch)
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || ('Failed to update patient (' + res.status + ')'));
+      }
+      const patient = await res.json();
+      const idx = this.state.allPatients.findIndex(p => p.id === patient.id);
+      if (idx !== -1) this.state.allPatients[idx] = patient;
+      this.setCurrentPatient(patient);
+      return { success: true, patient };
+    } catch (e) {
+      this._toast(e.message || 'Could not update patient.', 'error');
+      return { success: false, error: e.message || 'Could not update patient.' };
+    }
+  },
+
   async registerPatient(newPatient) {
     try {
       const res = await fetch(this.API_BASE + '/patients', {

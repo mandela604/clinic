@@ -46,7 +46,32 @@ const AdmissionService = {
     if (window.ShilohAPI) window.ShilohAPI.toast(msg, type);
   },
 
+  async loadConfig() {
+    try {
+      const res = await fetch(this.API_BASE + '/settings', { headers: this._headers() });
+      if (!res.ok) return;
+      const data = await res.json();
+      const s = (data && data.settings) || data || {};
+      if (Array.isArray(s.wards) && s.wards.length) this.state.wards = s.wards;
+      if (Array.isArray(s.statuses) && s.statuses.length) this.state.statuses = s.statuses;
+    } catch (e) { /* keep built-in defaults until settings load succeeds */ }
+  },
+
+  async _saveConfig() {
+    const res = await fetch(this.API_BASE + '/settings/wards', {
+      method: 'PUT',
+      headers: this._headers(true),
+      body: JSON.stringify({ wards: this.state.wards, statuses: this.state.statuses })
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || ('Failed to save ward configuration (' + res.status + ')'));
+    }
+    return res.json();
+  },
+
   async init() {
+    await this.loadConfig();
     try {
       const res = await fetch(this.API_BASE + '/admissions?limit=100', {
         headers: this._headers()
@@ -160,20 +185,54 @@ const AdmissionService = {
     }
   },
 
-  addWard(name, beds) {
-    this.state.wards.push({ name, beds, colorIdx: this.state.wards.length % 6 });
+  async addWard(name, beds) {
+    const ward = { name, beds, colorIdx: this.state.wards.length % 6 };
+    this.state.wards.push(ward);
+    try {
+      await this._saveConfig();
+      return true;
+    } catch (e) {
+      this.state.wards = this.state.wards.filter(w => w !== ward);
+      this._toast(e.message, 'error');
+      return false;
+    }
   },
 
-  removeWard(i) {
-    this.state.wards.splice(i, 1);
+  async removeWard(i) {
+    const removed = this.state.wards.splice(i, 1)[0];
+    try {
+      await this._saveConfig();
+      return true;
+    } catch (e) {
+      this.state.wards.splice(i, 0, removed);
+      this._toast(e.message, 'error');
+      return false;
+    }
   },
 
-  addStatus(name) {
-    this.state.statuses.push({ name, colorIdx: this.state.statuses.length % 6, neutral: false });
+  async addStatus(name) {
+    const status = { name, colorIdx: this.state.statuses.length % 6, neutral: false };
+    this.state.statuses.push(status);
+    try {
+      await this._saveConfig();
+      return true;
+    } catch (e) {
+      this.state.statuses = this.state.statuses.filter(s => s !== status);
+      this._toast(e.message, 'error');
+      return false;
+    }
   },
 
-  removeStatus(i) {
-    this.state.statuses.splice(i, 1);
+  async removeStatus(i) {
+    const removed = this.state.statuses.splice(i, 1)[0];
+    try {
+      await this._saveConfig();
+      return true;
+    } catch (e) {
+      this.state.statuses.splice(i, 0, removed);
+      this._toast(e.message, 'error');
+      return false;
+    }
   },
 
   _applyFilters() {

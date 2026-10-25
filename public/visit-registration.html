@@ -400,7 +400,7 @@
   let DOCTORS = [];
   try {
     const docs = await VisitService.getDoctors();
-    DOCTORS = (docs || []).map(d=> typeof d==='string' ? {name:d, specialty:'General Medicine'} : { name: d.name || String(d), specialty: d.specialty || d.department || 'General Medicine' });
+    DOCTORS = (docs || []).map(d=> typeof d==='string' ? {name:d, specialty:'General Medicine'} : { name: d.name || String(d), specialty: d.specialty || d.department || d.dept || d.role || 'General Medicine' });
   } catch (e) { window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error'); DOCTORS = []; }
 
   /* Visit types: consultation is one option among several ("...and others") */

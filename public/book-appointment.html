@@ -694,7 +694,7 @@
   el('bookAnotherBtn').addEventListener('click', ()=> submitBooking(true));
 
   el('cancelBtn').addEventListener('click', ()=>{ resetForm(); showToast('Booking cancelled'); });
-  el('backBtn').addEventListener('click', ()=> showToast('Back to appointments (demo)'));
+  el('backBtn').addEventListener('click', ()=>{ location.href = 'appointments.html'; });
   el('clearFormBtn').addEventListener('click', ()=>{ resetForm(); showToast('Form cleared'); });
 
   function resetForm(){

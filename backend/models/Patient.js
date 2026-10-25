@@ -29,6 +29,7 @@ const patientSchema = new mongoose.Schema({
   address: { type: String, default: '' }, // full residential
   residentialAddress: { type: String, default: '' },
   state: { type: String, default: '' },
+  residentialLga: { type: String, default: '' },
   city: { type: String, default: '' },
   // additional
   idType: { type: String, default: '' },
@@ -50,6 +51,7 @@ const patientSchema = new mongoose.Schema({
     address: { type: String, default: '' }
   },
   registeredOn: { type: String, default: '' },
+  registeredBy: { type: String, default: '' },
   lastVisit: { type: String, default: '' },
   avatar: { type: String, default: '' }
 }, { timestamps: true });

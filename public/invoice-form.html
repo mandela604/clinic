@@ -457,7 +457,6 @@
       patientId: apiInv.patientId,
       patientName: apiInv.patientName || '',
       patientHosp: apiInv.hospitalNo || apiInv.patientHosp || '—',
-      patientImg: 12,
       description: Array.isArray(apiInv.items) ? apiInv.items.join(', ') : (apiInv.description || 'Charges'),
       amount, amountPaid,
       balance: apiInv.balance != null ? apiInv.balance : Math.max(0, amount - amountPaid),
@@ -638,22 +637,21 @@
     const amountPaid = Math.min(total, Math.max(0, Number(el('fAmountPaid').value)||0));
     const method = amountPaid > 0 ? el('fMethod').value : null;
 
-    let patientName, patientHosp, patientImg;
+    let patientName, patientHosp;
     if(patientMode==='existing' && selectedPatient){
-      patientName = selectedPatient.name; patientHosp = selectedPatient.hospNo; patientImg = selectedPatient.img;
+      patientName = selectedPatient.name; patientHosp = selectedPatient.hospNo;
     } else if(patientMode==='new'){
       const fn = el('newFirst').value.trim(), ln = el('newLast').value.trim();
       patientName = (fn || ln) ? `${fn} ${ln}`.trim() : '';
       patientHosp = el('newHospNo').value.trim() || '—';
-      patientImg = 1 + Math.floor(Math.random()*70);
     } else {
-      patientName = ''; patientHosp = '—'; patientImg = 1;
+      patientName = ''; patientHosp = '—';
     }
 
     const description = items.filter(i=>i.desc.trim()).map(i=>i.desc.trim()).join(', ') || 'Charges';
 
     return {
-      patientName, patientHosp, patientImg,
+      patientName, patientHosp,
       description, items: items.map(i=>({ desc:i.desc, qty:i.qty, price:i.price, amount:i.qty*i.price })),
       subtotal, discount, amount: total, amountPaid, method,
       insurance: billingType==='insured',

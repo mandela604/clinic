@@ -165,6 +165,7 @@
 
 <div id="sidebarPlaceholder"></div>
 <script src="shiloh-sidebar.js"></script>
+<script src="../services/api.js"></script>
 
 <main class="main">
   <div class="topbar">
@@ -317,6 +318,14 @@
 <script>
 (function(){
   const el = id => document.getElementById(id);
+  const API_BASE = (window.ShilohAPI && ShilohAPI.BASE) || (location.origin + '/api');
+  const headers = json => {
+    if(window.ShilohAPI) return ShilohAPI.headers(json);
+    const h = json ? {'Content-Type':'application/json'} : {};
+    try { const t = localStorage.getItem('shiloh_token'); if(t) h.Authorization = 'Bearer ' + t; } catch(e) {}
+    return h;
+  };
+  const initials = name => window.ShilohAvatar ? window.ShilohAvatar.initials(name) : '?';
 
   const MODULES = [
     {key:'patients',label:'Patients',icon:'fa-users',bg:'var(--blue-light)',color:'var(--blue)'},
@@ -328,43 +337,13 @@
     {key:'billing',label:'Billing',icon:'fa-file-invoice-dollar',bg:'var(--red-bg)',color:'var(--red)'},
     {key:'reports',label:'Reports',icon:'fa-chart-bar',bg:'var(--blue-light)',color:'var(--blue)'},
     {key:'users',label:'Users',icon:'fa-user-gear',bg:'var(--purple-bg)',color:'var(--purple)'},
-    {key:'settings',label:'Settings',icon:'fa-gear',bg:'#f1f5f9',color:'#64748b'},
+    {key:'settings',label:'Settings',icon:'fa-gear',bg:'#f1f5f9',color:'#64748b'}
   ];
   const ACTIONS = ['view','create','edit','delete'];
+  const TOTAL_PERMS = MODULES.length * ACTIONS.length;
 
-  function emptyPerms(defaults){
-    const p = {};
-    MODULES.forEach(m => { p[m.key] = {view:false,create:false,edit:false,delete:false}; });
-    if(defaults) Object.keys(defaults).forEach(k => { if(p[k]) Object.assign(p[k], defaults[k]); });
-    return p;
-  }
-  function allTruePerms(){
-    const p = {};
-    MODULES.forEach(m => { p[m.key] = {view:true,create:true,edit:true,delete:true}; });
-    return p;
-  }
-
-  const DEMO_USERS_BY_ROLE = {
-    1:[{name:'Tolu Bankole',email:'tolu.bankole@shiloh.clinic',img:33},{name:'Femi Adebayo',email:'femi.adebayo@shiloh.clinic',img:22},{name:'Grace Udoh',email:'grace.udoh@shiloh.clinic',img:56}],
-    2:[{name:'Dr. Samuel Okonkwo',email:'samuel.okonkwo@shiloh.clinic',img:11},{name:'Dr. Ifeoma Balogun',email:'ifeoma.balogun@shiloh.clinic',img:44},{name:'Dr. Chuka Nnamdi',email:'chuka.nnamdi@shiloh.clinic',img:5},{name:'Dr. Amaka Obi',email:'amaka.obi@shiloh.clinic',img:41},{name:'Dr. Bode Fashola',email:'bode.fashola@shiloh.clinic',img:13}],
-    3:[{name:'Nurse Adaeze Nwosu',email:'adaeze.nwosu@shiloh.clinic',img:47},{name:'Nurse Blessing Etim',email:'blessing.etim@shiloh.clinic',img:48},{name:'Nurse Chidinma Ude',email:'chidinma.ude@shiloh.clinic',img:20},{name:'Nurse Peace Effiong',email:'peace.effiong@shiloh.clinic',img:32}],
-    4:[{name:'Lab Tech Uche Igwe',email:'uche.igwe@shiloh.clinic',img:14},{name:'Lab Tech Musa Bello',email:'musa.bello@shiloh.clinic',img:15},{name:'Lab Tech Rita Nkem',email:'rita.nkem@shiloh.clinic',img:49}],
-    5:[{name:'Pharm. Ngozi Eze',email:'ngozi.eze@shiloh.clinic',img:50},{name:'Pharm. Tunde Ojo',email:'tunde.ojo@shiloh.clinic',img:9}],
-    6:[{name:'Chidinma Obi',email:'chidinma.obi@shiloh.clinic',img:23},{name:'Kelechi Anyanwu',email:'kelechi.anyanwu@shiloh.clinic',img:8}],
-    7:[{name:'Ada Umeh',email:'ada.umeh@shiloh.clinic',img:29},{name:'Joseph Danladi',email:'joseph.danladi@shiloh.clinic',img:18}],
-  };
-
-  let roles = [
-    {id:1,name:'Administrator',description:'Full system access including user management and settings.',type:'system',status:'active',usersCount:3,permissions:allTruePerms()},
-    {id:2,name:'Doctor',description:'Access to patient records, visits, consultations and prescriptions.',type:'system',status:'active',usersCount:5,permissions:emptyPerms({patients:{view:true,edit:true},visits:{view:true,create:true,edit:true},appointments:{view:true,edit:true},nursing:{view:true},laboratory:{view:true,create:true},pharmacy:{view:true,create:true},billing:{view:true},reports:{view:true}})},
-    {id:3,name:'Nurse',description:'Records vitals, manages nursing queue and patient visit flow.',type:'system',status:'active',usersCount:4,permissions:emptyPerms({patients:{view:true},visits:{view:true,edit:true},nursing:{view:true,create:true,edit:true},laboratory:{view:true},pharmacy:{view:true}})},
-    {id:4,name:'Lab Technician',description:'Manages test orders, sample collection and lab results.',type:'system',status:'active',usersCount:3,permissions:emptyPerms({patients:{view:true},laboratory:{view:true,create:true,edit:true}})},
-    {id:5,name:'Pharmacist',description:'Manages prescriptions and medication dispensing.',type:'system',status:'active',usersCount:2,permissions:emptyPerms({patients:{view:true},pharmacy:{view:true,create:true,edit:true}})},
-    {id:6,name:'Receptionist',description:'Registers patients, books appointments and manages front desk.',type:'system',status:'active',usersCount:2,permissions:emptyPerms({patients:{view:true,create:true,edit:true},appointments:{view:true,create:true,edit:true},visits:{view:true,create:true},billing:{view:true}})},
-    {id:7,name:'Cashier',description:'Handles invoicing and payment collection at the billing desk.',type:'custom',status:'active',usersCount:2,permissions:emptyPerms({patients:{view:true},billing:{view:true,create:true,edit:true}})},
-    {id:8,name:'Front Desk Supervisor',description:'Oversees reception staff with elevated appointment permissions.',type:'custom',status:'disabled',usersCount:0,permissions:emptyPerms({patients:{view:true,create:true,edit:true,delete:true},appointments:{view:true,create:true,edit:true,delete:true},visits:{view:true,create:true,edit:true},billing:{view:true}})},
-  ];
-  let nextId = 9;
+  let roles = [];
+  let users = [];
   let state = {search:'',type:'all',status:'all'};
   let editingId = null;
   let viewingId = null;
@@ -376,16 +355,57 @@
     t.classList.toggle('err',!!isErr);
     t.classList.add('show');
     clearTimeout(showToast._tm);
-    showToast._tm = setTimeout(()=>t.classList.remove('show'),2000);
+    showToast._tm = setTimeout(()=>t.classList.remove('show'),2600);
   }
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 
+  function emptyPerms(){
+    const p = {};
+    MODULES.forEach(m => { p[m.key] = {view:false,create:false,edit:false,delete:false}; });
+    return p;
+  }
+  function normalizePerms(raw){
+    const p = emptyPerms();
+    if(raw && typeof raw === 'object'){
+      Object.keys(raw).forEach(k => { if(p[k] && raw[k]) Object.assign(p[k], raw[k]); });
+    }
+    return p;
+  }
   function countPerms(perms){
     let c = 0;
-    MODULES.forEach(m => ACTIONS.forEach(a => {if(perms[m.key][a]) c++;}));
+    MODULES.forEach(m => ACTIONS.forEach(a => { if(perms[m.key] && perms[m.key][a]) c++; }));
     return c;
   }
-  const TOTAL_PERMS = MODULES.length * ACTIONS.length;
+
+  async function api(path, opts){
+    const res = await fetch(API_BASE + path, Object.assign({ headers: headers(!!(opts && opts.body)) }, opts || {}));
+    const data = await res.json().catch(()=>({}));
+    if(!res.ok) throw new Error(data.error || data.message || ('Request failed (' + res.status + ')'));
+    return data;
+  }
+
+  async function loadAll(){
+    el('rolesTable').innerHTML = '<tr class="empty-row"><td colspan="7">Loading roles…</td></tr>';
+    try {
+      const [roleRes, userRes] = await Promise.all([
+        api('/roles?limit=200'),
+        api('/users?limit=200')
+      ]);
+      users = (userRes && userRes.items) || [];
+      roles = ((roleRes && roleRes.items) || []).map(r => ({
+        ...r,
+        description: r.description || '',
+        permissions: normalizePerms(r.permissions),
+        usersCount: typeof r.usersCount === 'number' ? r.usersCount : 0
+      }));
+      renderAll();
+    } catch (e) {
+      roles = [];
+      users = [];
+      renderAll();
+      showToast(e.message || 'Could not load roles. Check connection / login.', true);
+    }
+  }
 
   function renderStats(){
     const total=roles.length;
@@ -407,7 +427,7 @@
     return roles.filter(r=>{
       if(state.type!=='all'&&r.type!==state.type) return false;
       if(state.status!=='all'&&r.status!==state.status) return false;
-      if(q&&!(r.name.toLowerCase().includes(q)||r.description.toLowerCase().includes(q))) return false;
+      if(q&&!(r.name.toLowerCase().includes(q)||(r.description||'').toLowerCase().includes(q))) return false;
       return true;
     });
   }
@@ -430,26 +450,26 @@
       const permCount=countPerms(r.permissions);
       const isSystem=r.type==='system';
       return `<tr>
-        <td><div class="role-name-cell"><div class="role-icon" style="background:${ic.bg};color:${ic.color};"><i class="fa-solid ${ic.icon}"></i></div><div><div class="role-name" data-action="view" data-id="${r.id}">${esc(r.name)}</div><div class="role-desc">${esc(r.description)}</div></div></div></td>
+        <td><div class="role-name-cell"><div class="role-icon" style="background:${ic.bg};color:${ic.color};"><i class="fa-solid ${ic.icon}"></i></div><div><div class="role-name" data-action="view" data-id="${esc(r.id)}">${esc(r.name)}</div><div class="role-desc">${esc(r.description)}</div></div></div></td>
         <td><span class="type-chip ${isSystem?'type-system':'type-custom'}">${isSystem?'System':'Custom'}</span></td>
         <td><span class="perm-count">${permCount}</span> <span class="perm-total">/ ${TOTAL_PERMS}</span></td>
-        <td><div class="users-count" data-action="view" data-id="${r.id}"><i class="fa-solid fa-users"></i> ${r.usersCount}</div></td>
+        <td><div class="users-count" data-action="view" data-id="${esc(r.id)}"><i class="fa-solid fa-users"></i> ${r.usersCount}</div></td>
         <td><span class="badge ${r.status==='active'?'badge-active':'badge-disabled'}"><span class="dot"></span>${r.status==='active'?'Active':'Disabled'}</span></td>
-        <td><div class="toggle-switch ${r.status==='active'?'on':''}" data-action="toggle" data-id="${r.id}"><div class="toggle-knob"></div></div></td>
+        <td><div class="toggle-switch ${r.status==='active'?'on':''}" data-action="toggle" data-id="${esc(r.id)}"><div class="toggle-knob"></div></div></td>
         <td><div class="row-actions">
-          <div class="icon-btn" data-action="view" data-id="${r.id}" title="View"><i class="fa-solid fa-eye"></i></div>
-          <div class="icon-btn" data-action="edit" data-id="${r.id}" title="Edit"><i class="fa-solid fa-pen"></i></div>
-          <div class="icon-btn" data-action="duplicate" data-id="${r.id}" title="Duplicate"><i class="fa-solid fa-copy"></i></div>
-          <div class="icon-btn danger" data-action="delete" data-id="${r.id}" title="Delete" ${isSystem?'disabled':''}><i class="fa-solid fa-trash"></i></div>
+          <div class="icon-btn" data-action="view" data-id="${esc(r.id)}" title="View"><i class="fa-solid fa-eye"></i></div>
+          <div class="icon-btn" data-action="edit" data-id="${esc(r.id)}" title="Edit"><i class="fa-solid fa-pen"></i></div>
+          <div class="icon-btn" data-action="duplicate" data-id="${esc(r.id)}" title="Duplicate"><i class="fa-solid fa-copy"></i></div>
+          <div class="icon-btn danger" data-action="delete" data-id="${esc(r.id)}" title="Delete" ${isSystem?'disabled':''}><i class="fa-solid fa-trash"></i></div>
         </div></td>
       </tr>`;
     }).join('');
 
-    document.querySelectorAll('[data-action="view"]').forEach(b=>b.addEventListener('click',()=>openViewModal(Number(b.dataset.id))));
-    document.querySelectorAll('[data-action="edit"]').forEach(b=>b.addEventListener('click',()=>openEditModal(Number(b.dataset.id))));
-    document.querySelectorAll('[data-action="duplicate"]').forEach(b=>b.addEventListener('click',()=>duplicateRole(Number(b.dataset.id))));
-    document.querySelectorAll('[data-action="delete"]').forEach(b=>{if(!b.disabled) b.addEventListener('click',()=>openDeleteModal(Number(b.dataset.id)));});
-    document.querySelectorAll('[data-action="toggle"]').forEach(b=>b.addEventListener('click',()=>toggleStatus(Number(b.dataset.id))));
+    document.querySelectorAll('[data-action="view"]').forEach(b=>b.addEventListener('click',()=>openViewModal(b.dataset.id)));
+    document.querySelectorAll('[data-action="edit"]').forEach(b=>b.addEventListener('click',()=>openEditModal(b.dataset.id)));
+    document.querySelectorAll('[data-action="duplicate"]').forEach(b=>b.addEventListener('click',()=>duplicateRole(b.dataset.id)));
+    document.querySelectorAll('[data-action="delete"]').forEach(b=>{if(!b.disabled) b.addEventListener('click',()=>openDeleteModal(b.dataset.id));});
+    document.querySelectorAll('[data-action="toggle"]').forEach(b=>b.addEventListener('click',()=>toggleStatus(b.dataset.id)));
   }
 
   function renderAll(){renderStats();renderTable();}
@@ -457,14 +477,33 @@
   el('searchInput').addEventListener('input',e=>{state.search=e.target.value;renderTable();});
   el('typeFilter').addEventListener('change',e=>{state.type=e.target.value;renderTable();});
   el('statusFilter').addEventListener('change',e=>{state.status=e.target.value;renderTable();});
-  el('exportBtn').addEventListener('click',()=>showToast('Roles list exported (demo)'));
 
-  function toggleStatus(id){
+  function downloadCsv(csv,filename){
+    const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;a.download=filename;
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+  function csvCell(v){return '"'+String(v==null?'':v).replace(/"/g,'""')+'"';}
+  el('exportBtn').addEventListener('click',()=>{
+    if(!roles.length){showToast('No roles to export',true);return;}
+    const header=['Role','Type','Status','Users Assigned','Permissions Granted'].map(csvCell).join(',');
+    const body=roles.map(r=>[r.name,r.type,r.status,r.usersCount,countPerms(r.permissions)+'/'+TOTAL_PERMS].map(csvCell).join(',')).join('\n');
+    downloadCsv(header+'\n'+body,'shiloh-roles-'+new Date().toISOString().slice(0,10)+'.csv');
+    showToast('Roles exported');
+  });
+
+  async function toggleStatus(id){
     const r=roles.find(x=>x.id===id);
     if(!r) return;
-    r.status=r.status==='active'?'disabled':'active';
-    renderAll();
-    showToast(`${r.name} ${r.status==='active'?'enabled':'disabled'}`);
+    try{
+      const updated=await api('/roles/'+encodeURIComponent(id)+'/toggle-status',{method:'PATCH'});
+      r.status=updated.status;
+      renderAll();
+      showToast(`${r.name} ${r.status==='active'?'enabled':'disabled'}`);
+    }catch(e){showToast(e.message||'Could not update role status',true);}
   }
 
   function openOverlay(id){el(id).classList.add('open');}
@@ -527,23 +566,37 @@
     openOverlay('roleModal');
   }
 
-  el('roleSubmit').addEventListener('click',()=>{
+  el('roleSubmit').addEventListener('click',async()=>{
     el('rNameGroup').classList.remove('invalid');
     const name=el('rName').value.trim();
     if(!name){el('rNameGroup').classList.add('invalid');showToast('Please fix the highlighted fields',true);return;}
-    const description=el('rDesc').value.trim()||'No description provided.';
-    const perms=readPermMatrix();
-    if(editingId){
-      const r=roles.find(x=>x.id===editingId);
-      r.name=name;r.description=description;r.permissions=perms;
-      showToast('Role updated');
-    } else {
-      roles.unshift({id:nextId++,name,description,type:'custom',status:'active',usersCount:0,permissions:perms});
-      showToast('Role created');
+    const description=el('rDesc').value.trim();
+    const permissions=readPermMatrix();
+    const btn=el('roleSubmit');
+    btn.style.pointerEvents='none';
+    try{
+      if(editingId){
+        const updated=await api('/roles/'+encodeURIComponent(editingId),{method:'PUT',body:JSON.stringify({name,description,permissions})});
+        const r=roles.find(x=>x.id===editingId);
+        Object.assign(r,{name:updated.name,description:updated.description||'',permissions:normalizePerms(updated.permissions)});
+        showToast('Role updated');
+      } else {
+        const created=await api('/roles',{method:'POST',body:JSON.stringify({name,description,permissions})});
+        roles.push({...created,description:created.description||'',permissions:normalizePerms(created.permissions),usersCount:0});
+        showToast('Role created');
+      }
+      closeOverlay('roleModal');
+      renderAll();
+    }catch(e){
+      showToast(e.message||'Could not save role',true);
+    }finally{
+      btn.style.pointerEvents='';
     }
-    closeOverlay('roleModal');
-    renderAll();
   });
+
+  function assignedUsersFor(r){
+    return users.filter(u => u.role === r.name || (u.roleName && u.roleName === r.name));
+  }
 
   function openViewModal(id){
     const r=roles.find(x=>x.id===id);
@@ -555,20 +608,23 @@
       const p=r.permissions[m.key];
       return `<div class="view-perm-row"><div class="view-perm-mod"><div class="perm-module-icon" style="background:${m.bg};color:${m.color};"><i class="fa-solid ${m.icon}"></i></div>${m.label}</div><div class="view-perm-acts"><span class="mini-tag ${p.view?'mini-on':'mini-off'}">View</span><span class="mini-tag ${p.create?'mini-on':'mini-off'}">Create</span><span class="mini-tag ${p.edit?'mini-on':'mini-off'}">Edit</span><span class="mini-tag ${p.delete?'mini-on':'mini-off'}">Delete</span></div></div>`;
     }).join('');
-    const users=DEMO_USERS_BY_ROLE[r.id]||[];
-    el('assignedUsersList').innerHTML=users.length===0?`<div class="no-users-note">No users are currently assigned to this role.</div>`:users.map(u=>`<div class="assigned-user-row"><div class="assigned-avatar" style="background-image:url('https://i.pravatar.cc/80?img=${u.img}')"></div><div><div class="assigned-name">${esc(u.name)}</div><div class="assigned-email">${esc(u.email)}</div></div></div>`).join('');
+    const assigned=assignedUsersFor(r);
+    el('assignedUsersList').innerHTML=assigned.length===0
+      ? `<div class="no-users-note">No users are currently assigned to this role.</div>`
+      : assigned.map(u=>`<div class="assigned-user-row"><div class="assigned-avatar" style="display:flex;align-items:center;justify-content:center;background:#e0e9ff;color:#1d4ed8;font-weight:800;font-size:11px;">${esc(initials(u.name))}</div><div><div class="assigned-name">${esc(u.name)}</div><div class="assigned-email">${esc(u.email||'')}</div></div></div>`).join('');
     openOverlay('viewModal');
   }
   el('viewEditBtn').addEventListener('click',()=>{if(viewingId) openEditModal(viewingId);});
 
-  function duplicateRole(id){
+  async function duplicateRole(id){
     const r=roles.find(x=>x.id===id);
     if(!r) return;
-    const clonedPerms=emptyPerms();
-    MODULES.forEach(m=>ACTIONS.forEach(a=>{clonedPerms[m.key][a]=r.permissions[m.key][a];}));
-    roles.unshift({id:nextId++,name:`Copy of ${r.name}`,description:r.description,type:'custom',status:'active',usersCount:0,permissions:clonedPerms});
-    renderAll();
-    showToast(`Duplicated as "Copy of ${r.name}"`);
+    try{
+      const created=await api('/roles',{method:'POST',body:JSON.stringify({name:'Copy of '+r.name,description:r.description,permissions:r.permissions})});
+      roles.push({...created,description:created.description||'',permissions:normalizePerms(created.permissions),usersCount:0});
+      renderAll();
+      showToast(`Duplicated as "Copy of ${r.name}"`);
+    }catch(e){showToast(e.message||'Could not duplicate role',true);}
   }
 
   function openDeleteModal(id){
@@ -578,29 +634,29 @@
     el('deleteRoleName').textContent=r.name;
     if(r.usersCount>0){
       el('deleteWarn').style.display='flex';
-      el('deleteWarnText').textContent=`${r.usersCount} user${r.usersCount===1?'':'s'} currently ${r.usersCount===1?'has':'have'} this role assigned. They will lose these permissions immediately.`;
+      el('deleteWarnText').textContent=`${r.usersCount} user${r.usersCount===1?'':'s'} currently ${r.usersCount===1?'has':'have'} this role assigned. The server will block deletion until they are reassigned.`;
     } else {
       el('deleteWarn').style.display='none';
     }
     openOverlay('deleteModal');
   }
-  el('confirmDeleteBtn').addEventListener('click',()=>{
+  el('confirmDeleteBtn').addEventListener('click',async()=>{
     if(!deletingId) return;
     const r=roles.find(x=>x.id===deletingId);
-    roles=roles.filter(x=>x.id!==deletingId);
-    closeOverlay('deleteModal');
-    renderAll();
-    showToast(`"${r?r.name:'Role'}" deleted`);
+    try{
+      await api('/roles/'+encodeURIComponent(deletingId),{method:'DELETE'});
+      roles=roles.filter(x=>x.id!==deletingId);
+      closeOverlay('deleteModal');
+      renderAll();
+      showToast(`"${r?r.name:'Role'}" deleted`);
+    }catch(e){showToast(e.message||'Could not delete role',true);}
     deletingId=null;
   });
 
-  renderAll();
+  loadAll();
 
   if(window.ShilohSidebar){
-    window.ShilohSidebar.attach('#sidebarPlaceholder',{
-      activeFile:'roles-permissions.html',
-      user:{name:'Admin Tolu',role:'System Admin',avatar:'https://i.pravatar.cc/64?img=47'}
-    });
+    window.ShilohSidebar.attach('#sidebarPlaceholder',{ activeFile:'roles-permissions.html' });
   }
 })();
 </script>

@@ -289,20 +289,22 @@
 (function(){
   const el = id => document.getElementById(id);
   const PAGE_SIZE = 10;
+  const token = localStorage.getItem('shiloh_token');
+  if (!token) { location.href = 'login.html'; return; }
 
   const ACTION_TYPES = {
-    login:        {label:'Login',           bg:'var(--green-bg)',  color:'var(--green)',  severity:'success', icon:'fa-right-to-bracket'},
-    login_failed: {label:'Failed Login',    bg:'var(--red-bg)',    color:'var(--red)',    severity:'critical', icon:'fa-circle-xmark'},
-    logout:       {label:'Logout',          bg:'#f1f5f9',          color:'#64748b',       severity:'info', icon:'fa-right-from-bracket'},
-    create:       {label:'Created',         bg:'var(--blue-light)',color:'var(--blue)',   severity:'info', icon:'fa-plus'},
-    update:       {label:'Updated',         bg:'var(--orange-bg)', color:'#c56c05',       severity:'info', icon:'fa-pen'},
-    delete:       {label:'Deleted',         bg:'var(--red-bg)',    color:'var(--red)',    severity:'warning', icon:'fa-trash'},
-    view:         {label:'Viewed',          bg:'#f1f5f9',          color:'#64748b',       severity:'info', icon:'fa-eye'},
-    role_change:  {label:'Role Changed',    bg:'var(--purple-bg)', color:'var(--purple)', severity:'warning', icon:'fa-shield-halved'},
-    permission:   {label:'Permission Updated',bg:'var(--purple-bg)',color:'var(--purple)',severity:'warning', icon:'fa-lock'},
-    settings:     {label:'Settings Changed',bg:'var(--orange-bg)', color:'#c56c05',       severity:'warning', icon:'fa-gear'},
-    password:     {label:'Password Reset',  bg:'var(--orange-bg)', color:'#c56c05',       severity:'warning', icon:'fa-key'},
-    suspend:      {label:'Account Suspended',bg:'var(--red-bg)',   color:'var(--red)',    severity:'critical', icon:'fa-ban'},
+    login:        {label:'Login',             bg:'var(--green-bg)',  color:'var(--green)',  icon:'fa-right-to-bracket'},
+    login_failed: {label:'Failed Login',      bg:'var(--red-bg)',    color:'var(--red)',    icon:'fa-circle-xmark'},
+    logout:       {label:'Logout',            bg:'#f1f5f9',          color:'#64748b',       icon:'fa-right-from-bracket'},
+    create:       {label:'Created',           bg:'var(--blue-light)',color:'var(--blue)',   icon:'fa-plus'},
+    update:       {label:'Updated',           bg:'var(--orange-bg)', color:'#c56c05',       icon:'fa-pen'},
+    delete:       {label:'Deleted',           bg:'var(--red-bg)',    color:'var(--red)',    icon:'fa-trash'},
+    view:         {label:'Viewed',            bg:'#f1f5f9',          color:'#64748b',       icon:'fa-eye'},
+    role_change:  {label:'Role Changed',      bg:'var(--purple-bg)', color:'var(--purple)', icon:'fa-shield-halved'},
+    permission:   {label:'Permission Updated',bg:'var(--purple-bg)', color:'var(--purple)', icon:'fa-lock'},
+    settings:     {label:'Settings Changed',  bg:'var(--orange-bg)', color:'#c56c05',       icon:'fa-gear'},
+    password:     {label:'Password Reset',    bg:'var(--orange-bg)', color:'#c56c05',       icon:'fa-key'},
+    suspend:      {label:'Account Status',    bg:'var(--red-bg)',    color:'var(--red)',    icon:'fa-ban'},
   };
 
   const SEVERITY_META = {
@@ -312,130 +314,51 @@
     critical:{label:'Critical', cls:'badge-critical'},
   };
 
-  const USERS = [
-    {name:'Dr. Samuel Okonkwo', role:'Doctor', img:11},
-    {name:'Dr. Ifeoma Balogun', role:'Doctor', img:44},
-    {name:'Nurse Adaeze Nwosu', role:'Nurse', img:47},
-    {name:'Lab Tech Uche Igwe', role:'Lab Technician', img:14},
-    {name:'Pharm. Ngozi Eze', role:'Pharmacist', img:50},
-    {name:'Chidinma Obi', role:'Receptionist', img:23},
-    {name:'Ada Umeh', role:'Cashier', img:29},
-    {name:'Admin Tolu Bankole', role:'System Admin', img:33},
-    {name:'Unknown User', role:null, img:null},
-  ];
+  const state = {search:'',user:'all',action:'all',target:'all',severity:'all',date:'all',page:1};
+  let lastItems = [];
+  let lastTotal = 0;
 
-  const PATIENT_NAMES = ['John O. Adekunle','Mary A. Johnson','Peter I. Okafor','Grace U. Emu','Michael E. Lucky','Esther N. Williams','David O. Philip','Joy I. Monday','Emeka T. Nwankwo','Chioma R. Eze'];
+  function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+  function initials(name){return window.ShilohAvatar ? window.ShilohAvatar.initials(name) : String(name||'U').slice(0,2).toUpperCase();}
+  function actionMeta(key){return ACTION_TYPES[key] || {label:key, bg:'#f1f5f9', color:'#64748b', icon:'fa-circle-info'};}
+  function severityMeta(key){return SEVERITY_META[key] || SEVERITY_META.info;}
+  function fmtDate(ts){return new Date(ts).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
+  function fmtTime(ts){return new Date(ts).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',second:'2-digit'});}
 
-  function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-  function randInt(n){return Math.floor(Math.random()*n);}
-  function randIp(){return `${100+randInt(60)}.${randInt(255)}.${randInt(255)}.${randInt(255)}`;}
-
-  function buildDescription(actionKey, targetType, targetName, user){
-    const map = {
-      login:`${user.name} logged in successfully.`,
-      login_failed:`Failed login attempt for username "${user.name.toLowerCase().replace(/[^a-z]/g,'.')}" — incorrect password.`,
-      logout:`${user.name} logged out.`,
-      create:`${user.name} created a new ${targetType.toLowerCase()} record for ${targetName}.`,
-      update:`${user.name} updated the ${targetType.toLowerCase()} record for ${targetName}.`,
-      delete:`${user.name} deleted the ${targetType.toLowerCase()} record for ${targetName}.`,
-      view:`${user.name} viewed the ${targetType.toLowerCase()} record for ${targetName}.`,
-      role_change:`${user.name} changed the role assigned to ${targetName}.`,
-      permission:`${user.name} updated permissions for the "${targetName}" role.`,
-      settings:`${user.name} changed a system setting: ${targetName}.`,
-      password:`${user.name} reset the password for ${targetName}.`,
-      suspend:`${user.name} suspended the account for ${targetName}.`,
-    };
-    return map[actionKey]||`${user.name} performed an action.`;
-  }
-
-  function randomTargetFor(actionKey){
-    if(actionKey==='login'||actionKey==='login_failed'||actionKey==='logout') return {type:'—',name:null};
-    if(['role_change','permission','suspend','password'].includes(actionKey)){
-      const pool=['Dr. Samuel Okonkwo','Nurse Blessing Etim','Kelechi Anyanwu','Front Desk Supervisor role','Cashier role'];
-      return {type:actionKey==='permission'?'Role':'User Account',name:pool[randInt(pool.length)]};
-    }
-    if(actionKey==='settings'){
-      const pool=['Clinic operating hours','SMS notification templates','Appointment slot duration','Backup schedule','Password policy'];
-      return {type:'System Setting',name:pool[randInt(pool.length)]};
-    }
-    const types=['Patient','Appointment','Prescription','Lab Order','Visit','Invoice'];
-    const type=types[randInt(types.length)];
-    const name=PATIENT_NAMES[randInt(PATIENT_NAMES.length)];
-    const prefixes={Patient:'',Appointment:'APT-',Prescription:'RX-','Lab Order':'LAB-',Visit:'VIS-',Invoice:'INV-'};
-    const label=type==='Patient'?name:`${prefixes[type]}${String(100000+randInt(9000)).slice(-6)} (${name})`;
-    return {type,name:label};
-  }
-
-  function maybeDiff(actionKey, targetType){
-    if(actionKey!=='update'||Math.random()<0.45) return null;
-    const pools={
-      Patient:[['Phone (Primary)','0803 111 2222','0803 123 4567'],['Address','9 Old Road, Uromi','12 Mission Road, Uromi'],['Blood Group','O-','O+']],
-      Appointment:[['Status','Pending','Confirmed'],['Time','09:00 AM','09:30 AM'],['Doctor','Dr. Ifeoma Balogun','Dr. Samuel Okonkwo']],
-      Invoice:[['Status','Unpaid','Paid'],['Amount','₦42,000','₦45,200']],
-      'Lab Order':[['Status','Pending','Sample Collected'],['Priority','Routine','Urgent']],
-      Prescription:[['Status','Pending Pickup','Dispensed']],
-      Visit:[['Status','In Progress','Completed']],
-    };
-    const set=pools[targetType];
-    if(!set) return null;
-    const n=1+randInt(Math.min(2,set.length));
-    return set.slice(0,n).map(([field,oldV,newV])=>({field,oldV,newV}));
-  }
-
-  function seedLogs(){
-    const list=[];
-    let now=new Date();
-    let seq=9000;
-    for(let i=0;i<130;i++){
-      seq++;
-      const daysAgo=Math.floor(i/6.2);
-      const d=new Date(now);
-      d.setDate(d.getDate()-daysAgo);
-      d.setHours(7+randInt(13),randInt(60),randInt(60),0);
-      let actionKey;
-      const roll=Math.random();
-      if(roll<0.14) actionKey='login';
-      else if(roll<0.19) actionKey='login_failed';
-      else if(roll<0.22) actionKey='logout';
-      else if(roll<0.42) actionKey='create';
-      else if(roll<0.66) actionKey='update';
-      else if(roll<0.74) actionKey='view';
-      else if(roll<0.82) actionKey='delete';
-      else if(roll<0.88) actionKey='role_change';
-      else if(roll<0.93) actionKey='permission';
-      else if(roll<0.97) actionKey='settings';
-      else if(roll<0.99) actionKey='password';
-      else actionKey='suspend';
-      const user=USERS[randInt(actionKey==='login_failed'?USERS.length:USERS.length-1)];
-      const target=randomTargetFor(actionKey);
-      const meta=ACTION_TYPES[actionKey];
-      const diff=maybeDiff(actionKey,target.type);
-      list.push({
-        id:seq, ts:d.getTime(),
-        dateStr:d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),
-        timeStr:d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',second:'2-digit'}),
-        user, actionKey, targetType:target.type, targetName:target.name,
-        ip:randIp(), device:['Chrome on Windows','Safari on macOS','Chrome on Android','Edge on Windows','Firefox on Ubuntu'][randInt(5)],
-        severity:meta.severity,
-        description:buildDescription(actionKey,target.type==='—'?'session':target.type,target.name||user.name,user),
-        diff,
-      });
-    }
-    return list.sort((a,b)=>b.ts-a.ts);
-  }
-
-  let logs=seedLogs();
-  let state={search:'',user:'all',action:'all',target:'all',severity:'all',date:'all',page:1};
-
-  function showToast(msg){
+  function showToast(msg,isErr){
     const t=el('toast');
     el('toastText').textContent=msg;
+    t.querySelector('i').className = isErr ? 'fa-solid fa-circle-exclamation' : 'fa-solid fa-circle-check';
+    t.querySelector('i').style.color = isErr ? 'var(--red)' : 'var(--green)';
     t.classList.add('show');
     clearTimeout(showToast._tm);
-    showToast._tm=setTimeout(()=>t.classList.remove('show'),2000);
+    showToast._tm=setTimeout(()=>t.classList.remove('show'),2400);
   }
 
-  function csvCell(v){return `"${String(v==null?'':v).replace(/"/g,'""')}"`;}
+  async function api(path,opts){
+    opts = opts || {};
+    opts.headers = Object.assign({ Authorization:'Bearer '+token }, opts.headers||{});
+    const res = await fetch('/api'+path, opts);
+    if (res.status === 401) { location.href = 'login.html'; throw new Error('Unauthorized'); }
+    let data = null;
+    try { data = await res.json(); } catch(e) {}
+    if (!res.ok) throw new Error((data && data.error) || ('Request failed ('+res.status+')'));
+    return data;
+  }
+
+  function qs(extra){
+    const p = new URLSearchParams();
+    if(state.search) p.set('search',state.search);
+    if(state.user!=='all') p.set('user',state.user);
+    if(state.action!=='all') p.set('action',state.action);
+    if(state.target!=='all') p.set('target',state.target);
+    if(state.severity!=='all') p.set('severity',state.severity);
+    if(state.date!=='all') p.set('date',state.date);
+    if(extra) Object.entries(extra).forEach(([k,v])=>p.set(k,v));
+    return p.toString();
+  }
+
+  function csvCell(v){return '"'+String(v==null?'':v).replace(/"/g,'""')+'"';}
   function downloadCsv(csv,filename){
     const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
     const url=URL.createObjectURL(blob);
@@ -444,86 +367,73 @@
     document.body.appendChild(a);a.click();document.body.removeChild(a);
     URL.revokeObjectURL(url);
   }
-  function exportLogsCsv(){
-    const rows=getFiltered();
-    if(rows.length===0){showToast('No events to export for the current filters');return;}
-    const header=['Date','Time','User','Role','Action','Target Type','Target','IP Address','Device','Severity','Description'].map(csvCell).join(',');
-    const body=rows.map(l=>{
-      const meta=ACTION_TYPES[l.actionKey];
-      return [l.dateStr,l.timeStr,l.user.name,l.user.role||'—',meta.label,l.targetType,l.targetName||'—',l.ip,l.device,SEVERITY_META[l.severity].label,l.description].map(csvCell).join(',');
-    }).join('\n');
-    downloadCsv(header+'\n'+body,`audit-logs-export-${new Date().toISOString().slice(0,10)}.csv`);
-    showToast(`Exported ${rows.length} event${rows.length===1?'':'s'} to CSV`);
-  }
 
-  function populateFilters(){
-    const userNames=[...new Set(logs.map(l=>l.user.name))].sort();
-    el('userFilter').innerHTML='<option value="all">All Users</option>'+userNames.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('');
-    el('actionFilter').innerHTML='<option value="all">All Actions</option>'+Object.keys(ACTION_TYPES).map(k=>`<option value="${k}">${esc(ACTION_TYPES[k].label)}</option>`).join('');
-    const targetTypes=[...new Set(logs.map(l=>l.targetType).filter(t=>t!=='—'))].sort();
-    el('targetFilter').innerHTML='<option value="all">All Targets</option>'+targetTypes.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join('');
-  }
-
-  function renderStats(){
-    const todayStr=new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-    const todayLogs=logs.filter(l=>l.dateStr===todayStr);
-    const failedToday=todayLogs.filter(l=>l.actionKey==='login_failed').length;
-    const criticalTotal=logs.filter(l=>l.severity==='critical').length;
-    const uniqueUsersToday=new Set(todayLogs.map(l=>l.user.name)).size;
-    const dataChanges=logs.filter(l=>['create','update','delete'].includes(l.actionKey)).length;
-    const permChanges=logs.filter(l=>['role_change','permission','settings'].includes(l.actionKey)).length;
-    el('statsRow').innerHTML=`
-      <div class="stat-card"><div class="stat-top"><div class="stat-icon icon-blue"><i class="fa-solid fa-file-lines"></i></div><div class="stat-label">Events Today</div></div><div class="stat-value">${todayLogs.length}</div><div class="stat-sub">${todayStr}</div></div>
-      <div class="stat-card"><div class="stat-top"><div class="stat-icon icon-red"><i class="fa-solid fa-circle-xmark"></i></div><div class="stat-label">Failed Logins Today</div></div><div class="stat-value">${failedToday}</div><div class="stat-sub">${failedToday>3?'Elevated — review':'Within normal range'}</div></div>
-      <div class="stat-card"><div class="stat-top"><div class="stat-icon icon-orange"><i class="fa-solid fa-triangle-exclamation"></i></div><div class="stat-label">Critical Events</div></div><div class="stat-value">${criticalTotal}</div><div class="stat-sub">All time</div></div>
-      <div class="stat-card"><div class="stat-top"><div class="stat-icon icon-green"><i class="fa-solid fa-users"></i></div><div class="stat-label">Active Users Today</div></div><div class="stat-value">${uniqueUsersToday}</div><div class="stat-sub">Unique accounts</div></div>
-      <div class="stat-card"><div class="stat-top"><div class="stat-icon icon-purple"><i class="fa-solid fa-pen"></i></div><div class="stat-label">Data Changes</div></div><div class="stat-value">${dataChanges}</div><div class="stat-sub">Create / Update / Delete</div></div>
-      <div class="stat-card"><div class="stat-top"><div class="stat-icon icon-pink"><i class="fa-solid fa-gear"></i></div><div class="stat-label">Security &amp; Config Changes</div></div><div class="stat-value">${permChanges}</div><div class="stat-sub">Roles, permissions, settings</div></div>`;
-  }
-
-  function getFiltered(){
-    const q=state.search.trim().toLowerCase();
-    const now=Date.now();
-    const todayStr=new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-    return logs.filter(l=>{
-      if(state.user!=='all'&&l.user.name!==state.user) return false;
-      if(state.action!=='all'&&l.actionKey!==state.action) return false;
-      if(state.target!=='all'&&l.targetType!==state.target) return false;
-      if(state.severity!=='all'&&l.severity!==state.severity) return false;
-      if(state.date==='today'&&l.dateStr!==todayStr) return false;
-      if(state.date!=='all'&&state.date!=='today'){
-        const days=Number(state.date);
-        if(now-l.ts>days*24*60*60*1000) return false;
+  async function exportLogsCsv(){
+    try{
+      let page=1, all=[], total=Infinity;
+      while(all.length<total && page<=50){
+        const data=await api('/audit-logs?'+qs({page,limit:200}));
+        all=all.concat(data.items||[]);
+        total=data.total||0;
+        if(!data.items||data.items.length===0) break;
+        page++;
       }
-      if(q){
-        const hay=`${l.user.name} ${ACTION_TYPES[l.actionKey].label} ${l.targetType} ${l.targetName||''} ${l.description}`.toLowerCase();
-        if(!hay.includes(q)) return false;
-      }
-      return true;
-    });
+      if(all.length===0){showToast('No events to export for the current filters',true);return;}
+      const header=['Date','Time','User','Role','Action','Target Type','Target','IP Address','Device','Severity','Status','Description'].map(csvCell).join(',');
+      const body=all.map(l=>[fmtDate(l.ts),fmtTime(l.ts),l.userName||'—',l.userRole||'—',actionMeta(l.action).label,l.targetType||'—',l.targetName||'—',l.ip||'—',l.device||'—',severityMeta(l.severity).label,l.statusCode,l.description||''].map(csvCell).join(',')).join('\n');
+      downloadCsv(header+'\n'+body,'audit-logs-export-'+new Date().toISOString().slice(0,10)+'.csv');
+      showToast('Exported '+all.length+' event'+(all.length===1?'':'s')+' to CSV');
+    }catch(e){showToast(e.message,true);}
+  }
+
+  async function loadFilters(){
+    try{
+      const meta=await api('/audit-logs/meta');
+      el('userFilter').innerHTML='<option value="all">All Users</option>'+(meta.users||[]).map(n=>'<option value="'+esc(n)+'">'+esc(n)+'</option>').join('');
+      el('actionFilter').innerHTML='<option value="all">All Actions</option>'+Object.keys(ACTION_TYPES).map(k=>'<option value="'+k+'">'+esc(ACTION_TYPES[k].label)+'</option>').join('');
+      el('targetFilter').innerHTML='<option value="all">All Targets</option>'+(meta.targets||[]).map(t=>'<option value="'+esc(t)+'">'+esc(t)+'</option>').join('');
+      el('userFilter').value=state.user;
+      el('actionFilter').value=state.action;
+      el('targetFilter').value=state.target;
+    }catch(e){/* filters stay at defaults */}
+  }
+
+  async function renderStats(){
+    try{
+      const s=await api('/audit-logs/stats');
+      const today=new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+      el('statsRow').innerHTML=`
+        <div class="stat-card"><div class="stat-top"><div class="stat-icon icon-blue"><i class="fa-solid fa-file-lines"></i></div><div class="stat-label">Events Today</div></div><div class="stat-value">${s.eventsToday}</div><div class="stat-sub">${today}</div></div>
+        <div class="stat-card"><div class="stat-top"><div class="stat-icon icon-red"><i class="fa-solid fa-circle-xmark"></i></div><div class="stat-label">Failed Logins Today</div></div><div class="stat-value">${s.failedLoginsToday}</div><div class="stat-sub">${s.failedLoginsToday>3?'Elevated — review':'Within normal range'}</div></div>
+        <div class="stat-card"><div class="stat-top"><div class="stat-icon icon-orange"><i class="fa-solid fa-triangle-exclamation"></i></div><div class="stat-label">Critical Events</div></div><div class="stat-value">${s.criticalEvents}</div><div class="stat-sub">All time</div></div>
+        <div class="stat-card"><div class="stat-top"><div class="stat-icon icon-green"><i class="fa-solid fa-users"></i></div><div class="stat-label">Active Users Today</div></div><div class="stat-value">${s.activeUsersToday}</div><div class="stat-sub">Unique accounts</div></div>
+        <div class="stat-card"><div class="stat-top"><div class="stat-icon icon-purple"><i class="fa-solid fa-pen"></i></div><div class="stat-label">Data Changes</div></div><div class="stat-value">${s.dataChanges}</div><div class="stat-sub">Create / Update / Delete</div></div>
+        <div class="stat-card"><div class="stat-top"><div class="stat-icon icon-pink"><i class="fa-solid fa-gear"></i></div><div class="stat-label">Security &amp; Config Changes</div></div><div class="stat-value">${s.securityChanges}</div><div class="stat-sub">Roles, permissions, settings</div></div>`;
+    }catch(e){el('statsRow').innerHTML='';}
   }
 
   function userCell(l){
-    if(l.user.img===null){
-      return `<div class="user-cell"><div class="avatar system"><i class="fa-solid fa-user-secret"></i></div><div><div class="user-fullname">${esc(l.user.name)}</div><div class="user-role-sub">Unauthenticated</div></div></div>`;
+    if(!l.userName){
+      return `<div class="user-cell"><div class="avatar system"><i class="fa-solid fa-user-secret"></i></div><div><div class="user-fullname">Unknown User</div><div class="user-role-sub">Unauthenticated</div></div></div>`;
     }
-    return `<div class="user-cell"><div class="avatar" style="background-image:url('https://i.pravatar.cc/80?img=${l.user.img}')"></div><div><div class="user-fullname">${esc(l.user.name)}</div><div class="user-role-sub">${esc(l.user.role)}</div></div></div>`;
+    return `<div class="user-cell"><div class="avatar" style="display:flex;align-items:center;justify-content:center;background:#e0e9ff;color:#1d4ed8;font-weight:800;font-size:11px;">${esc(initials(l.userName))}</div><div><div class="user-fullname">${esc(l.userName)}</div><div class="user-role-sub">${esc(l.userRole||'—')}</div></div></div>`;
   }
 
   function renderRow(l){
-    const meta=ACTION_TYPES[l.actionKey];
-    const sev=SEVERITY_META[l.severity];
-    const targetHtml=l.targetName
-      ?`<div class="target-cell"><span class="target-type">${esc(l.targetType)}</span><span class="target-name" data-action="view" data-id="${l.id}">${esc(l.targetName)}</span></div>`
-      :`<span class="target-dash">—</span>`;
+    const meta=actionMeta(l.action);
+    const sev=severityMeta(l.severity);
+    const isSession=['login','login_failed','logout'].includes(l.action);
+    const targetHtml=(isSession||!l.targetName)
+      ?(l.targetType&&!isSession?`<div class="target-cell"><span class="target-type">${esc(l.targetType)}</span><span class="target-dash">—</span></div>`:`<span class="target-dash">—</span>`)
+      :`<div class="target-cell"><span class="target-type">${esc(l.targetType||'Record')}</span><span class="target-name" data-action="view" data-id="${esc(l.id)}">${esc(l.targetName)}</span></div>`;
     return `<tr>
-      <td><div class="ts-cell"><span class="ts-date">${l.dateStr}</span><span class="ts-time">${l.timeStr}</span></div></td>
+      <td><div class="ts-cell"><span class="ts-date">${fmtDate(l.ts)}</span><span class="ts-time">${fmtTime(l.ts)}</span></div></td>
       <td>${userCell(l)}</td>
       <td><div class="action-cell"><div class="action-ic" style="background:${meta.bg};color:${meta.color};"><i class="fa-solid ${meta.icon}"></i></div><span class="action-text">${esc(meta.label)}</span></div></td>
       <td>${targetHtml}</td>
-      <td><span class="ip-cell">${esc(l.ip)}</span></td>
+      <td><span class="ip-cell">${esc(l.ip||'—')}</span></td>
       <td><span class="badge ${sev.cls}"><span class="dot"></span>${sev.label}</span></td>
-      <td><div class="row-actions"><div class="icon-btn" data-action="view" data-id="${l.id}" title="View details"><i class="fa-solid fa-eye"></i></div></div></td>
+      <td><div class="row-actions"><div class="icon-btn" data-action="view" data-id="${esc(l.id)}" title="View details"><i class="fa-solid fa-eye"></i></div></div></td>
     </tr>`;
   }
 
@@ -545,65 +455,84 @@
     return html;
   }
 
-  function renderTable(){
-    const filtered=getFiltered();
-    const totalPages=Math.max(1,Math.ceil(filtered.length/PAGE_SIZE));
-    if(state.page>totalPages) state.page=totalPages;
-    if(state.page<1) state.page=1;
-    const start=(state.page-1)*PAGE_SIZE;
-    const pageItems=filtered.slice(start,start+PAGE_SIZE);
-    el('tableTitle').textContent=`All Events (${filtered.length})`;
-    if(filtered.length===0){
-      el('logsTable').innerHTML=`<tr class="empty-row"><td colspan="7">No events match your filters</td></tr>`;
-      el('footerText').textContent='Showing 0 of 0 events';
+  async function renderTable(){
+    try{
+      const data=await api('/audit-logs?'+qs({page:state.page,limit:PAGE_SIZE}));
+      const items=data.items||[];
+      const total=data.total||0;
+      const totalPages=Math.max(1,Math.ceil(total/PAGE_SIZE));
+      if(state.page>totalPages) state.page=totalPages;
+      lastItems=items;lastTotal=total;
+      el('tableTitle').textContent=`All Events (${total})`;
+      if(items.length===0){
+        el('logsTable').innerHTML=`<tr class="empty-row"><td colspan="7">No events match your filters</td></tr>`;
+        el('footerText').textContent='Showing 0 of 0 events';
+        el('pagination').innerHTML='';
+        return;
+      }
+      el('logsTable').innerHTML=items.map(renderRow).join('');
+      const start=(state.page-1)*PAGE_SIZE;
+      const from=start+1,to=Math.min(start+PAGE_SIZE,total);
+      el('footerText').textContent=`Showing ${from}–${to} of ${total} events`;
+      el('pagination').innerHTML=buildPagination(state.page,totalPages);
+      document.querySelectorAll('[data-action="view"]').forEach(b=>b.addEventListener('click',()=>openViewModal(b.dataset.id)));
+      document.querySelectorAll('#pagination [data-page]').forEach(b=>{
+        if(b.hasAttribute('disabled')) return;
+        b.addEventListener('click',()=>{state.page=Number(b.dataset.page);renderTable();});
+      });
+    }catch(e){
+      el('logsTable').innerHTML=`<tr class="empty-row"><td colspan="7">${esc(e.message)}</td></tr>`;
+      el('footerText').textContent='Unable to load events';
       el('pagination').innerHTML='';
-      return;
     }
-    el('logsTable').innerHTML=pageItems.map(renderRow).join('');
-    const from=start+1,to=Math.min(start+PAGE_SIZE,filtered.length);
-    el('footerText').textContent=`Showing ${from}–${to} of ${filtered.length} events`;
-    el('pagination').innerHTML=buildPagination(state.page,totalPages);
-    document.querySelectorAll('[data-action="view"]').forEach(b=>b.addEventListener('click',()=>openViewModal(Number(b.dataset.id))));
-    document.querySelectorAll('#pagination [data-page]').forEach(b=>{
-      if(b.hasAttribute('disabled')) return;
-      b.addEventListener('click',()=>{state.page=Number(b.dataset.page);renderTable();});
-    });
   }
 
-  function renderAll(){renderStats();renderTable();}
+  async function renderAll(){await Promise.all([renderStats(),renderTable()]);}
 
-  el('searchInput').addEventListener('input',e=>{state.search=e.target.value;state.page=1;renderTable();});
-  el('userFilter').addEventListener('change',e=>{state.user=e.target.value;state.page=1;renderTable();});
-  el('actionFilter').addEventListener('change',e=>{state.action=e.target.value;state.page=1;renderTable();});
-  el('targetFilter').addEventListener('change',e=>{state.target=e.target.value;state.page=1;renderTable();});
-  el('severityFilter').addEventListener('change',e=>{state.severity=e.target.value;state.page=1;renderTable();});
-  el('dateFilter').addEventListener('change',e=>{state.date=e.target.value;state.page=1;renderTable();});
+  function resetPageAndRender(){state.page=1;renderTable();}
+  let searchTimer=null;
+  el('searchInput').addEventListener('input',e=>{
+    state.search=e.target.value;
+    clearTimeout(searchTimer);
+    searchTimer=setTimeout(resetPageAndRender,300);
+  });
+  el('userFilter').addEventListener('change',e=>{state.user=e.target.value;resetPageAndRender();});
+  el('actionFilter').addEventListener('change',e=>{state.action=e.target.value;resetPageAndRender();});
+  el('targetFilter').addEventListener('change',e=>{state.target=e.target.value;resetPageAndRender();});
+  el('severityFilter').addEventListener('change',e=>{state.severity=e.target.value;resetPageAndRender();});
+  el('dateFilter').addEventListener('change',e=>{state.date=e.target.value;resetPageAndRender();});
   el('resetFilters').addEventListener('click',()=>{
-    state={search:'',user:'all',action:'all',target:'all',severity:'all',date:'all',page:1};
+    Object.assign(state,{search:'',user:'all',action:'all',target:'all',severity:'all',date:'all',page:1});
     el('searchInput').value='';el('userFilter').value='all';el('actionFilter').value='all';
     el('targetFilter').value='all';el('severityFilter').value='all';el('dateFilter').value='all';
     renderTable();showToast('Filters reset');
   });
 
-  el('exportBtn').addEventListener('click',()=>exportLogsCsv());
+  el('exportBtn').addEventListener('click',exportLogsCsv);
+
   let purgeCutoff=null;
-  el('clearOldBtn').addEventListener('click',()=>{
-    purgeCutoff=Date.now()-90*24*60*60*1000;
-    const toRemove=logs.filter(l=>l.ts<purgeCutoff).length;
-    el('purgeConfirmText').innerHTML=toRemove>0
-      ?`This will permanently delete <b>${toRemove}</b> log entr${toRemove===1?'y':'ies'} dated before <b>${new Date(purgeCutoff).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</b>.`
+  el('clearOldBtn').addEventListener('click',async ()=>{
+    purgeCutoff=new Date(Date.now()-90*24*60*60*1000);
+    let count=0;
+    try{
+      const data=await api('/audit-logs/count?before='+encodeURIComponent(purgeCutoff.toISOString()));
+      count=data.count||0;
+    }catch(e){showToast(e.message,true);return;}
+    el('purgeConfirmText').innerHTML=count>0
+      ?`This will permanently delete <b>${count}</b> log entr${count===1?'y':'ies'} dated before <b>${purgeCutoff.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</b>.`
       :`There are no log entries older than 90 days right now.`;
-    el('confirmPurgeBtn').style.display=toRemove>0?'flex':'none';
+    el('confirmPurgeBtn').style.display=count>0?'flex':'none';
     el('purgeModal').classList.add('open');
   });
-  el('confirmPurgeBtn').addEventListener('click',()=>{
+  el('confirmPurgeBtn').addEventListener('click',async ()=>{
     if(purgeCutoff===null) return;
-    const before=logs.length;
-    logs=logs.filter(l=>l.ts>=purgeCutoff);
-    const removed=before-logs.length;
-    populateFilters();renderAll();
-    el('purgeModal').classList.remove('open');
-    showToast(removed>0?`Purged ${removed} old log entr${removed===1?'y':'ies'}`:'No entries older than 90 days');
+    try{
+      const data=await api('/audit-logs?before='+encodeURIComponent(purgeCutoff.toISOString()),{method:'DELETE'});
+      el('purgeModal').classList.remove('open');
+      state.page=1;
+      await Promise.all([loadFilters(),renderAll()]);
+      showToast(data.removed>0?`Purged ${data.removed} old log entr${data.removed===1?'y':'ies'}`:'No entries older than 90 days');
+    }catch(e){showToast(e.message,true);}
   });
 
   document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>el(b.dataset.close).classList.remove('open')));
@@ -611,37 +540,35 @@
   document.addEventListener('keydown',e=>{if(e.key==='Escape') document.querySelectorAll('.modal-overlay.open').forEach(ov=>ov.classList.remove('open'));});
 
   function openViewModal(id){
-    const l=logs.find(x=>x.id===id);
+    const l=lastItems.find(x=>String(x.id)===String(id));
     if(!l) return;
-    const meta=ACTION_TYPES[l.actionKey];
-    const sev=SEVERITY_META[l.severity];
+    const meta=actionMeta(l.action);
+    const sev=severityMeta(l.severity);
     el('viewModalTitle').textContent=meta.label;
-    el('viewModalSubtitle').textContent=`${l.dateStr} at ${l.timeStr}`;
+    el('viewModalSubtitle').textContent=`${fmtDate(l.ts)} at ${fmtTime(l.ts)}`;
     el('detailGrid').innerHTML=`
-      <div class="detail-row"><span class="detail-label">User</span><span class="detail-value">${esc(l.user.name)}${l.user.role?' · '+esc(l.user.role):''}</span></div>
+      <div class="detail-row"><span class="detail-label">User</span><span class="detail-value">${esc(l.userName||'Unknown')}${l.userRole?' · '+esc(l.userRole):''}</span></div>
       <div class="detail-row"><span class="detail-label">Severity</span><span class="detail-value"><span class="badge ${sev.cls}"><span class="dot"></span>${sev.label}</span></span></div>
-      <div class="detail-row"><span class="detail-label">Target Type</span><span class="detail-value">${esc(l.targetType)}</span></div>
+      <div class="detail-row"><span class="detail-label">Target Type</span><span class="detail-value">${esc(l.targetType||'—')}</span></div>
       <div class="detail-row"><span class="detail-label">Target</span><span class="detail-value">${l.targetName?esc(l.targetName):'—'}</span></div>
-      <div class="detail-row"><span class="detail-label">IP Address</span><span class="detail-value mono">${esc(l.ip)}</span></div>
-      <div class="detail-row"><span class="detail-label">Device / Browser</span><span class="detail-value">${esc(l.device)}</span></div>
-      <div class="detail-row full"><span class="detail-label">Description</span><span class="detail-value" style="font-weight:600;">${esc(l.description)}</span></div>`;
-    if(l.diff&&l.diff.length){
-      el('diffWrap').style.display='block';
-      el('diffBox').innerHTML=l.diff.map(d=>`<div class="diff-row"><span class="diff-field">${esc(d.field)}</span><span class="diff-old">${esc(d.oldV)}</span><span class="diff-arrow">→</span><span class="diff-new">${esc(d.newV)}</span></div>`).join('');
-    } else {
-      el('diffWrap').style.display='none';el('diffBox').innerHTML='';
-    }
+      <div class="detail-row"><span class="detail-label">IP Address</span><span class="detail-value mono">${esc(l.ip||'—')}</span></div>
+      <div class="detail-row"><span class="detail-label">Device / Browser</span><span class="detail-value">${esc(l.device||'—')}</span></div>
+      <div class="detail-row"><span class="detail-label">HTTP Method</span><span class="detail-value mono">${esc(l.method||'—')} · ${esc(l.statusCode||'')}</span></div>
+      <div class="detail-row"><span class="detail-label">Request Path</span><span class="detail-value mono">${esc(l.path||'—')}</span></div>
+      <div class="detail-row full"><span class="detail-label">Description</span><span class="detail-value" style="font-weight:600;">${esc(l.description||'—')}</span></div>`;
+    el('diffWrap').style.display='none';
+    el('diffBox').innerHTML='';
     el('viewModal').classList.add('open');
   }
 
-  populateFilters();renderAll();
-
   if(window.ShilohSidebar){
     window.ShilohSidebar.attach('#sidebarPlaceholder',{
-      activeFile:'audit-log.html',
-      user:{name:'Admin Tolu',role:'System Admin',avatar:'https://i.pravatar.cc/64?img=47'}
+      activeFile:'audit-log.html'
     });
   }
+
+  loadFilters();
+  renderAll();
 })();
 </script>
 </body>

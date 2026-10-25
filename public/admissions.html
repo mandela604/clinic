@@ -274,7 +274,7 @@ function fmtDate(iso) { if (!iso) return '—'; const d = new Date(iso); const m
 function setLoading(btn, loading) { if (!btn) return; if (loading) { btn.classList.add('loading'); btn._oldHTML = btn.innerHTML; } else { btn.classList.remove('loading'); if (btn._oldHTML) btn.innerHTML = btn._oldHTML; } }
 
 document.addEventListener('DOMContentLoaded', async () => {
-  ShilohSidebar.attach('#sidebarPlaceholder', { activeFile: 'admissions.html', user: { name: 'Receptionist', role: 'Front Desk', avatar: 'https://i.pravatar.cc/64?img=47' } });
+  ShilohSidebar.attach('#sidebarPlaceholder', { activeFile: 'admissions.html' });
   await AdmissionService.init();
   renderStats();
   renderTable();
@@ -462,18 +462,20 @@ function addWard() {
   if (!beds || Number(beds) <= 0) { document.getElementById('wBedsGroup').classList.add('invalid'); return; }
   const btn = document.querySelector('#wardModal .btn-primary');
   setLoading(btn, true);
-  setTimeout(() => {
-    AdmissionService.addWard(name, Number(beds));
+  setTimeout(async () => {
+    const added = await AdmissionService.addWard(name, Number(beds));
     setLoading(btn, false);
     populateFilters();
     renderWardsList();
     renderStats();
-    showToast('Ward "' + name + '" added');
-    document.getElementById('wName').value = '';
-    document.getElementById('wBeds').value = '';
+    if (added) {
+      showToast('Ward "' + name + '" added');
+      document.getElementById('wName').value = '';
+      document.getElementById('wBeds').value = '';
+    }
   }, 400);
 }
-function removeWard(i) { const name = AdmissionService.state.wards[i].name; const inUse = AdmissionService.getAll().filter(a => a.ward === name).length; if (inUse) { showToast('Cannot remove — ' + inUse + ' admission(s) use it', true); return; } AdmissionService.removeWard(i); populateFilters(); renderWardsList(); renderStats(); }
+async function removeWard(i) { const name = AdmissionService.state.wards[i].name; const inUse = AdmissionService.getAll().filter(a => a.ward === name).length; if (inUse) { showToast('Cannot remove — ' + inUse + ' admission(s) use it', true); return; } const removed = await AdmissionService.removeWard(i); if (removed) { populateFilters(); renderWardsList(); renderStats(); showToast('Ward "' + name + '" removed'); } }
 
 function openStatusModal() { document.getElementById('sName').value = ''; document.getElementById('sNameGroup').classList.remove('invalid'); renderStatusesList(); openModal('statusModal'); }
 function renderStatusesList() {
@@ -486,16 +488,18 @@ function addStatus() {
   if (!name || AdmissionService.state.statuses.some(s => s.name.toLowerCase() === name.toLowerCase())) { document.getElementById('sNameGroup').classList.add('invalid'); return; }
   const btn = document.querySelector('#statusModal .btn-primary');
   setLoading(btn, true);
-  setTimeout(() => {
-    AdmissionService.addStatus(name);
+  setTimeout(async () => {
+    const added = await AdmissionService.addStatus(name);
     setLoading(btn, false);
     populateFilters();
     renderStatusesList();
-    showToast('Status "' + name + '" added');
-    document.getElementById('sName').value = '';
+    if (added) {
+      showToast('Status "' + name + '" added');
+      document.getElementById('sName').value = '';
+    }
   }, 400);
 }
-function removeStatus(i) { const name = AdmissionService.state.statuses[i].name; const inUse = AdmissionService.getAll().filter(a => a.status === name).length; if (inUse) { showToast('Cannot remove — ' + inUse + ' admission(s) use it', true); return; } AdmissionService.removeStatus(i); populateFilters(); renderStatusesList(); }
+async function removeStatus(i) { const name = AdmissionService.state.statuses[i].name; const inUse = AdmissionService.getAll().filter(a => a.status === name).length; if (inUse) { showToast('Cannot remove — ' + inUse + ' admission(s) use it', true); return; } const removed = await AdmissionService.removeStatus(i); if (removed) { populateFilters(); renderStatusesList(); showToast('Status "' + name + '" removed'); } }
 
 function showToast(msg, isErr) { const t = document.getElementById('toast'); document.getElementById('toastText').textContent = msg; t.classList.toggle('err', !!isErr); t.classList.add('show'); clearTimeout(showToast._tm); showToast._tm = setTimeout(() => t.classList.remove('show'), 2400); }
 

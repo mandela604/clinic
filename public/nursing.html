@@ -209,7 +209,7 @@ function goToRecordVitals(id) { window.location.href = 'register-vitals.html?que
 function vitalCell(value, flag) { if (!value) return '<span class="vital-dash">&mdash;</span>'; return '<div class="vital-cell"><span class="vital-value'+(flag?' flag':'')+'">'+esc(value)+'</span></div>'; }
 
 document.addEventListener('DOMContentLoaded', async () => {
-  ShilohSidebar.attach('#sidebarPlaceholder', { activeFile: 'nursing.html', user: { name: 'Nurse Adaeze', role: 'Nursing Station', avatar: 'https://i.pravatar.cc/64?img=47' } });
+  ShilohSidebar.attach('#sidebarPlaceholder', { activeFile: 'nursing.html' });
   await NursingService.init();
   renderStats();
   renderTable();
@@ -253,7 +253,7 @@ function renderTable() {
     const s = statusLabels[p.status];
     return `<tr onclick="goToRecordVitals('${p.id}')">
       <td><div class="queue-num">${p.q}</div></td>
-      <td><div class="patient-cell"><div class="avatar"><img src="https://i.pravatar.cc/80?img=${p.img}" alt=""></div><div><div class="patient-name">${esc(p.name)}</div></div></div></td>
+      <td><div class="patient-cell"><div class="avatar" style="display:flex;align-items:center;justify-content:center;background:#e0e9ff;color:#1d4ed8;font-weight:800;font-size:11px;">${window.ShilohAvatar.initials(p.name)}</div><div><div class="patient-name">${esc(p.name)}</div></div></div></td>
       <td data-col="hosp">${esc(p.hosp)}</td>
       <td data-col="priority"><span class="priority-chip ${pr.cls}">${pr.label}</span></td>
       <td>${vitalCell(p.bp, p.flag)}</td>
@@ -271,7 +271,7 @@ function renderTable() {
     const pr = priorityLabels[p.priority];
     const s = statusLabels[p.status];
     return `<div class="queue-card" onclick="goToRecordVitals('${p.id}')">
-      <div class="queue-card-top"><div class="patient-cell"><div class="avatar"><img src="https://i.pravatar.cc/80?img=${p.img}" alt=""></div><div><div class="patient-name">${esc(p.name)}</div></div></div><span class="priority-chip ${pr.cls}">${pr.label}</span></div>
+      <div class="queue-card-top"><div class="patient-cell"><div class="avatar" style="display:flex;align-items:center;justify-content:center;background:#e0e9ff;color:#1d4ed8;font-weight:800;font-size:11px;">${window.ShilohAvatar.initials(p.name)}</div><div><div class="patient-name">${esc(p.name)}</div></div></div><span class="priority-chip ${pr.cls}">${pr.label}</span></div>
       <div class="queue-card-vitals"><div class="qcv-item"><span class="qcv-label">BP</span><span class="qcv-val${p.flag?' flag':''}">${p.bp||'—'}</span></div><div class="qcv-item"><span class="qcv-label">Temp</span><span class="qcv-val${p.flag?' flag':''}">${p.temp||'—'}</span></div><div class="qcv-item"><span class="qcv-label">Pulse</span><span class="qcv-val${p.flag?' flag':''}">${p.pulse||'—'}</span></div><div class="qcv-item"><span class="qcv-label">SpO2</span><span class="qcv-val${p.flag?' flag':''}">${p.spo2||'—'}</span></div></div>
       <div class="queue-card-footer"><div style="font-size:11.5px;color:var(--text-light);">${esc(p.hosp)} &middot; ${esc(p.nurse||'Unassigned')}</div><div><span class="badge ${s.cls}"><span class="dot"></span>${s.label}</span></div></div>
     </div>`;

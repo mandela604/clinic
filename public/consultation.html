@@ -249,7 +249,7 @@
     {key:'#',label:'#',type:'index'},
     {key:'patient',label:'Patient',type:'custom',exportField:'name',
       render:function(row){
-        return '<div class="std-patient-cell"><div class="std-avatar" style="background-image:url(\'https://i.pravatar.cc/80?img='+(row.img||1)+'\')"></div><div><div class="std-patient-name std-clickable" onclick="window.openConsultModal(\''+row.id+'\')">'+esc(row.name)+'</div><div class="std-patient-sub">'+esc(row.hospNo)+' \u00b7 '+esc(row.gender)+', '+esc(String(row.age))+' yrs</div></div></div>';
+        return '<div class="std-patient-cell"><div class="std-avatar" style="display:flex;align-items:center;justify-content:center;background:#e0e9ff;color:#1d4ed8;font-weight:800;font-size:11px;">'+window.ShilohAvatar.initials(row.name)+'</div><div><div class="std-patient-name std-clickable" onclick="window.openConsultModal(\''+row.id+'\')">'+esc(row.name)+'</div><div class="std-patient-sub">'+esc(row.hospNo)+' \u00b7 '+esc(row.gender)+', '+esc(String(row.age))+' yrs</div></div></div>';
       }},
     {key:'priority',label:'Priority',type:'chip',field:'priority',map:PRIORITY_MAP,hideable:true},
     {key:'vitals',label:'Vitals',type:'custom',hideable:true,exportField:'vitalsText',render:function(row){return vitalCellHtml(row);}},
@@ -264,7 +264,7 @@
     return '<div class="std-order-card" data-id="'+row.id+'">'+
       '<div class="std-order-card-top">'+
         '<div class="std-patient-cell" style="min-width:0;">'+
-          '<div class="std-avatar" style="background-image:url(\'https://i.pravatar.cc/80?img='+(row.img||1)+'\')"></div>'+
+          '<div class="std-avatar" style="display:flex;align-items:center;justify-content:center;background:#e0e9ff;color:#1d4ed8;font-weight:800;font-size:11px;">'+window.ShilohAvatar.initials(row.name)+'</div>'+
           '<div style="min-width:0;">'+
             '<div class="std-patient-name std-clickable" onclick="window.openConsultModal(\''+row.id+'\')">'+esc(row.name)+'</div>'+
             '<div class="std-patient-sub">'+esc(row.hospNo)+' \u00b7 '+esc(row.gender)+', '+esc(String(row.age))+' yrs</div>'+
@@ -389,7 +389,7 @@
     if(c.status==='Waiting'){try {var updated=await ConsultationService.advanceStatus(id);if(updated)tbl.updateRow(id,{status:updated.status});} catch (e) { window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error'); }}
     el('consultModalTitle').textContent='Consultation \u2014 '+c.name;
     el('consultModalSubtitle').textContent=c.id+' \u00b7 Queue #'+c.q;
-    el('cmAvatar').style.backgroundImage='url(https://i.pravatar.cc/80?img='+c.img+')';
+    var av=el('cmAvatar');av.style.backgroundImage='none';av.style.display='flex';av.style.alignItems='center';av.style.justifyContent='center';av.style.background='#e0e9ff';av.style.color='#1d4ed8';av.style.fontWeight='800';av.textContent=window.ShilohAvatar.initials(c.name);
     el('cmName').textContent=c.name;
     el('cmSub').textContent=c.hospNo+' \u00b7 '+c.gender+', '+c.age+' yrs';
     el('vitalsStrip').innerHTML=vitalsStripHtml(c);
@@ -451,7 +451,7 @@
   window.openViewModal=function(id){
     var c=ConsultationService.getById(id);
     if(!c||c.status!=='Completed')return;
-    el('vAvatar').style.backgroundImage='url(https://i.pravatar.cc/80?img='+c.img+')';
+    var av=el('vAvatar');av.style.backgroundImage='none';av.style.display='flex';av.style.alignItems='center';av.style.justifyContent='center';av.style.background='#e0e9ff';av.style.color='#1d4ed8';av.style.fontWeight='800';av.textContent=window.ShilohAvatar.initials(c.name);
     el('vName').textContent=c.name;
     el('vSub').textContent=c.hospNo+' \u00b7 '+c.gender+', '+c.age+' yrs';
     var rxHtml=c.rx&&c.rx.length?c.rx.map(function(r){return '<div style="padding:4px 0;"><strong>'+esc(r.name)+'</strong> \u2014 '+esc(r.dose)+' \u00b7 '+esc(r.freq)+'</div>';}).join(''):'<span class="vital-dash">No prescription issued</span>';
@@ -469,8 +469,7 @@
   el('cDoctor').innerHTML=DOCTORS.map(function(d){return '<option value="'+esc(d)+'">'+esc(d)+'</option>';}).join('');
 
   window.ShilohSidebar.attach('#sidebarPlaceholder',{
-    activeFile:'consultation.html',
-    user:{name:'Dr. Samuel O.',role:'Physician',avatar:'https://i.pravatar.cc/64?img=13'}
+    activeFile:'consultation.html'
   });
 })();
 </script>

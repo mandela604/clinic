@@ -5,10 +5,10 @@ const ALLOWED_FIELDS = [
   'hospitalNo','name','title','firstName','middleName','lastName',
   'gender','age','dateOfBirth','maritalStatus','nationality','stateOfOrigin','lga',
   'religion','occupation','employer','bloodType','genotype',
-  'phonePrimary','phoneSecondary','email','address','residentialAddress','state','city',
+  'phonePrimary','phoneSecondary','email','address','residentialAddress','state','residentialLga','city',
   'idType','idNumber','idDateIssued','idExpiryDate','preferredLanguage','howDidYouHear',
   'patientType','patientCategory','notes','status','allergies','chronicConditions',
-  'emergencyContact','registeredOn','lastVisit'
+  'emergencyContact','registeredOn','registeredBy','lastVisit','avatar'
 ];
 
 function sanitizePatientInput(body) {
@@ -20,6 +20,9 @@ function sanitizePatientInput(body) {
   }
   if (out.email) out.email = out.email.toLowerCase();
   if (out.name) out.name = out.name.replace(/<[^>]*>/g, '').trim();
+  if (typeof out.avatar === 'string') {
+    if (!/^data:image\/(png|jpe?g|webp);base64,/i.test(out.avatar) || out.avatar.length > 400000) delete out.avatar;
+  }
   return out;
 }
 

@@ -7,5 +7,6 @@ router.use(protect);
 
 router.get('/', ctrl.dashboard);
 router.get('/dashboard', ctrl.dashboard);
+router.get('/reports', require('../controllers/reportsController').reports);
 
 module.exports = router;

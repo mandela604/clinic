@@ -53,6 +53,7 @@
   .sidebar-footer{border-top:1px solid rgba(255,255,255,0.08); padding-top:14px; display:flex; flex-direction:column; gap:10px;}
   .user-chip{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:10px;}
   .user-chip img{width:34px;height:34px;border-radius:50%;object-fit:cover;}
+  .user-initials{width:34px;height:34px;border-radius:50%;background:#2563eb;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;letter-spacing:.4px;flex-shrink:0;}
   .user-name{font-size:12.5px;font-weight:600;color:#fff;}
   .user-role{font-size:11px;color:#8891bd;}
   .logout{display:flex;align-items:center;gap:10px;color:#aab0d0;font-size:13px;font-weight:500;padding:8px;cursor:pointer;}
@@ -225,17 +226,17 @@
     <a class="nav-item" href="users.html" data-link><i class="fa-regular fa-user"></i> Users</a>
     <a class="nav-item" href="roles-permissions.html" data-link><i class="fa-solid fa-user-shield"></i> Roles &amp; Permissions</a>
     <a class="nav-item" href="settings.html" data-link><i class="fa-solid fa-gear"></i> Settings</a>
-    <a class="nav-item" href="audit-logs.html" data-link><i class="fa-solid fa-clipboard-list"></i> Audit Logs</a>
+    <a class="nav-item" href="audit-log.html" data-link><i class="fa-solid fa-clipboard-list"></i> Audit Logs</a>
   </div>
 
   <div class="sidebar-spacer"></div>
 
   <div class="sidebar-footer">
     <div class="user-chip">
-      <img src="https://i.pravatar.cc/64?img=47" alt="user">
+      <div class="user-initials" id="sidebarUserInitials">U</div>
       <div>
-        <div class="user-name">Cashier Bisi</div>
-        <div class="user-role">Billing Desk</div>
+        <div class="user-name" id="sidebarUserName">User</div>
+        <div class="user-role" id="sidebarUserRole"></div>
       </div>
     </div>
     <a class="logout"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a>
@@ -657,6 +658,25 @@
     }
   }
   init();
+})();
+
+/* Signed-in user in the static sidebar */
+(function(){
+  var u = {};
+  try { u = JSON.parse(localStorage.getItem('shiloh_user') || '{}') || {}; } catch (e) {}
+  var name = u.name || u.username || 'User';
+  var initials = name.trim().split(/\s+/).map(function(w){ return w[0]; }).join('').slice(0,2).toUpperCase() || 'U';
+  var ic = document.getElementById('sidebarUserInitials');
+  if (ic) ic.textContent = initials;
+  var nm = document.getElementById('sidebarUserName');
+  if (nm) nm.textContent = name;
+  var rl = document.getElementById('sidebarUserRole');
+  if (rl) rl.textContent = u.role || u.roleName || '';
+  var lo = document.querySelector('.sidebar .logout');
+  if (lo) lo.addEventListener('click', function(){
+    try { localStorage.removeItem('shiloh_token'); localStorage.removeItem('shiloh_user'); } catch (e) {}
+    location.href = 'login.html';
+  });
 })();
 </script>
 

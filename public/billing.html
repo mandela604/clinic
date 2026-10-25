@@ -229,7 +229,7 @@ function fmtDate(iso) { if (!iso) return '—'; const d = new Date(iso); const m
 function money(n) { return '₦' + Number(n||0).toLocaleString('en-NG',{maximumFractionDigits:0}); }
 
 document.addEventListener('DOMContentLoaded', async () => {
-  ShilohSidebar.attach('#sidebarPlaceholder', { activeFile: 'billing.html', user: { name: 'Cashier Bisi', role: 'Billing Desk', avatar: 'https://i.pravatar.cc/64?img=47' } });
+  ShilohSidebar.attach('#sidebarPlaceholder', { activeFile: 'billing.html' });
   await BillingService.init();
   renderStats();
   renderTable();

@@ -550,12 +550,14 @@
         case 'text': return _esc(_get(row, col.field));
         case 'link': return `<span class="std-link-cell" data-std-viewtrigger>${_esc(_get(row, col.field))}</span>`;
         case 'patient': {
-          const name = _esc(_get(row, col.nameField));
+          const rawName = _get(row, col.nameField);
+          const name = _esc(rawName);
           const sub = col.emailField ? _esc(_get(row, col.emailField)) : '';
           const av = col.avatarField ? _get(row, col.avatarField) : null;
-          const avUrl = av ? (typeof av === 'number' ? `https://i.pravatar.cc/80?img=${av}` : av) : '';
+          const avUrl = typeof av === 'string' ? av : '';
+          const initials = window.ShilohAvatar ? window.ShilohAvatar.initials(rawName) : '?';
           return `<div class="std-patient-cell">
-            <div class="std-avatar" style="${avUrl ? `background-image:url('${_esc(avUrl)}')` : ''}"></div>
+            <div class="std-avatar" style="${avUrl ? `background-image:url('${_esc(avUrl)}')` : 'display:flex;align-items:center;justify-content:center;background:#e0e9ff;color:#1d4ed8;font-weight:800;font-size:11px;'}">${avUrl ? '' : _esc(initials)}</div>
             <div><div class="std-patient-name">${name}</div>${sub ? `<div class="std-patient-sub">${sub}</div>` : ''}</div>
           </div>`;
         }

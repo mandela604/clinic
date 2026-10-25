@@ -226,7 +226,7 @@
       <input type="text" placeholder="Search by Hospital No., Name or Phone or Email...">
     </div>
     <div class="top-icons">
-      <div class="icon-btn"><i class="fa-regular fa-bell"></i><span class="dot">5</span></div>
+      <div class="icon-btn"><i class="fa-regular fa-bell"></i></div>
       <div class="icon-btn"><i class="fa-regular fa-circle-question"></i></div>
     </div>
     <div class="date-box">
@@ -277,7 +277,7 @@
 
     <div class="right-col">
       <div class="panel">
-        <div class="panel-head"><div class="panel-title">Notifications</div><a class="view-all" href="#">View All</a></div>
+        <div class="panel-head"><div class="panel-title">Notifications</div><a class="view-all" href="audit-log.html">View Activity</a></div>
         <div id="notifList"></div>
       </div>
       <div class="panel">
@@ -314,7 +314,6 @@
   document.addEventListener('DOMContentLoaded', async () => {
     ShilohSidebar.attach('#sidebarPlaceholder', {
       activeFile: 'dashboard.html',
-      user: { name: 'Receptionist', role: 'Reception', avatar: 'https://i.pravatar.cc/64?img=47' },
     });
 
     updateDateTime();

@@ -307,24 +307,20 @@
     <div class="pb-id">
       <div class="pb-avatar" id="pbAvatar"><i class="fa-solid fa-user"></i></div>
       <div>
-        <div class="pb-name">John O. Adekunle</div>
-        <div class="pb-chips">
-          <span class="pb-chip">Male, 34 Years</span>
-          <span class="pb-chip">O+</span>
-          <span class="pb-chip">AA</span>
-        </div>
-        <div class="pb-sub">Hospital No.: SHC-000123 &nbsp;·&nbsp; Visit No.: VIS-000132</div>
+        <div class="pb-name" id="pbName">Loading patient…</div>
+        <div class="pb-chips" id="pbChips"></div>
+        <div class="pb-sub" id="pbSub"></div>
       </div>
     </div>
     <div class="pb-col">
-      <div class="pb-line"><i class="fa-solid fa-phone"></i> <strong>0803 123 4567</strong></div>
-      <div class="pb-line"><i class="fa-regular fa-envelope"></i> johnade@gmail.com</div>
-      <div class="pb-line"><i class="fa-solid fa-location-dot"></i> 12 Mission Road, Uromi, Edo State, Nigeria</div>
+      <div class="pb-line"><i class="fa-solid fa-phone"></i> <strong id="pbPhone">—</strong></div>
+      <div class="pb-line"><i class="fa-regular fa-envelope"></i> <span id="pbEmail">—</span></div>
+      <div class="pb-line"><i class="fa-solid fa-location-dot"></i> <span id="pbAddress">—</span></div>
     </div>
     <div class="pb-col">
-      <div class="pb-line"><i class="fa-regular fa-calendar"></i> Visit Date: <strong>16/05/2025 09:15 AM</strong></div>
-      <div class="pb-line"><i class="fa-solid fa-user-doctor"></i> Doctor: <strong>Dr. Samuel O.</strong></div>
-      <div class="pb-line"><i class="fa-solid fa-building"></i> Department: <strong>General OPD</strong></div>
+      <div class="pb-line"><i class="fa-regular fa-calendar"></i> Visit Date: <strong id="pbVisitDate">—</strong></div>
+      <div class="pb-line"><i class="fa-solid fa-user-doctor"></i> Doctor: <strong id="pbDoctor">—</strong></div>
+      <div class="pb-line"><i class="fa-solid fa-building"></i> Department: <strong id="pbDept">—</strong></div>
     </div>
   </div>
 
@@ -332,15 +328,15 @@
   <div class="status-strip">
     <div class="ss-item">
       <div class="ss-ic"><i class="fa-solid fa-hashtag"></i></div>
-      <div><div class="ss-label">Visit No.</div><div class="ss-value">VIS-000132</div></div>
+      <div><div class="ss-label">Visit No.</div><div class="ss-value" id="ssVisitNo">—</div></div>
     </div>
     <div class="ss-item">
       <div class="ss-ic"><i class="fa-solid fa-users"></i></div>
-      <div><div class="ss-label">Queue No.</div><div class="ss-value">A-12</div></div>
+      <div><div class="ss-label">Queue No.</div><div class="ss-value" id="ssQueueNo">—</div></div>
     </div>
     <div class="ss-item">
       <div class="ss-ic"><i class="fa-solid fa-person-walking"></i></div>
-      <div><div class="ss-label">Visit Type</div><div class="ss-value">Walk-in</div></div>
+      <div><div class="ss-label">Visit Type</div><div class="ss-value" id="ssVisitType">—</div></div>
     </div>
     <div class="ss-item">
       <div class="ss-ic"><i class="fa-solid fa-circle-notch"></i></div>
@@ -359,16 +355,14 @@
         <div class="field-grid cols-4">
           <div class="field" data-field="measureTime">
             <label>Measurement Date &amp; Time<span class="req">*</span></label>
-            <div class="input-wrap"><i class="wrap-ic fa-regular fa-calendar"></i><input type="text" id="fMeasureTime" value="16/05/2025  09:15 AM"></div>
+            <div class="input-wrap"><i class="wrap-ic fa-regular fa-calendar"></i><input type="text" id="fMeasureTime" placeholder="DD/MM/YYYY  HH:MM AM"></div>
             <div class="field-err">Required</div>
           </div>
           <div class="field">
             <label>Recorded By<span class="req">*</span></label>
             <div class="input-wrap"><i class="wrap-ic fa-solid fa-user-nurse"></i>
               <select id="fRecordedBy">
-                <option>Mary U. (Nurse)</option>
-                <option>Grace T. (Nurse)</option>
-                <option>Samuel A. (Nurse)</option>
+                <option value="">Loading…</option>
               </select>
             </div>
           </div>
@@ -622,6 +616,8 @@
 <div class="toast" id="toast"><i class="fa-solid fa-circle-check"></i><span id="toastText">Saved</span></div>
 
 <script src="../services/api.js"></script>
+<script src="../services/patient-service.js"></script>
+<script src="../services/visit-service.js"></script>
 <script src="../services/vitals-service.js"></script>
 <script>
 (async function(){
@@ -630,9 +626,101 @@
 
   /* Backend-only vitals (no demo fallback, no localStorage). */
   const params = new URLSearchParams(window.location.search);
-  const VISIT_ID = params.get('visit') || params.get('queue') || 'VIS-000132';
+  const VISIT_ID = params.get('visit') || params.get('queue') || '';
+  let visitContext = null;
 
   try { await VitalsService.init(); } catch (e) { window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error'); }
+
+  const TYPE_LABELS = {
+    walkin: 'Walk-in', appointment: 'Appointment', followup: 'Follow-up', emergency: 'Emergency',
+    consultation: 'Consultation', antenatal: 'Antenatal', familyplanning: 'Family Planning',
+    labtest: 'Lab Test', vitals: 'Vitals', other: 'Other'
+  };
+
+  function nowStamp() {
+    const d = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    const time = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    return pad(d.getDate()) + '/' + pad(d.getMonth() + 1) + '/' + d.getFullYear() + '  ' + time;
+  }
+  if (!el('fMeasureTime').value) el('fMeasureTime').value = nowStamp();
+
+  function renderVisit(visit, patient) {
+    const p = patient || {};
+    el('pbName').textContent = p.name || visit.patientName || 'Unknown patient';
+    el('pbChips').innerHTML = [
+      p.gender && p.age ? p.gender + ', ' + p.age + ' Years' : (p.gender || visit.gender || ''),
+      p.bloodType || '', p.genotype || ''
+    ].filter(Boolean).map(t => '<span class="pb-chip">' + t + '</span>').join('');
+    el('pbSub').textContent = 'Hospital No.: ' + (visit.hospitalNo || p.hospitalNo || '—') + ' · Visit No.: ' + (visit.id || '—');
+    el('pbPhone').textContent = p.phonePrimary || '—';
+    el('pbEmail').textContent = p.email || '—';
+    el('pbAddress').textContent = [p.address || p.residentialAddress, p.city, p.state].filter(Boolean).join(', ') || '—';
+    el('pbVisitDate').textContent = [visit.date, visit.checkin || visit.time].filter(Boolean).join(' ') || '—';
+    el('pbDoctor').textContent = visit.doctor || 'Unassigned';
+    el('pbDept').textContent = visit.department || visit.dept || '—';
+    el('ssVisitNo').textContent = visit.id || '—';
+    el('ssQueueNo').textContent = visit.q || '—';
+    el('ssVisitType').textContent = TYPE_LABELS[visit.type] || visit.type || '—';
+  }
+
+  function renderNoVisit() {
+    el('pbName').textContent = 'No visit selected';
+    el('pbChips').innerHTML = '';
+    el('pbSub').textContent = 'Open this page from the Nursing queue to record vitals for a patient.';
+    el('pbPhone').textContent = '—';
+    el('pbEmail').textContent = '—';
+    el('pbAddress').textContent = '—';
+    el('pbVisitDate').textContent = '—';
+    el('pbDoctor').textContent = '—';
+    el('pbDept').textContent = '—';
+    el('ssVisitNo').textContent = '—';
+    el('ssQueueNo').textContent = '—';
+    el('ssVisitType').textContent = '—';
+  }
+
+  async function loadVisitContext() {
+    if (!VISIT_ID) { renderNoVisit(); return; }
+    try {
+      const res = await fetch(window.ShilohAPI.BASE + '/visits/' + encodeURIComponent(VISIT_ID), {
+        headers: window.ShilohAPI.headers()
+      });
+      if (!res.ok) throw new Error('Visit not found');
+      visitContext = await res.json();
+      let patient = null;
+      if (visitContext.patientId && window.PatientService) {
+        patient = await PatientService.fetchById(visitContext.patientId);
+      }
+      renderVisit(visitContext, patient);
+    } catch (e) {
+      visitContext = null;
+      renderNoVisit();
+      window.ShilohAPI.toast('Could not load visit details.', 'error');
+    }
+  }
+
+  async function loadRecordedByOptions() {
+    const sel = el('fRecordedBy');
+    let user = {};
+    try { user = JSON.parse(localStorage.getItem('shiloh_user') || '{}') || {}; } catch (e) {}
+    const names = [];
+    if (user.name) names.push(user.name);
+    try {
+      const res = await fetch(window.ShilohAPI.BASE + '/users?role=Nurse&limit=100', {
+        headers: window.ShilohAPI.headers()
+      });
+      if (res.ok) {
+        const data = await res.json();
+        (data.items || []).forEach(u => { if (u.name && !names.includes(u.name)) names.push(u.name); });
+      }
+    } catch (e) {}
+    sel.innerHTML = names.length
+      ? names.map(n => '<option value="' + n.replace(/"/g, '&quot;') + '">' + n + '</option>').join('')
+      : '<option value="">Select nurse</option>';
+  }
+
+  await loadVisitContext();
+  await loadRecordedByOptions();
 
   async function readHistory() {
     try {
@@ -835,6 +923,10 @@
 
   /* ---------------- SUBMIT ---------------- */
   async function submitVitals(btn, addAnother) {
+    if (!VISIT_ID || !visitContext) {
+      window.ShilohAPI.toast('Open this page from a visit to save vitals.', 'error');
+      return;
+    }
     const v = validateForm();
     markFieldStates(v);
     if (!v.allOk) { showToast('Please complete all required vital fields', 'error'); return; }
@@ -850,6 +942,8 @@
     const statusLabel = status === 'crit' ? 'Critical' : status === 'mild' ? 'Abnormal' : 'Normal';
 
     const payload = {
+      patientId: visitContext.patientId,
+      hospitalNo: visitContext.hospitalNo,
       visitId: VISIT_ID, date: dateStr, time: timeStr,
       bp: el('vBpSys').value.trim() + '/' + el('vBpDia').value.trim(),
       temp: el('vTemp').value.trim() || '—', pulse: el('vPulse').value.trim(), spo2: el('vSpo2').value.trim(),
@@ -869,6 +963,13 @@
     try {
       const created = await VitalsService.create(payload);
       if(!created){ window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error'); return; }
+      try {
+        await VisitService.updateVisit(VISIT_ID, {
+          status: 'recorded',
+          vitalSigns: { bp: payload.bp, temp: payload.temp, pulse: payload.pulse, spo2: payload.spo2, weight: payload.weight || '', height: payload.height || '' }
+        });
+        visitContext.status = 'recorded';
+      } catch (e) {}
       await renderHistory();
       showToast('Vitals saved · Status: ' + statusLabel + ' · Visit moved to Doctor Queue');
       if (addAnother) resetForm(); 

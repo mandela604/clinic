@@ -108,6 +108,7 @@
     display:flex;align-items:center;justify-content:center;color:#fff;font-size:24px;flex-shrink:0;
   }
   .logo-actions{display:flex;gap:8px;}
+  .logo-preview img{width:100%;height:100%;object-fit:cover;border-radius:14px;}
 
   /* toggle switch (shared) */
   .toggle-switch{ position:relative; width:38px;height:21px; border-radius:20px; background:#e2e8f0; flex-shrink:0; cursor:pointer; transition:.15s;}
@@ -154,6 +155,11 @@
   .backup-info-ic{width:38px;height:38px;border-radius:10px;background:var(--green-bg);color:var(--green);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
   .backup-info-title{font-size:12.5px;font-weight:800;color:var(--text-dark);}
   .backup-info-sub{font-size:11px;color:var(--text-light);font-weight:600;margin-top:2px;}
+
+  .policy-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 0;border-top:1px solid var(--border);}
+  .policy-row:first-of-type{margin-top:4px;}
+  .policy-label{font-size:12.5px;font-weight:700;color:var(--text-dark);}
+  .policy-sub{font-size:11px;color:var(--text-light);font-weight:600;margin-top:2px;}
 
   .export-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 0;border-bottom:1px solid var(--border);}
   .export-row:last-child{border-bottom:none;}
@@ -274,18 +280,19 @@
         <div class="logo-actions">
           <div class="btn-secondary" id="changeLogoBtn"><i class="fa-solid fa-image"></i> Change Logo</div>
           <div class="btn-secondary" id="removeLogoBtn"><i class="fa-solid fa-trash"></i> Remove</div>
+          <input type="file" id="logoInput" accept="image/png,image/jpeg,image/gif,image/webp" style="display:none;">
         </div>
       </div>
       <div class="panel-grid-2">
         <div>
           <div class="form-group"><label class="form-label">Clinic Name</label><input class="form-input" id="cName" value="Shiloh Clinic &amp; Maternity"></div>
           <div class="form-group"><label class="form-label">Tagline</label><input class="form-input" id="cTagline" value="Compassionate care, every step of the way"></div>
-          <div class="form-group"><label class="form-label">Registration / License No.</label><input class="form-input" id="cLicense" value="RN-LIC-2019-00842"></div>
+          <div class="form-group"><label class="form-label">Registration / License No.</label><input class="form-input" id="cLicense" placeholder="e.g. RN-LIC-2019-00842"></div>
         </div>
         <div>
-          <div class="form-group"><label class="form-label">Phone (Primary)</label><input class="form-input" id="cPhone1" value="0803 123 4567"></div>
-          <div class="form-group"><label class="form-label">Phone (Secondary)</label><input class="form-input" id="cPhone2" value="0705 765 4321"></div>
-          <div class="form-group"><label class="form-label">Email Address</label><input class="form-input" id="cEmail" value="frontdesk@shiloh.clinic"></div>
+          <div class="form-group"><label class="form-label">Phone (Primary)</label><input class="form-input" id="cPhone1" placeholder="e.g. 0803 123 4567"></div>
+          <div class="form-group"><label class="form-label">Phone (Secondary)</label><input class="form-input" id="cPhone2" placeholder="e.g. 0705 765 4321"></div>
+          <div class="form-group"><label class="form-label">Email Address</label><input class="form-input" id="cEmail" placeholder="e.g. frontdesk@clinic.com"></div>
         </div>
       </div>
     </div>
@@ -294,11 +301,11 @@
       <div class="panel-head"><div class="panel-title">Address</div></div>
       <div class="panel-grid-2">
         <div>
-          <div class="form-group"><label class="form-label">Street Address</label><input class="form-input" id="cStreet" value="12 Mission Road, Uromi"></div>
-          <div class="form-group"><label class="form-label">City / Town</label><input class="form-input" id="cCity" value="Uromi"></div>
+          <div class="form-group"><label class="form-label">Street Address</label><input class="form-input" id="cStreet" placeholder="Street address"></div>
+          <div class="form-group"><label class="form-label">City / Town</label><input class="form-input" id="cCity" placeholder="City / town"></div>
         </div>
         <div>
-          <div class="form-group"><label class="form-label">State</label><input class="form-input" id="cState" value="Edo State"></div>
+          <div class="form-group"><label class="form-label">State</label><input class="form-input" id="cState" placeholder="State"></div>
           <div class="form-group"><label class="form-label">Country</label><input class="form-input" id="cCountry" value="Nigeria"></div>
         </div>
       </div>
@@ -381,7 +388,7 @@
           <div class="backup-info-ic"><i class="fa-solid fa-circle-check"></i></div>
           <div>
             <div class="backup-info-title">Last successful backup</div>
-            <div class="backup-info-sub" id="lastBackupText">Today at 3:00 AM · 214 MB</div>
+            <div class="backup-info-sub" id="lastBackupText">No backup has been run yet</div>
           </div>
         </div>
         <div class="btn-primary" id="backupNowBtn"><i class="fa-solid fa-cloud-arrow-up"></i> Backup Now</div>
@@ -425,18 +432,6 @@
       <div class="export-row">
         <div class="export-left"><div class="export-ic" style="background:var(--red-bg);color:var(--red);"><i class="fa-solid fa-clipboard-list"></i></div><div><div class="export-title">Audit Logs</div><div class="export-sub">System-wide activity trail</div></div></div>
         <div class="btn-secondary" data-export="audit"><i class="fa-solid fa-download"></i> Export</div>
-      </div>
-    </div>
-
-    <div class="panel danger-zone">
-      <div class="panel-head" style="margin-bottom:6px;"><div class="panel-title" style="color:var(--red);">Danger Zone</div></div>
-      <div class="danger-row">
-        <div><div class="danger-title">Clear demo data</div><div class="danger-sub">Removes sample patients, visits and records used for testing. This cannot be undone.</div></div>
-        <div class="btn-danger" id="clearDemoBtn"><i class="fa-solid fa-broom"></i> Clear Demo Data</div>
-      </div>
-      <div class="danger-row">
-        <div><div class="danger-title">Factory reset system</div><div class="danger-sub">Restores Shiloh Clinic to its original, empty state. All records will be permanently deleted.</div></div>
-        <div class="btn-danger" id="factoryResetBtn"><i class="fa-solid fa-triangle-exclamation"></i> Factory Reset</div>
       </div>
     </div>
   </div>
@@ -518,35 +513,69 @@
 <script>
 (function(){
   const el = id => document.getElementById(id);
-  const esc = s => (s == null ? '' : String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
-  /* ============ STATE ============ */
+  const token = localStorage.getItem('shiloh_token');
+  if (!token) { location.href = 'login.html'; return; }
+
+  let user = {};
+  try { user = JSON.parse(localStorage.getItem('shiloh_user') || '{}') || {}; } catch(e) {}
+  const isAdmin = ['Administrator', 'admin'].includes(user.role);
+
+  const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+
   let dirty = false;
-  function markDirty(){ dirty = true; el('unsavedStrip').classList.add('show'); }
+  let hours = [];
+  let logo = '';
+  let settings = null;
+
+  function markDirty(){ if(!isAdmin) return; dirty = true; el('unsavedStrip').classList.add('show'); }
   function clearDirty(){ dirty = false; el('unsavedStrip').classList.remove('show'); }
 
-  let hours = [
-    { day:'Monday', open:true, start:'08:00', end:'18:00', breakStart:'13:00', breakEnd:'14:00' },
-    { day:'Tuesday', open:true, start:'08:00', end:'18:00', breakStart:'13:00', breakEnd:'14:00' },
-    { day:'Wednesday', open:true, start:'08:00', end:'18:00', breakStart:'13:00', breakEnd:'14:00' },
-    { day:'Thursday', open:true, start:'08:00', end:'18:00', breakStart:'13:00', breakEnd:'14:00' },
-    { day:'Friday', open:true, start:'08:00', end:'18:00', breakStart:'13:00', breakEnd:'14:00' },
-    { day:'Saturday', open:true, start:'09:00', end:'15:00', breakStart:'', breakEnd:'' },
-    { day:'Sunday', open:false, start:'', end:'', breakStart:'', breakEnd:'' },
-  ];
-
-  let emergency247 = true;
-  let backupAuto = true;
-  let lastBackup = { text: 'Today at 3:00 AM · 214 MB' };
-
-  /* ============ TOAST ============ */
   function showToast(msg, isErr){
     const t = el('toast');
     el('toastText').textContent = msg;
     t.classList.toggle('err', !!isErr);
     t.classList.add('show');
     clearTimeout(showToast._tm);
-    showToast._tm = setTimeout(()=>t.classList.remove('show'), 2200);
+    showToast._tm = setTimeout(()=>t.classList.remove('show'), 2400);
+  }
+
+  async function api(path, opts){
+    opts = opts || {};
+    opts.headers = Object.assign({ Authorization: 'Bearer ' + token }, opts.headers || {});
+    const res = await fetch('/api' + path, opts);
+    if (res.status === 401) { location.href = 'login.html'; throw new Error('Unauthorized'); }
+    let data = null;
+    try { data = await res.json(); } catch(e) {}
+    if (!res.ok) throw new Error((data && data.error) || ('Request failed (' + res.status + ')'));
+    return data;
+  }
+
+  function downloadBlob(blob, filename){
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  function filenameFrom(res, fallback){
+    const cd = res.headers.get('Content-Disposition') || '';
+    const m = /filename="?([^";]+)"?/i.exec(cd);
+    return m ? m[1] : fallback;
+  }
+
+  function fmtSize(bytes){
+    if (!bytes) return '—';
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1048576) return (bytes/1024).toFixed(1) + ' KB';
+    return (bytes/1048576).toFixed(1) + ' MB';
+  }
+
+  function fmtBackup(b){
+    const d = new Date(b.at);
+    if (isNaN(d.getTime())) return 'Recorded';
+    return d.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}) + ', ' + d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
   }
 
   /* ============ TABS ============ */
@@ -559,42 +588,60 @@
     });
   });
 
-  /* ============ TOGGLE SWITCH HELPER ============ */
+  /* ============ TOGGLES ============ */
   function wireToggle(elm, onChange){
     elm.addEventListener('click', ()=>{
+      if(!isAdmin) return;
       elm.classList.toggle('on');
       markDirty();
       if(onChange) onChange(elm.classList.contains('on'));
     });
   }
+  wireToggle(el('emergencyToggle'), on=>{ if(settings) settings.emergency247 = on; renderStats(); });
+  wireToggle(el('backupAutoToggle'), on=>{ if(settings) settings.backupAuto = on; renderStats(); });
 
-  /* track plain inputs as dirty triggers */
   document.querySelectorAll('.form-input, .form-select, .form-textarea').forEach(inp=>{
     inp.addEventListener('input', markDirty);
     inp.addEventListener('change', markDirty);
   });
 
-  /* ============ STATS ============ */
-  function renderStats(){
-    const openDays = hours.filter(h=>h.open).length;
-    el('statOpenDays').textContent = openDays + ' / 7';
-    el('statEmergencyNote').textContent = emergency247 ? 'Plus 24/7 emergency care' : 'Standard schedule only';
-    el('statBackup').textContent = backupAuto ? 'Today, 3:00 AM' : 'Manual only';
-    el('statBackupSub').textContent = backupAuto ? '214 MB · auto-backup on' : 'Auto-backup disabled';
+  /* ============ RENDER ============ */
+  function renderLogo(){
+    el('logoPreview').innerHTML = logo
+      ? '<img src="' + logo + '" alt="Clinic logo">'
+      : '<i class="fa-solid fa-heart-pulse"></i>';
   }
 
-  /* ============ WORKING HOURS ============ */
-  let editingHoursIndex = -1;
+  function renderStats(){
+    const openDays = hours.filter(h=>h.open).length;
+    el('statOpenDays').textContent = openDays + ' / ' + (hours.length || 7);
+    el('statEmergencyNote').textContent = (settings && settings.emergency247) ? 'Plus 24/7 emergency care' : 'Standard schedule only';
+
+    const b = settings && settings.lastBackup;
+    if (b && b.at) {
+      el('statBackup').textContent = fmtBackup(b);
+      el('statBackupSub').textContent = fmtSize(b.size) + ' · ' + ((settings && settings.backupAuto) ? 'auto-backup on' : 'auto-backup off');
+      el('lastBackupText').textContent = fmtBackup(b) + ' · ' + fmtSize(b.size);
+    } else {
+      el('statBackup').textContent = 'Never';
+      el('statBackupSub').textContent = (settings && settings.backupAuto) ? 'Auto-backup on — no backup run yet' : 'Auto-backup disabled';
+      el('lastBackupText').textContent = 'No backup has been run yet';
+    }
+  }
 
   function renderHours(){
+    if (hours.length === 0) {
+      el('hoursRows').innerHTML = '<div style="padding:18px 0;color:var(--text-light);font-weight:600;">No working hours configured. Use “Add Hours” to create a schedule.</div>';
+      return;
+    }
     el('hoursRows').innerHTML = hours.map((h,i)=>`
       <div class="hours-row">
         <div class="hours-day">${h.day}</div>
         <div class="toggle-switch ${h.open?'on':''}" data-hour-toggle="${i}"><div class="toggle-knob"></div></div>
         ${h.open ? `
-          <div class="hours-time-group"><label>From</label><input type="time" class="form-input" data-hour-field="${i}" data-hour-key="start" value="${h.start}"></div>
-          <div class="hours-time-group"><label>To</label><input type="time" class="form-input" data-hour-field="${i}" data-hour-key="end" value="${h.end}"></div>
-          <div class="hours-time-group"><label>Break</label><input type="time" class="form-input" data-hour-field="${i}" data-hour-key="breakStart" value="${h.breakStart}" style="max-width:90px;"><span style="color:var(--text-light);">–</span><input type="time" class="form-input" data-hour-field="${i}" data-hour-key="breakEnd" value="${h.breakEnd}" style="max-width:90px;"></div>
+          <div class="hours-time-group"><label>From</label><input type="time" class="form-input" data-hour-field="${i}" data-hour-key="start" value="${h.start||''}"></div>
+          <div class="hours-time-group"><label>To</label><input type="time" class="form-input" data-hour-field="${i}" data-hour-key="end" value="${h.end||''}"></div>
+          <div class="hours-time-group"><label>Break</label><input type="time" class="form-input" data-hour-field="${i}" data-hour-key="breakStart" value="${h.breakStart||''}" style="max-width:90px;"><span style="color:var(--text-light);">–</span><input type="time" class="form-input" data-hour-field="${i}" data-hour-key="breakEnd" value="${h.breakEnd||''}" style="max-width:90px;"></div>
         ` : `<div class="hours-closed-label">Closed</div><div></div><div></div>`}
         <div style="display:flex;align-items:center;justify-content:center;gap:6px;">
           <div class="icon-btn" data-edit-hours="${i}" title="Edit"><i class="fa-solid fa-pen"></i></div>
@@ -602,8 +649,10 @@
         </div>
       </div>
     `).join('');
+
     document.querySelectorAll('[data-hour-toggle]').forEach(t=>{
       t.addEventListener('click', ()=>{
+        if(!isAdmin) return;
         const i = Number(t.dataset.hourToggle);
         hours[i].open = !hours[i].open;
         if(hours[i].open && !hours[i].start){ hours[i].start='08:00'; hours[i].end='18:00'; }
@@ -619,14 +668,15 @@
     });
     document.querySelectorAll('[data-edit-hours]').forEach(b=>{
       b.addEventListener('click', ()=>{
-        editingHoursIndex = Number(b.dataset.editHours);
-        openHoursModal(editingHoursIndex);
+        if(!isAdmin) return;
+        openHoursModal(Number(b.dataset.editHours));
       });
     });
     document.querySelectorAll('[data-delete-hours]').forEach(b=>{
       b.addEventListener('click', ()=>{
+        if(!isAdmin) return;
         const i = Number(b.dataset.deleteHours);
-        openConfirm(`Delete ${hours[i].day} hours?`, 'This will remove the working hours for this day.', ()=>{
+        openConfirm('Delete ' + hours[i].day + ' hours?', 'This will remove the working hours for this day.', ()=>{
           hours.splice(i, 1);
           renderHours(); renderStats(); markDirty();
           showToast('Hours deleted');
@@ -634,6 +684,9 @@
       });
     });
   }
+
+  /* ============ WORKING HOURS MODAL ============ */
+  let editingHoursIndex = -1;
 
   function openHoursModal(index){
     const isEdit = index >= 0;
@@ -649,8 +702,8 @@
       el('hoursBreakEnd').value = h.breakEnd || '14:00';
     } else {
       const usedDays = hours.map(h=>h.day);
-      const available = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].filter(d=>!usedDays.includes(d));
-      el('hoursDay').innerHTML = available.map(d=>`<option>${d}</option>`).join('') || '<option>No days available</option>';
+      const available = DAYS.filter(d=>!usedDays.includes(d));
+      el('hoursDay').innerHTML = available.map(d=>'<option>' + d + '</option>').join('') || '<option value="">No days available</option>';
       el('hoursStatus').value = 'open';
       el('hoursStart').value = '08:00';
       el('hoursEnd').value = '18:00';
@@ -666,21 +719,21 @@
   }
 
   el('hoursStatus').addEventListener('change', toggleTimeFields);
-
-  el('addHoursBtn').addEventListener('click', ()=>{
-    editingHoursIndex = -1;
-    openHoursModal(-1);
-  });
+  el('addHoursBtn').addEventListener('click', ()=>{ if(isAdmin) openHoursModal(-1); });
 
   el('hoursSaveBtn').addEventListener('click', ()=>{
+    if(!isAdmin) return;
     const status = el('hoursStatus').value;
     const day = el('hoursDay').value;
+    if(!day){ showToast('No day available — edit an existing row instead', true); return; }
     if(editingHoursIndex >= 0){
-      hours[editingHoursIndex].open = status === 'open';
-      hours[editingHoursIndex].start = el('hoursStart').value;
-      hours[editingHoursIndex].end = el('hoursEnd').value;
-      hours[editingHoursIndex].breakStart = el('hoursBreakStart').value;
-      hours[editingHoursIndex].breakEnd = el('hoursBreakEnd').value;
+      Object.assign(hours[editingHoursIndex], {
+        open: status === 'open',
+        start: el('hoursStart').value,
+        end: el('hoursEnd').value,
+        breakStart: el('hoursBreakStart').value,
+        breakEnd: el('hoursBreakEnd').value
+      });
       showToast('Hours updated');
     } else {
       hours.push({
@@ -697,40 +750,6 @@
     renderHours(); renderStats(); markDirty();
   });
 
-  wireToggle(el('emergencyToggle'), on=>{ emergency247 = on; renderStats(); });
-
-  /* ============ BACKUP ============ */
-  wireToggle(el('backupAutoToggle'), on=>{ backupAuto = on; renderStats(); });
-  el('backupNowBtn').addEventListener('click', ()=>{
-    el('backupNowBtn').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Backing up…';
-    setTimeout(()=>{
-      const now = new Date();
-      const timeStr = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-      el('lastBackupText').textContent = `Just now, ${timeStr} · 214 MB`;
-      el('backupNowBtn').innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Backup Now';
-      renderStats();
-      showToast('Backup completed successfully');
-    }, 1200);
-  });
-
-  document.querySelectorAll('[data-export]').forEach(b=>{
-    b.addEventListener('click', ()=>{
-      showToast(`Preparing export — you'll get a download link shortly (demo)`);
-    });
-  });
-
-  /* ============ DANGER ZONE ============ */
-  el('clearDemoBtn').addEventListener('click', ()=>{
-    openConfirm('Clear all demo data?', 'This removes sample patients, visits, invoices and lab results used for testing. Real records you have added will not be affected. This cannot be undone.', ()=>{
-      showToast('Demo data cleared');
-    });
-  });
-  el('factoryResetBtn').addEventListener('click', ()=>{
-    openConfirm('Factory reset the system?', 'This will permanently delete every patient, visit, invoice and user record, restoring Shiloh Clinic to its original empty state. This action cannot be undone.', ()=>{
-      showToast('Factory reset started (demo)');
-    });
-  });
-
   /* ============ CONFIRM MODAL ============ */
   let confirmCallback = null;
   function openConfirm(title, text, cb){
@@ -740,48 +759,237 @@
     el('confirmModal').classList.add('open');
   }
   el('confirmActionBtn').addEventListener('click', ()=>{
-    if(confirmCallback) confirmCallback();
+    const cb = confirmCallback;
     el('confirmModal').classList.remove('open');
     confirmCallback = null;
+    if(cb) cb();
+  });
+
+  /* ============ LOAD / SAVE ============ */
+  const FIELD_MAP = {
+    cName:'clinicName', cTagline:'tagline', cLicense:'license',
+    cPhone1:'phonePrimary', cPhone2:'phoneSecondary', cEmail:'email',
+    cStreet:'street', cCity:'city', cState:'state', cCountry:'country',
+    cTimezone:'timezone', cCurrency:'currency', cDateFormat:'dateFormat', cTimeFormat:'timeFormat',
+    backupFrequency:'backupFrequency', backupRetention:'backupRetention'
+  };
+
+  function applySettings(s){
+    settings = s || {};
+    Object.entries(FIELD_MAP).forEach(([id,key])=>{
+      const input = el(id);
+      if(input) input.value = settings[key] == null ? '' : settings[key];
+    });
+    hours = Array.isArray(settings.hours) ? settings.hours.map(h=>Object.assign({}, h)) : [];
+    logo = settings.logo || '';
+    el('emergencyToggle').classList.toggle('on', !!settings.emergency247);
+    el('backupAutoToggle').classList.toggle('on', !!settings.backupAuto);
+    renderLogo();
+    renderHours();
+    renderStats();
+  }
+
+  function collectSettings(){
+    const data = {};
+    Object.entries(FIELD_MAP).forEach(([id,key])=>{
+      const input = el(id);
+      if(input) data[key] = input.value;
+    });
+    data.hours = hours.map(h=>({
+      day: h.day,
+      open: !!h.open,
+      start: h.open ? (h.start||'') : '',
+      end: h.open ? (h.end||'') : '',
+      breakStart: h.open ? (h.breakStart||'') : '',
+      breakEnd: h.open ? (h.breakEnd||'') : ''
+    }));
+    data.emergency247 = el('emergencyToggle').classList.contains('on');
+    data.backupAuto = el('backupAutoToggle').classList.contains('on');
+    data.logo = logo;
+    return data;
+  }
+
+  async function loadSettings(){
+    try {
+      const data = await api('/settings');
+      applySettings(data.settings);
+    } catch(e){
+      showToast(e.message || 'Could not load settings', true);
+    }
+  }
+
+  let saving = false;
+  async function saveAll(){
+    if(!isAdmin){ showToast('Administrator access required', true); return; }
+    if(saving) return;
+    saving = true;
+    const btn = el('saveAllBtn');
+    const html = btn.innerHTML;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving…';
+    try {
+      const data = await api('/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(collectSettings())
+      });
+      applySettings(data.settings);
+      clearDirty();
+      showToast('Settings saved successfully');
+    } catch(e){
+      showToast(e.message || 'Could not save settings', true);
+    } finally {
+      saving = false;
+      btn.innerHTML = html;
+    }
+  }
+  el('saveAllBtn').addEventListener('click', saveAll);
+  el('unsavedSaveBtn').addEventListener('click', saveAll);
+
+  el('resetDefaultsBtn').addEventListener('click', ()=>{
+    if(!isAdmin) return;
+    openConfirm('Reset all settings to defaults?', 'Every tab on this page will revert to the original Shiloh Clinic configuration. This also removes any uploaded logo.', async ()=>{
+      try {
+        const data = await api('/settings', { method: 'DELETE' });
+        applySettings(data.settings);
+        clearDirty();
+        showToast('Settings reset to defaults');
+      } catch(e){
+        showToast(e.message || 'Could not reset settings', true);
+      }
+    });
+  });
+
+  /* ============ BACKUP ============ */
+  el('backupNowBtn').addEventListener('click', async ()=>{
+    if(!isAdmin){ showToast('Administrator access required', true); return; }
+    const btn = el('backupNowBtn');
+    if(btn.dataset.busy) return;
+    btn.dataset.busy = '1';
+    const html = btn.innerHTML;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Backing up…';
+    try {
+      const res = await fetch('/api/settings/backup', { method: 'POST', headers: { Authorization: 'Bearer ' + token } });
+      if (res.status === 401) { location.href = 'login.html'; return; }
+      if (!res.ok) {
+        let err = {};
+        try { err = await res.json(); } catch(e) {}
+        throw new Error(err.error || ('Backup failed (' + res.status + ')'));
+      }
+      const blob = await res.blob();
+      downloadBlob(blob, filenameFrom(res, 'shiloh-backup-' + new Date().toISOString().slice(0,10) + '.json'));
+      showToast('Backup downloaded (' + fmtSize(blob.size) + ')');
+      await loadSettings();
+    } catch(e){
+      showToast(e.message || 'Backup failed', true);
+    } finally {
+      delete btn.dataset.busy;
+      btn.innerHTML = html;
+    }
+  });
+
+  /* ============ DATA EXPORTS ============ */
+  const EXPORT_LABELS = { patients:'Patient records', billing:'Billing & invoices', lab:'Laboratory results', audit:'Audit logs' };
+  document.querySelectorAll('[data-export]').forEach(b=>{
+    b.addEventListener('click', async ()=>{
+      if(!isAdmin){ showToast('Administrator access required', true); return; }
+      const type = b.dataset.export;
+      if(b.dataset.busy) return;
+      b.dataset.busy = '1';
+      const html = b.innerHTML;
+      b.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Exporting…';
+      try {
+        const res = await fetch('/api/settings/export/' + type, { headers: { Authorization: 'Bearer ' + token } });
+        if (res.status === 401) { location.href = 'login.html'; return; }
+        if (!res.ok) {
+          let err = {};
+          try { err = await res.json(); } catch(e) {}
+          throw new Error(err.error || ('Export failed (' + res.status + ')'));
+        }
+        const blob = await res.blob();
+        downloadBlob(blob, filenameFrom(res, 'shiloh-' + type + '.csv'));
+        showToast((EXPORT_LABELS[type] || 'Data') + ' exported');
+      } catch(e){
+        showToast(e.message || 'Export failed', true);
+      } finally {
+        delete b.dataset.busy;
+        b.innerHTML = html;
+      }
+    });
   });
 
   /* ============ LOGO ============ */
-  el('changeLogoBtn').addEventListener('click', ()=>{ markDirty(); showToast('Logo upload (demo) — pick a file from your device'); });
-  el('removeLogoBtn').addEventListener('click', ()=>{
-    el('logoPreview').innerHTML = '<i class="fa-solid fa-hospital"></i>';
-    markDirty();
-    showToast('Logo removed');
+  el('changeLogoBtn').addEventListener('click', ()=>{ if(isAdmin) el('logoInput').click(); });
+  el('logoInput').addEventListener('change', async e=>{
+    const file = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if(!file) return;
+    if(!/^image\//.test(file.type)){ showToast('Choose an image file', true); return; }
+    try {
+      logo = await resizeLogo(file, 320);
+      renderLogo();
+      markDirty();
+      showToast('Logo selected — save changes to apply');
+    } catch(err){
+      showToast('Could not read that image', true);
+    }
   });
+  el('removeLogoBtn').addEventListener('click', ()=>{
+    if(!isAdmin) return;
+    logo = '';
+    renderLogo();
+    markDirty();
+    showToast('Logo removed — save changes to apply');
+  });
+
+  function resizeLogo(file, max){
+    return new Promise((resolve, reject)=>{
+      const reader = new FileReader();
+      reader.onerror = reject;
+      reader.onload = ()=>{
+        const img = new Image();
+        img.onerror = reject;
+        img.onload = ()=>{
+          const scale = Math.min(1, max / Math.max(img.width, img.height));
+          const w = Math.max(1, Math.round(img.width * scale));
+          const h = Math.max(1, Math.round(img.height * scale));
+          const canvas = document.createElement('canvas');
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          try { resolve(canvas.toDataURL('image/png')); } catch(err) { reject(err); }
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
 
   /* ============ MODAL PLUMBING ============ */
   document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click', ()=>el(b.dataset.close).classList.remove('open')));
   document.querySelectorAll('.modal-overlay').forEach(ov=>ov.addEventListener('click', e=>{ if(e.target===ov) ov.classList.remove('open'); }));
   document.addEventListener('keydown', e=>{ if(e.key==='Escape') document.querySelectorAll('.modal-overlay.open').forEach(ov=>ov.classList.remove('open')); });
 
-  /* ============ SAVE / RESET ============ */
-  function saveAll(){
-    clearDirty();
-    showToast('Settings saved successfully');
-  }
-  el('saveAllBtn').addEventListener('click', saveAll);
-  el('unsavedSaveBtn').addEventListener('click', saveAll);
-  el('resetDefaultsBtn').addEventListener('click', ()=>{
-    openConfirm('Reset all settings to defaults?', 'Every tab on this page will revert to the original Shiloh Clinic configuration. Unsaved changes will be lost.', ()=>{
-      location.reload();
+  /* ============ ADMIN GATING ============ */
+  function applyAdminState(){
+    if(isAdmin) return;
+    el('saveAllBtn').style.display = 'none';
+    el('resetDefaultsBtn').style.display = 'none';
+    el('unsavedStrip').classList.add('show');
+    el('unsavedStrip').firstElementChild.innerHTML = '<i class="fa-solid fa-lock"></i> View only — only Administrators can change settings or export data.';
+    document.querySelectorAll('.form-input, .form-select, .form-textarea, .toggle-switch, .icon-btn, #addHoursBtn, #backupNowBtn, [data-export], #changeLogoBtn, #removeLogoBtn').forEach(node=>{
+      node.style.pointerEvents = 'none';
+      node.style.opacity = '0.6';
     });
-  });
+  }
 
   /* ============ INIT ============ */
-  renderHours();
-  renderStats();
+  applyAdminState();
+  loadSettings();
 
   if(window.ShilohSidebar){
-    window.ShilohSidebar.attach('#sidebarPlaceholder', {
-      activeFile: 'settings.html',
-      user: { name: 'Admin Tolu', role: 'System Admin', avatar: 'https://i.pravatar.cc/64?img=47' }
-    });
+    window.ShilohSidebar.attach('#sidebarPlaceholder', { activeFile: 'settings.html' });
   }
 })();
+
 </script>
 
 </body>

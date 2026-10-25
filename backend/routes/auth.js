@@ -20,4 +20,6 @@ router.post('/login',
 
 router.get('/me', protect, ctrl.me);
 
+router.post('/logout', protect, (req, res) => res.json({ ok: true }));
+
 module.exports = router;

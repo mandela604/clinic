@@ -407,7 +407,8 @@
   }
 
   function renderPatientCard(){
-    el('patientAvatar').style.backgroundImage = `url('https://i.pravatar.cc/120?img=${visit.img || 12}')`;
+    el('patientAvatar').style.backgroundImage = 'none';
+    el('patientAvatar').textContent = window.ShilohAvatar.initials(visit.name || 'Unknown Patient');
     el('patientName').textContent = visit.name || 'Unknown Patient';
 
     const meta = findPatientMeta(visit.name);
@@ -620,8 +621,7 @@
 
   if(window.ShilohSidebar){
     window.ShilohSidebar.attach('#sidebarPlaceholder', {
-      activeFile: 'visits.html',
-      user: { name: 'Receptionist', role: 'Front Desk', avatar: 'https://i.pravatar.cc/64?img=47' }
+      activeFile: 'visits.html'
     });
   }
 })();

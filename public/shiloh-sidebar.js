@@ -24,7 +24,7 @@
  *   <script>
  *     const sb = ShilohSidebar.attach('#sidebarPlaceholder', {
  *       activeFile: 'patients.html',     // omit to auto-detect from location.pathname
- *       user: { name: 'Receptionist', role: 'Front Desk', avatar: 'https://i.pravatar.cc/64?img=47' },
+ *       user: { name: 'Receptionist', role: 'Front Desk' },
  *       onLogout: () => { ... },         // optional, else navigates to logout.html
  *       onNavigate: (href) => { ... },   // optional — fires right before navigation, doesn't block it
  *     });
@@ -126,7 +126,7 @@
 
     .ssb-bottom{margin-top:auto;}
     .ssb-user-block{display:flex;align-items:center;gap:10px;margin:10px 16px;padding:10px;background:rgba(255,255,255,0.05);border-radius:10px;cursor:pointer;}
-    .ssb-user-avatar{width:34px;height:34px;border-radius:50%;background:#94a3b8;background-size:cover;background-position:center;flex-shrink:0;}
+    .ssb-user-avatar{width:34px;height:34px;border-radius:50%;background:#2563eb;background-size:cover;background-position:center;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:800;letter-spacing:.4px;overflow:hidden;}
     .ssb-user-name{color:#fff;font-size:13px;font-weight:600;}
     .ssb-user-role{color:#94a3b8;font-size:11px;}
     .ssb-wrap .ssb-logout{display:flex;align-items:center;gap:12px;padding:12px 20px;font-size:13.5px;color:var(--ssb-text);cursor:pointer;}
@@ -149,6 +149,10 @@
   }
 
   function _esc(s) { return (s == null ? '' : String(s)).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+  function _initials(name) {
+    return String(name || '').trim().split(/\s+/).map(w => w[0]).filter(Boolean).join('').slice(0, 2).toUpperCase() || 'U';
+  }
 
   function _currentFile() {
     const path = location.pathname.split('/').pop();
@@ -174,11 +178,10 @@
       if (raw) {
         const u = JSON.parse(raw);
         if (u && (u.name || u.username)) {
-          const seed = String(u.id || u.username || u.name).split('').reduce((s, c) => s + c.charCodeAt(0), 0);
           user = {
             name: u.name || u.username || 'User',
             role: u.role || u.roleName || '',
-            avatar: u.avatar || ('https://i.pravatar.cc/64?img=' + ((seed % 60) + 1))
+            avatar: u.avatar || null
           };
         }
       }
@@ -197,7 +200,7 @@
     function userBlockHtml() {
       return `
         <div class="ssb-user-block" id="${instId}-userblock">
-          <div class="ssb-user-avatar" style="${user.avatar ? `background-image:url('${_esc(user.avatar)}')` : ''}"></div>
+          <div class="ssb-user-avatar">${_esc(_initials(user.name))}</div>
           <div>
             <div class="ssb-user-name">${_esc(user.name)}</div>
             <div class="ssb-user-role">${_esc(user.role)}</div>
@@ -231,11 +234,20 @@
         });
       }
       document.getElementById(instId + '-logout').addEventListener('click', () => {
-        if (typeof options.onLogout === 'function') options.onLogout();
-        else {
-          try { localStorage.removeItem('shiloh_token'); localStorage.removeItem('shiloh_user'); } catch (e) {}
-          location.href = 'login.html';
-        }
+        if (typeof options.onLogout === 'function') return options.onLogout();
+        try {
+          const token = localStorage.getItem('shiloh_token');
+          if (token) {
+            fetch('/api/auth/logout', {
+              method: 'POST',
+              headers: { Authorization: 'Bearer ' + token },
+              keepalive: true
+            }).catch(() => {});
+          }
+          localStorage.removeItem('shiloh_token');
+          localStorage.removeItem('shiloh_user');
+        } catch (e) {}
+        location.href = 'login.html';
       });
       const userBlock = document.getElementById(instId + '-userblock');
       if (userBlock && typeof options.onUserClick === 'function') {
@@ -265,5 +277,6 @@
   }
 
   window.ShilohSidebar = { attach, DEFAULT_NAV, ICONS };
+  window.ShilohAvatar = { initials: _initials };
 
 })();

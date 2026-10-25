@@ -176,22 +176,12 @@
       <div class="filter-label">Department</div>
       <select class="filter-select" id="deptFilter">
         <option value="all">All Departments</option>
-        <option>General OPD</option>
-        <option>Maternity</option>
-        <option>Nursing</option>
-        <option>Laboratory</option>
-        <option>Pharmacy</option>
-        <option>Billing</option>
       </select>
     </div>
     <div class="filter-group">
       <div class="filter-label">Doctor</div>
       <select class="filter-select" id="doctorFilter">
         <option value="all">All Doctors</option>
-        <option>Dr. Samuel O.</option>
-        <option>Dr. Ifeoma B.</option>
-        <option>Dr. Chidi K.</option>
-        <option>Dr. Amaka N.</option>
       </select>
     </div>
     <div class="filter-spacer"></div>
@@ -209,10 +199,10 @@
     </div>
 
     <div class="mini-stats">
-      <div class="mini-stat"><div class="mini-stat-label">Total Visits</div><div class="mini-stat-value">1,248</div><div class="mini-stat-sub up">↑ 8.2% vs last period</div></div>
-      <div class="mini-stat"><div class="mini-stat-label">New Registrations</div><div class="mini-stat-value">186</div><div class="mini-stat-sub up">↑ 14.6% vs last period</div></div>
-      <div class="mini-stat"><div class="mini-stat-label">Avg. Daily Visits</div><div class="mini-stat-value">41.6</div><div class="mini-stat-sub flat">Consistent with last period</div></div>
-      <div class="mini-stat"><div class="mini-stat-label">Returning Patients</div><div class="mini-stat-value">85.1%</div><div class="mini-stat-sub down">↓ 1.3% vs last period</div></div>
+      <div class="mini-stat"><div class="mini-stat-label">Total Visits</div><div class="mini-stat-value" id="volumeTotal">0</div><div class="mini-stat-sub flat" id="volumeDelta">—</div></div>
+      <div class="mini-stat"><div class="mini-stat-label">New Registrations</div><div class="mini-stat-value" id="volumeRegs">0</div><div class="mini-stat-sub flat" id="volumeRange">—</div></div>
+      <div class="mini-stat"><div class="mini-stat-label">Avg. Daily Visits</div><div class="mini-stat-value" id="volumeAvg">0</div><div class="mini-stat-sub flat" id="volumeDays">—</div></div>
+      <div class="mini-stat"><div class="mini-stat-label">Returning Patients</div><div class="mini-stat-value" id="volumeReturning">0%</div><div class="mini-stat-sub flat">Registered before this period</div></div>
     </div>
 
     <div class="bar-chart" id="volumeChart"></div>
@@ -238,10 +228,10 @@
     </div>
 
     <div class="mini-stats">
-      <div class="mini-stat"><div class="mini-stat-label">Total Appointments</div><div class="mini-stat-value">612</div><div class="mini-stat-sub flat">This period</div></div>
-      <div class="mini-stat"><div class="mini-stat-label">Show Rate</div><div class="mini-stat-value">87.4%</div><div class="mini-stat-sub up">↑ 2.1% vs last period</div></div>
-      <div class="mini-stat"><div class="mini-stat-label">No-Show Rate</div><div class="mini-stat-value">7.8%</div><div class="mini-stat-sub down">↓ 0.9% vs last period</div></div>
-      <div class="mini-stat"><div class="mini-stat-label">Cancellation Rate</div><div class="mini-stat-value">4.8%</div><div class="mini-stat-sub flat">Consistent with last period</div></div>
+      <div class="mini-stat"><div class="mini-stat-label">Total Appointments</div><div class="mini-stat-value" id="apptTotal">0</div><div class="mini-stat-sub flat">This period</div></div>
+      <div class="mini-stat"><div class="mini-stat-label">Show Rate</div><div class="mini-stat-value" id="apptShow">0%</div><div class="mini-stat-sub flat">Completed appointments</div></div>
+      <div class="mini-stat"><div class="mini-stat-label">No-Show Rate</div><div class="mini-stat-value" id="apptNoShow">0%</div><div class="mini-stat-sub flat">This period</div></div>
+      <div class="mini-stat"><div class="mini-stat-label">Cancellation Rate</div><div class="mini-stat-value" id="apptCancel">0%</div><div class="mini-stat-sub flat">This period</div></div>
     </div>
 
     <div id="apptBreakdown"></div>
@@ -266,7 +256,7 @@
     </div>
 
     <table id="deptPerfTable">
-      <thead><tr><th>Department</th><th>Patients Served</th><th>Avg. Queue Time</th><th>Throughput / hr</th><th>Queue Load</th></tr></thead>
+      <thead><tr><th>Department</th><th>Patients Served</th><th>Completed</th><th>Avg. Consult Time</th><th>Throughput / hr</th><th>Queue Load</th></tr></thead>
       <tbody id="deptPerfBody"></tbody>
     </table>
   </div>
@@ -309,15 +299,15 @@
     </div>
 
     <div class="mini-stats">
-      <div class="mini-stat"><div class="mini-stat-label">Total Revenue</div><div class="mini-stat-value">₦4,286,500</div><div class="mini-stat-sub up">↑ 11.4% vs last period</div></div>
-      <div class="mini-stat"><div class="mini-stat-label">Payments Received</div><div class="mini-stat-value">₦3,912,300</div><div class="mini-stat-sub up">↑ 9.8% vs last period</div></div>
-      <div class="mini-stat"><div class="mini-stat-label">Outstanding Invoices</div><div class="mini-stat-value">₦374,200</div><div class="mini-stat-sub down">↓ 3.2% vs last period</div></div>
-      <div class="mini-stat"><div class="mini-stat-label">Collection Rate</div><div class="mini-stat-value">91.3%</div><div class="mini-stat-sub up">↑ 1.7% vs last period</div></div>
+      <div class="mini-stat"><div class="mini-stat-label">Total Revenue</div><div class="mini-stat-value" id="revTotal">₦0</div><div class="mini-stat-sub flat" id="revRange">—</div></div>
+      <div class="mini-stat"><div class="mini-stat-label">Payments Received</div><div class="mini-stat-value" id="revPaid">₦0</div><div class="mini-stat-sub flat">Invoices in period</div></div>
+      <div class="mini-stat"><div class="mini-stat-label">Outstanding Invoices</div><div class="mini-stat-value" id="revOutstanding">₦0</div><div class="mini-stat-sub flat">Unpaid balance</div></div>
+      <div class="mini-stat"><div class="mini-stat-label">Collection Rate</div><div class="mini-stat-value" id="revCollection">0%</div><div class="mini-stat-sub flat">Paid / billed</div></div>
     </div>
 
     <div class="bar-chart" id="revenueChart"></div>
     <div class="chart-legend">
-      <div class="chart-legend-item"><span class="chart-legend-dot" style="background:var(--green);"></span>Revenue (₦'000)</div>
+      <div class="chart-legend-item"><span class="chart-legend-dot" style="background:var(--green);"></span>Revenue (₦)</div>
     </div>
 
     <table style="display:none;" id="revenueTable">
@@ -349,284 +339,280 @@
 
 </main>
 
+<div id="toast" style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#0d1b4c;color:#fff;padding:11px 20px;border-radius:10px;font-size:12.5px;font-weight:700;box-shadow:0 10px 30px rgba(10,15,40,.3);opacity:0;pointer-events:none;transition:.22s;z-index:400;"></div>
+
 <script>
 (function(){
   const el = id => document.getElementById(id);
+  const token = localStorage.getItem('shiloh_token');
+  if (!token) { location.href = 'login.html'; return; }
 
-  /* ============ FILTER UI ============ */
+  function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  function fmtNaira(n){return '₦' + Math.round(Number(n)||0).toLocaleString();}
+  function fmtNum(n){return (Number(n)||0).toLocaleString();}
+  function pad(n){return String(n).padStart(2,'0');}
+  function ymd(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+  function fmtDay(s){const d=new Date(s+'T00:00:00');return isNaN(d)?s:d.toLocaleDateString('en-US',{month:'short',day:'numeric'});}
+
+  function showToast(msg,isErr){
+    const t=el('toast');
+    if(!t) return;
+    t.textContent=msg;
+    t.style.background=isErr?'#b91c1c':'#0d1b4c';
+    t.style.opacity='1';
+    t.style.transform='translateX(-50%) translateY(0)';
+    clearTimeout(showToast._tm);
+    showToast._tm=setTimeout(()=>{t.style.opacity='0';t.style.transform='translateX(-50%) translateY(20px)';},2600);
+  }
+
+  async function api(path){
+    const res=await fetch('/api'+path,{headers:{Authorization:'Bearer '+token}});
+    if(res.status===401){location.href='login.html';throw new Error('Unauthorized');}
+    let data=null;
+    try{data=await res.json();}catch(e){}
+    if(!res.ok) throw new Error((data&&data.error)||('Request failed ('+res.status+')'));
+    return data;
+  }
+
+  function rangeParams(){
+    const val=el('dateRangeSelect').value;
+    const now=new Date();
+    let from,to;
+    if(val==='today'){from=new Date(now);to=new Date(now);}
+    else if(val==='week'){const start=new Date(now);start.setDate(now.getDate()-((now.getDay()+6)%7));from=start;to=now;}
+    else if(val==='quarter'){const q=Math.floor(now.getMonth()/3);from=new Date(now.getFullYear(),q*3,1);to=now;}
+    else if(val==='custom'){
+      from=el('dateFrom').value?new Date(el('dateFrom').value+'T00:00:00'):null;
+      to=el('dateTo').value?new Date(el('dateTo').value+'T00:00:00'):null;
+      if(!from||!to){from=new Date(now.getFullYear(),now.getMonth(),1);to=now;}
+    } else {from=new Date(now.getFullYear(),now.getMonth(),1);to=now;}
+    return {from:ymd(from),to:ymd(to)};
+  }
+
   el('dateRangeSelect').addEventListener('change', () => {
     el('customDates').classList.toggle('show', el('dateRangeSelect').value === 'custom');
   });
-  el('applyFiltersBtn').addEventListener('click', () => {
-    // In production: re-fetch every section's data using the selected
-    // date range / department / doctor filters (e.g. ReportsAPI.getPatientVolume({...})).
-    // The demo data below stays static, but the click is wired so the
-    // filter bar behaves like the real thing once an API is attached.
-    renderAll();
-  });
+  el('applyFiltersBtn').addEventListener('click', loadData);
 
-  /* ============ DEMO DATA ============ */
-  const volumeData = [
-    { label:'Wk 1', visits:268, reg:38 },
-    { label:'Wk 2', visits:301, reg:44 },
-    { label:'Wk 3', visits:279, reg:41 },
-    { label:'Wk 4', visits:400, reg:63 },
-  ];
+  function chartBars(series,key,color,formatter){
+    const max=Math.max(1,...series.map(d=>Number(d[key])||0));
+    return series.map(d=>{
+      const v=Number(d[key])||0;
+      const h=max?Math.max(v?4:0,(v/max*100)):0;
+      return `
+        <div class="bar-col">
+          <div class="bar-fill" style="height:${h}%;background:${color};position:relative;">
+            <span class="bar-val" style="position:absolute;top:-16px;left:50%;transform:translateX(-50%);">${formatter?formatter(v):v}</span>
+          </div>
+          <div class="bar-label">${esc(d.label)}</div>
+        </div>`;
+    }).join('');
+  }
 
-  const apptBreakdown = [
-    { label:'Completed', value:412, color:'#12b76a' },
-    { label:'Checked In', value:64, color:'#2563eb' },
-    { label:'Confirmed', value:52, color:'#8b5cf6' },
-    { label:'Cancelled', value:29, color:'#f79009' },
-    { label:'No-Show', value:48, color:'#f04438' },
-  ];
+  function renderVolume(v,range){
+    el('volumeTotal').textContent=fmtNum(v.totalVisits);
+    el('volumeRegs').textContent=fmtNum(v.newRegistrations);
+    el('volumeAvg').textContent=v.avgDaily;
+    el('volumeReturning').textContent=v.returningPct+'%';
+    el('volumeRange').textContent=fmtDay(range.from)+' – '+fmtDay(range.to);
+    el('volumeDays').textContent=range.days+' day'+(range.days===1?'':'s')+' in period';
+    const delta=el('volumeDelta');
+    if(v.visitDelta===null||v.visitDelta===undefined){
+      delta.textContent='No prior-period data';
+      delta.className='mini-stat-sub flat';
+    } else {
+      delta.textContent=(v.visitDelta>=0?'↑ ':'↓ ')+Math.abs(v.visitDelta)+'% vs prior '+range.days+' days';
+      delta.className='mini-stat-sub '+(v.visitDelta>=0?'up':'down');
+    }
 
-  const doctorUtil = [
-    { name:'Dr. Samuel O.', appts:186, completed:164, noshow:11, util:88 },
-    { name:'Dr. Ifeoma B.', appts:172, completed:158, noshow:8, util:92 },
-    { name:'Dr. Chidi K.', appts:141, completed:118, noshow:16, util:84 },
-    { name:'Dr. Amaka N.', appts:113, completed:96, noshow:13, util:85 },
-  ];
-
-  const deptPerf = [
-    { name:'Nursing', served:412, queue:'6 min', throughput:9.8, load:62 },
-    { name:'Doctor Consultation', served:380, queue:'14 min', throughput:4.2, load:81 },
-    { name:'Laboratory', served:210, queue:'11 min', throughput:5.1, load:58 },
-    { name:'Pharmacy', served:298, queue:'8 min', throughput:7.4, load:47 },
-    { name:'Billing', served:355, queue:'5 min', throughput:11.2, load:39 },
-  ];
-
-  const diagnoses = [
-    { name:'Malaria', count:184 },
-    { name:'Hypertension', count:142 },
-    { name:'Antenatal Review (Normal)', count:129 },
-    { name:'Upper Respiratory Tract Infection', count:97 },
-    { name:'Typhoid Fever', count:64 },
-    { name:'Acute Gastroenteritis', count:51 },
-  ];
-
-  const prescriptions = [
-    { name:'Paracetamol 500mg', count:312 },
-    { name:'Amoxicillin 500mg', count:201 },
-    { name:'Artemether/Lumefantrine', count:178 },
-    { name:'Amlodipine 5mg', count:134 },
-    { name:'Folic Acid 5mg', count:121 },
-    { name:'Ferrous Sulphate 200mg', count:118 },
-  ];
-
-  const revenueData = [
-    { label:'Wk 1', revenue:912 },
-    { label:'Wk 2', revenue:1046 },
-    { label:'Wk 3', revenue:998 },
-    { label:'Wk 4', revenue:1330 },
-  ];
-
-  const billing = [
-    { name:'Consultation', amount:1542000, color:'#2563eb' },
-    { name:'Laboratory', amount:986000, color:'#8b5cf6' },
-    { name:'Pharmacy', amount:1108500, color:'#12b76a' },
-    { name:'Maternity Services', amount:520000, color:'#ec4899' },
-    { name:'Admissions', amount:130000, color:'#f79009' },
-  ];
-
-  function fmtNaira(n){ return '₦' + n.toLocaleString(); }
-
-  /* ============ PATIENT VOLUME CHART ============ */
-  function renderVolumeChart(){
-    const max = Math.max(...volumeData.map(d=>Math.max(d.visits, d.reg*4)));
-    el('volumeChart').innerHTML = volumeData.map(d=>`
+    const series=v.series||[];
+    const max=Math.max(1,...series.map(d=>Math.max(d.visits||0,d.reg||0)));
+    el('volumeChart').innerHTML=series.length?series.map(d=>`
       <div class="bar-col">
         <div style="display:flex;align-items:flex-end;gap:4px;height:100%;">
           <div class="bar-fill" style="height:${(d.visits/max*100).toFixed(0)}%;"><span class="bar-val" style="position:absolute;top:-16px;left:50%;transform:translateX(-50%);">${d.visits}</span></div>
-          <div class="bar-fill secondary" style="height:${(d.reg*4/max*100).toFixed(0)}%;"><span class="bar-val" style="position:absolute;top:-16px;left:50%;transform:translateX(-50%);">${d.reg}</span></div>
+          <div class="bar-fill secondary" style="height:${(d.reg/max*100).toFixed(0)}%;"><span class="bar-val" style="position:absolute;top:-16px;left:50%;transform:translateX(-50%);">${d.reg}</span></div>
         </div>
-        <div class="bar-label">${d.label}</div>
-      </div>
-    `).join('');
-    el('volumeTableBody').innerHTML = volumeData.map(d=>`<tr><td>${d.label}</td><td>${d.visits}</td><td>${d.reg}</td></tr>`).join('');
+        <div class="bar-label">${esc(d.label)}</div>
+      </div>`).join(''):'<div style="color:var(--text-light);font-weight:600;font-size:12px;">No visits recorded in this period.</div>';
+    el('volumeTableBody').innerHTML=series.map(d=>`<tr><td>${esc(d.label)}</td><td>${d.visits}</td><td>${d.reg}</td></tr>`).join('')
+      ||'<tr><td colspan="3">No data</td></tr>';
   }
 
-  /* ============ APPOINTMENT BREAKDOWN ============ */
-  function renderApptBreakdown(){
-    const total = apptBreakdown.reduce((s,d)=>s+d.value,0);
-    el('apptBreakdown').innerHTML = apptBreakdown.map(d=>{
-      const pct = (d.value/total*100).toFixed(1);
-      return `
-        <div class="hbar-row">
-          <div class="hbar-label">${d.label}</div>
+  function renderAppointments(a){
+    el('apptTotal').textContent=fmtNum(a.total);
+    el('apptShow').textContent=a.showRate+'%';
+    el('apptNoShow').textContent=a.noShowRate+'%';
+    el('apptCancel').textContent=a.cancellationRate+'%';
+
+    if(!a.breakdown||a.breakdown.length===0){
+      el('apptBreakdown').innerHTML='<div style="color:var(--text-light);font-weight:600;font-size:12px;">No appointments recorded in this period.</div>';
+    } else {
+      const total=a.breakdown.reduce((s,d)=>s+d.value,0)||1;
+      el('apptBreakdown').innerHTML=a.breakdown.map(d=>{
+        const pct=(d.value/total*100).toFixed(1);
+        return `<div class="hbar-row">
+          <div class="hbar-label">${esc(d.label)}</div>
           <div class="hbar-track"><div class="hbar-fill" style="width:${pct}%;background:${d.color};"></div></div>
           <div class="hbar-val">${d.value} (${pct}%)</div>
         </div>`;
-    }).join('');
+      }).join('');
+    }
+
+    el('doctorUtilBody').innerHTML=(a.doctors||[]).map(d=>{
+      const pillClass=d.util>=88?'pill-green':d.util>=80?'pill-orange':'pill-red';
+      return `<tr>
+        <td>${esc(d.name)}</td>
+        <td>${d.appts}</td>
+        <td>${d.completed}</td>
+        <td>${d.noshow}</td>
+        <td><div class="util-bar-wrap"><div class="util-track"><div class="util-fill" style="width:${d.util}%;"></div></div><span class="pill ${pillClass}">${d.util}%</span></div></td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="5" style="color:var(--text-light);">No doctors found.</td></tr>';
   }
 
-  function renderDoctorUtil(){
-    el('doctorUtilBody').innerHTML = doctorUtil.map(d=>{
-      const pillClass = d.util>=88 ? 'pill-green' : d.util>=80 ? 'pill-orange' : 'pill-red';
-      return `
-        <tr>
-          <td>${d.name}</td>
-          <td>${d.appts}</td>
-          <td>${d.completed}</td>
-          <td>${d.noshow}</td>
-          <td>
-            <div class="util-bar-wrap">
-              <div class="util-track"><div class="util-fill" style="width:${d.util}%;"></div></div>
-              <span class="pill ${pillClass}">${d.util}%</span>
-            </div>
-          </td>
-        </tr>`;
-    }).join('');
-  }
-
-  /* ============ DEPARTMENT PERFORMANCE ============ */
-  function renderDeptPerf(){
-    el('deptPerfBody').innerHTML = deptPerf.map(d=>`
+  function renderDepartments(rows){
+    el('deptPerfBody').innerHTML=(rows||[]).map(d=>`
       <tr>
-        <td>${d.name}</td>
+        <td>${esc(d.name)}</td>
         <td>${d.served}</td>
-        <td>${d.queue}</td>
+        <td>${d.completed}</td>
+        <td>${d.avgConsult?d.avgConsult+' min':'—'}</td>
         <td>${d.throughput}</td>
-        <td>
-          <div class="util-bar-wrap">
-            <div class="util-track"><div class="util-fill" style="width:${d.load}%;background:${d.load>75?'#f04438':d.load>55?'#f79009':'#12b76a'};"></div></div>
-            <span style="font-size:11px;font-weight:700;color:var(--text-mid);">${d.load}%</span>
-          </div>
-        </td>
-      </tr>
-    `).join('');
+        <td><div class="util-bar-wrap"><div class="util-track"><div class="util-fill" style="width:${d.load}%;background:${d.load>75?'#f04438':d.load>55?'#f79009':'#12b76a'};"></div></div><span style="font-size:11px;font-weight:700;color:var(--text-mid);">${d.load}%</span></div></td>
+      </tr>`).join('') || '<tr><td colspan="6" style="color:var(--text-light);">No visits recorded in this period.</td></tr>';
   }
 
-  /* ============ CONSULTATION SUMMARY ============ */
-  function renderDiagList(){
-    const max = Math.max(...diagnoses.map(d=>d.count));
-    el('diagList').innerHTML = diagnoses.map((d,i)=>`
+  function renderConsult(diagnoses,rx){
+    const dmax=Math.max(1,...(diagnoses||[]).map(d=>d.count));
+    el('diagList').innerHTML=(diagnoses||[]).map((d,i)=>`
       <div class="diag-row">
         <div class="diag-rank">${i+1}</div>
         <div style="flex:1;">
-          <div class="diag-name">${d.name}</div>
-          <div class="hbar-track" style="margin-top:5px;height:6px;"><div class="hbar-fill" style="width:${(d.count/max*100).toFixed(0)}%;background:var(--pink);"></div></div>
+          <div class="diag-name">${esc(d.name)}</div>
+          <div class="hbar-track" style="margin-top:5px;height:6px;"><div class="hbar-fill" style="width:${(d.count/dmax*100).toFixed(0)}%;background:var(--pink);"></div></div>
         </div>
         <div class="diag-count">${d.count}</div>
-      </div>
-    `).join('');
-    el('diagnosesTableBody').innerHTML = diagnoses.map(d=>`<tr><td>${d.name}</td><td>${d.count}</td></tr>`).join('');
-  }
-  function renderRxList(){
-    const max = Math.max(...prescriptions.map(d=>d.count));
-    el('rxList').innerHTML = prescriptions.map((d,i)=>`
+      </div>`).join('') || '<div style="color:var(--text-light);font-weight:600;font-size:12px;">No diagnoses recorded in this period.</div>';
+    el('diagnosesTableBody').innerHTML=(diagnoses||[]).map(d=>`<tr><td>${esc(d.name)}</td><td>${d.count}</td></tr>`).join('')
+      ||'<tr><td colspan="2">No data</td></tr>';
+
+    const rmax=Math.max(1,...(rx||[]).map(d=>d.count));
+    el('rxList').innerHTML=(rx||[]).map((d,i)=>`
       <div class="diag-row">
         <div class="diag-rank" style="background:var(--green-bg);color:var(--green);">${i+1}</div>
         <div style="flex:1;">
-          <div class="diag-name">${d.name}</div>
-          <div class="hbar-track" style="margin-top:5px;height:6px;"><div class="hbar-fill" style="width:${(d.count/max*100).toFixed(0)}%;background:var(--green);"></div></div>
+          <div class="diag-name">${esc(d.name)}</div>
+          <div class="hbar-track" style="margin-top:5px;height:6px;"><div class="hbar-fill" style="width:${(d.count/rmax*100).toFixed(0)}%;background:var(--green);"></div></div>
         </div>
         <div class="diag-count">${d.count}</div>
-      </div>
-    `).join('');
+      </div>`).join('') || '<div style="color:var(--text-light);font-weight:600;font-size:12px;">No prescriptions recorded in this period.</div>';
   }
 
-  /* ============ REVENUE CHART ============ */
-  function renderRevenueChart(){
-    const max = Math.max(...revenueData.map(d=>d.revenue));
-    el('revenueChart').innerHTML = revenueData.map(d=>`
-      <div class="bar-col">
-        <div class="bar-fill" style="height:${(d.revenue/max*100).toFixed(0)}%;background:var(--green);position:relative;">
-          <span class="bar-val" style="position:absolute;top:-16px;left:50%;transform:translateX(-50%);">₦${d.revenue}k</span>
-        </div>
-        <div class="bar-label">${d.label}</div>
-      </div>
-    `).join('');
-    el('revenueTableBody').innerHTML = revenueData.map(d=>`<tr><td>${d.label}</td><td>₦${d.revenue},000</td></tr>`).join('');
+  function renderRevenue(r,range){
+    el('revTotal').textContent=fmtNaira(r.total);
+    el('revPaid').textContent=fmtNaira(r.paid);
+    el('revOutstanding').textContent=fmtNaira(r.outstanding);
+    el('revCollection').textContent=r.collectionRate+'%';
+    el('revRange').textContent=fmtDay(range.from)+' – '+fmtDay(range.to);
+
+    const series=r.series||[];
+    el('revenueChart').innerHTML=series.length?chartBars(series,'revenue','var(--green)',v=>'₦'+Math.round(v).toLocaleString()):'<div style="color:var(--text-light);font-weight:600;font-size:12px;">No invoices recorded in this period.</div>';
+    el('revenueTableBody').innerHTML=series.map(d=>`<tr><td>${esc(d.label)}</td><td>${fmtNaira(d.revenue)}</td></tr>`).join('')
+      ||'<tr><td colspan="2">No data</td></tr>';
   }
 
-  /* ============ BILLING DONUT ============ */
-  function renderBillingDonut(){
-    const total = billing.reduce((s,d)=>s+d.amount,0);
-    let acc = 0;
-    const stops = billing.map(d=>{
-      const start = (acc/total*360);
-      acc += d.amount;
-      const end = (acc/total*360);
+  function renderBilling(rows){
+    const total=(rows||[]).reduce((s,d)=>s+d.amount,0);
+    if(!rows||rows.length===0||total===0){
+      el('billingDonut').style.background='#eef0f6';
+      el('billingLegend').innerHTML='<div style="color:var(--text-light);font-weight:600;font-size:12px;">No billing data recorded in this period.</div>';
+      el('billingTableBody').innerHTML='<tr><td colspan="3">No data</td></tr>';
+      return;
+    }
+    let acc=0;
+    const stops=rows.map(d=>{
+      const start=acc/total*360;
+      acc+=d.amount;
+      const end=acc/total*360;
       return `${d.color} ${start}deg ${end}deg`;
     }).join(', ');
-    el('billingDonut').style.background = `conic-gradient(${stops})`;
-
-    el('billingLegend').innerHTML = billing.map(d=>{
-      const pct = (d.amount/total*100).toFixed(1);
-      return `
-        <div class="donut-legend-row">
-          <span class="donut-dot" style="background:${d.color};"></span>
-          ${d.name}
-          <span class="donut-amt">${fmtNaira(d.amount)} · ${pct}%</span>
-        </div>`;
+    el('billingDonut').style.background=`conic-gradient(${stops})`;
+    el('billingLegend').innerHTML=rows.map(d=>{
+      const pct=(d.amount/total*100).toFixed(1);
+      return `<div class="donut-legend-row"><span class="donut-dot" style="background:${d.color};"></span>${esc(d.name)}<span class="donut-amt">${fmtNaira(d.amount)} · ${pct}%</span></div>`;
     }).join('');
-
-    el('billingTableBody').innerHTML = billing.map(d=>{
-      const pct = (d.amount/total*100).toFixed(1);
-      return `<tr><td>${d.name}</td><td>${fmtNaira(d.amount)}</td><td>${pct}%</td></tr>`;
+    el('billingTableBody').innerHTML=rows.map(d=>{
+      const pct=(d.amount/total*100).toFixed(1);
+      return `<tr><td>${esc(d.name)}</td><td>${fmtNaira(d.amount)}</td><td>${pct}%</td></tr>`;
     }).join('');
   }
 
-  function renderAll(){
-    renderVolumeChart();
-    renderApptBreakdown();
-    renderDoctorUtil();
-    renderDeptPerf();
-    renderDiagList();
-    renderRxList();
-    renderRevenueChart();
-    renderBillingDonut();
+  function populateFilters(options){
+    if(!options) return;
+    const deptSel=el('deptFilter');
+    const doctorSel=el('doctorFilter');
+    const keepDept=deptSel.value;
+    const keepDoctor=doctorSel.value;
+    deptSel.innerHTML='<option value="all">All Departments</option>'+(options.departments||[]).map(d=>'<option value="'+esc(d)+'">'+esc(d)+'</option>').join('');
+    doctorSel.innerHTML='<option value="all">All Doctors</option>'+(options.doctors||[]).map(d=>'<option value="'+esc(d)+'">'+esc(d)+'</option>').join('');
+    if(keepDept&&Array.from(deptSel.options).some(o=>o.value===keepDept)) deptSel.value=keepDept;
+    if(keepDoctor&&Array.from(doctorSel.options).some(o=>o.value===keepDoctor)) doctorSel.value=keepDoctor;
+  }
+
+  async function loadData(){
+    const range=rangeParams();
+    const p=new URLSearchParams({from:range.from,to:range.to});
+    if(el('deptFilter').value!=='all') p.set('department',el('deptFilter').value);
+    if(el('doctorFilter').value!=='all') p.set('doctor',el('doctorFilter').value);
+    try{
+      const data=await api('/stats/reports?'+p.toString());
+      populateFilters(data.options);
+      renderVolume(data.volume,data.range);
+      renderAppointments(data.appointments);
+      renderDepartments(data.departments);
+      renderConsult(data.diagnoses,data.prescriptions);
+      renderRevenue(data.revenue,data.range);
+      renderBilling(data.billing);
+    }catch(e){
+      showToast(e.message,true);
+    }
   }
 
   /* ============ EXPORT: CSV (per-section + global) ============ */
   function tableToCsv(table){
-    const rows = Array.from(table.querySelectorAll('tr'));
-    return rows.map(row =>
-      Array.from(row.querySelectorAll('th,td'))
-        .map(cell => `"${cell.textContent.trim().replace(/"/g,'""')}"`)
-        .join(',')
-    ).join('\n');
+    const rows=Array.from(table.querySelectorAll('tr'));
+    return rows.map(row=>Array.from(row.querySelectorAll('th,td')).map(cell=>'"'+cell.textContent.trim().replace(/"/g,'""')+'"').join(',')).join('\n');
   }
-  function downloadCsv(csv, filename){
-    const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = filename;
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  function downloadCsv(csv,filename){
+    const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;a.download=filename;
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
     URL.revokeObjectURL(url);
   }
   document.querySelectorAll('[data-export-table]').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      const table = el(btn.dataset.exportTable);
+    btn.addEventListener('click',()=>{
+      const table=el(btn.dataset.exportTable);
       if(!table) return;
-      downloadCsv(tableToCsv(table), btn.dataset.exportTable + '.csv');
+      downloadCsv(tableToCsv(table),btn.dataset.exportTable+'.csv');
     });
   });
-  el('exportCsvBtn').addEventListener('click', ()=>{
-    // Combines every section's table into one CSV for a full export.
-    const tables = document.querySelectorAll('table[id]');
-    let combined = '';
-    tables.forEach(t=>{ combined += `\n"${t.id}"\n` + tableToCsv(t) + '\n'; });
-    downloadCsv(combined.trim(), 'shiloh-reports-export.csv');
+  el('exportCsvBtn').addEventListener('click',()=>{
+    const tables=document.querySelectorAll('table[id]');
+    let combined='';
+    tables.forEach(t=>{combined+='\n"'+t.id+'"\n'+tableToCsv(t)+'\n';});
+    downloadCsv(combined.trim(),'shiloh-reports-export-'+new Date().toISOString().slice(0,10)+'.csv');
   });
-  el('exportPdfBtn').addEventListener('click', ()=>{
-    // Hook this up to a real PDF generation endpoint in production
-    // (e.g. ReportsAPI.exportPdf({...filters})). For now it reuses the
-    // browser's print-to-PDF flow, which already respects the @media
-    // print rules above (sidebar/filters hidden, sections un-boxed).
-    window.print();
-  });
-  el('printBtn').addEventListener('click', ()=> window.print());
-
-  renderAll();
+  el('exportPdfBtn').addEventListener('click',()=>window.print());
+  el('printBtn').addEventListener('click',()=>window.print());
 
   if(window.ShilohSidebar){
-    window.ShilohSidebar.attach('#sidebarPlaceholder', {
-      activeFile: 'reports.html',
-      user: { name: 'Admin Tolu', role: 'System Admin', avatar: 'https://i.pravatar.cc/64?img=47' }
-    });
+    window.ShilohSidebar.attach('#sidebarPlaceholder',{activeFile:'reports.html'});
   }
+
+  loadData();
 })();
 </script>
 

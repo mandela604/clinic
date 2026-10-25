@@ -462,7 +462,7 @@
     } else {
       dropdown.innerHTML = matches.slice(0, 8).map(function (p) {
         const idx = ALL_PATIENTS.indexOf(p);
-        return '<div class="pd-item" data-idx="' + idx + '"><div class="pd-avatar" style="background-image:url(\'https://i.pravatar.cc/80?img=' + p.img + '\')"></div><div><div class="pd-name">' + p.name + '</div><div class="pd-meta">' + p.hosp + ' · ' + p.phone + '</div></div></div>';
+        return '<div class="pd-item" data-idx="' + idx + '"><div class="pd-avatar" style="display:flex;align-items:center;justify-content:center;background:#e0e9ff;color:#1d4ed8;font-weight:800;font-size:11px;">' + window.ShilohAvatar.initials(p.name) + '</div><div><div class="pd-name">' + p.name + '</div><div class="pd-meta">' + p.hosp + ' · ' + p.phone + '</div></div></div>';
       }).join('');
     }
     dropdown.classList.add('open');
@@ -496,7 +496,7 @@
     }
     card.style.display = 'flex';
     card.innerHTML =
-      '<div class="pd-avatar" style="background-image:url(\'https://i.pravatar.cc/80?img=' + selectedPatient.img + '\')"></div>' +
+      '<div class="pd-avatar" style="display:flex;align-items:center;justify-content:center;background:#e0e9ff;color:#1d4ed8;font-weight:800;font-size:11px;">' + window.ShilohAvatar.initials(selectedPatient.name) + '</div>' +
       '<div><div class="sp-name">' + selectedPatient.name + '</div><div class="sp-meta">' + selectedPatient.hosp + ' · ' + selectedPatient.gender + ', ' + selectedPatient.age + ' yrs</div></div>' +
       '<div class="sp-clear" id="clearPatientBtn" title="Clear"><i class="fa-solid fa-xmark"></i></div>';
     el('clearPatientBtn').addEventListener('click', function () {

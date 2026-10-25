@@ -351,25 +351,14 @@
     'Dental X-Ray': 'Microbiology', 'Malaria Parasite': 'Microbiology'
   };
   const CATEGORY_ICON = { Hematology:'fa-droplet', Chemistry:'fa-vial', Microbiology:'fa-bacteria', Serology:'fa-vial-circle-check' };
-  const PARAM_DEFAULTS = {
-    'Full Blood Count': [
-      {name:'Hemoglobin', result:'13.5', range:'13.0 – 17.0', unit:'g/dL'},
-      {name:'White Blood Cells', result:'6.8', range:'4.0 – 11.0', unit:'×10⁹/L'},
-      {name:'Platelets', result:'245', range:'150 – 400', unit:'×10⁹/L'}
-    ],
-    'Urinalysis': [{name:'Specific Gravity', result:'1.015', range:'1.005 – 1.030', unit:''},{name:'pH', result:'6.0', range:'4.5 – 8.0', unit:''}],
-    'Lipid Profile': [{name:'Total Cholesterol', result:'240', range:'< 200', unit:'mg/dL'},{name:'LDL', result:'160', range:'< 100', unit:'mg/dL'},{name:'HDL', result:'45', range:'> 40', unit:'mg/dL'}],
-    'HbA1c': [{name:'HbA1c', result:'8.2', range:'< 5.7', unit:'%'}],
-    'Blood Pressure Monitoring': [{name:'Systolic', result:'140', range:'< 120', unit:'mmHg'},{name:'Diastolic', result:'90', range:'< 80', unit:'mmHg'}],
-    'Blood Glucose': [{name:'Glucose (Fasting)', result:'89', range:'70 – 100', unit:'mg/dL'}],
-    'Dental X-Ray': [{name:'Finding', result:'No caries detected', range:'—', unit:'—'}],
-    'Malaria Parasite': [{name:'Plasmodium Species', result:'Not Detected', range:'Not Detected', unit:'—'}]
-  };
   const PAGE_SIZE = 10;
   const el = id => document.getElementById(id);
 
   let tests = [];
   let patientName = '';
+  let patientId = '';
+  let hospitalNo = '';
+  let doctorOptions = [];
   let state = { search:'', category:'all', status:'all', page:1 };
   let paramRowCount = 0;
   let resultsTargetId = null;
@@ -388,26 +377,59 @@
       tests = []; return;
     }
     patientName = order.patientName;
+    patientId = order.patientId || '';
+    hospitalNo = order.hospitalNo || '';
     el('patientSub').textContent = 'Lab results for ' + patientName;
-    const patientId = order.patientId;
     let allForPatient = [];
     try {
-      allForPatient = await PatientService.getPatientLabTests(patientId);
-      if(!allForPatient.length) allForPatient = labTests.filter(t => t.patientId === patientId);
-    } catch (e) { window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error'); allForPatient = labTests.filter(t => t.patientId === patientId); }
-    tests = allForPatient.map((t, i) => ({
-      id: i + 1,
-      labNo: t.id,
-      name: t.test,
-      category: CATEGORY_MAP[t.test] || 'Chemistry',
-      doctor: t.orderedBy,
-      date: t.date,
-      status: t.status === 'Completed' ? (t.result && t.result !== 'Normal' && !t.result.includes('Normal') ? 'review' : 'normal') : 'pending',
-      open: t.id === orderId,
-      params: (PARAM_DEFAULTS[t.test] || []).map(p => ({...p, flagged: t.result && t.result !== 'Normal' && !t.result.includes('Normal')})),
-      result: t.result || '',
-      notes: ''
-    }));
+      allForPatient = await PatientService.getPatientLabTests(order.patientId);
+      if(!allForPatient.length) allForPatient = labTests.filter(t => t.patientId === order.patientId);
+    } catch (e) { window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error'); allForPatient = labTests.filter(t => t.patientId === order.patientId); }
+    tests = allForPatient.map((t, i) => {
+      const params = Array.isArray(t.params) ? t.params.map(p => ({
+        name: p.name || '', result: p.result || '', range: p.range || '', unit: p.unit || '', flagged: !!p.flagged
+      })) : [];
+      let status = 'pending';
+      if (['Completed','completed','critical'].includes(t.status)) {
+        const review = t.resultClass === 'critical'
+          || params.some(p => p.flagged)
+          || (!!t.result && /abnormal|critical|positive|detected|high|low/i.test(t.result) && !/not detected|negative|normal/i.test(t.result));
+        status = review ? 'review' : 'normal';
+      }
+      return {
+        id: i + 1,
+        labNo: t.id,
+        name: t.test,
+        category: t.category || CATEGORY_MAP[t.test] || 'Chemistry',
+        doctor: t.orderedBy || '—',
+        date: t.date,
+        status,
+        open: t.id === orderId,
+        params,
+        result: t.result || '',
+        resultClass: t.resultClass || null,
+        notes: t.resultNotes || ''
+      };
+    });
+    await loadDoctors();
+  }
+
+  async function loadDoctors(){
+    try {
+      const res = await fetch(window.ShilohAPI.BASE + '/users?role=Doctor&limit=200', { headers: window.ShilohAPI.headers() });
+      const data = res.ok ? await res.json() : null;
+      const items = (data && data.items) || data || [];
+      doctorOptions = (Array.isArray(items) ? items : []).filter(u => u.role === 'Doctor').map(u => u.name).filter(Boolean);
+    } catch (e) { doctorOptions = []; }
+    if (doctorOptions.length === 0) {
+      try {
+        const me = JSON.parse(localStorage.getItem('shiloh_user') || '{}');
+        if (me.name) doctorOptions = [me.name];
+      } catch (e) {}
+    }
+    el('fDoctor').innerHTML = doctorOptions.length
+      ? doctorOptions.map(n => `<option>${escapeHtml(n)}</option>`).join('')
+      : '<option value="">No doctors available</option>';
   }
 
   function showToast(msg){
@@ -462,10 +484,11 @@
       if(t.status === 'review'){
         actions = `<div class="lr-detail-btn action" data-action="mark-reviewed" data-id="${t.id}"><i class="fa-solid fa-check-double"></i> Mark as Reviewed</div>` + actions;
       }
-      body = `<table class="lr-table">
+      const tableHtml = t.params.length ? `<table class="lr-table">
                 <thead><tr><th>Parameter</th><th>Result</th><th>Reference Range</th><th>Unit</th></tr></thead>
                 <tbody>${rows}</tbody>
-              </table>
+              </table>` : `<div class="lr-pending-note"><i class="fa-solid fa-file-lines"></i> ${escapeHtml(t.result || 'Result recorded without detailed parameters.')}</div>`;
+      body = `${tableHtml}
               ${t.notes ? `<div class="lr-notes"><b>Notes:</b> ${escapeHtml(t.notes)}</div>` : ''}
               <div class="lr-detail-actions">${actions}</div>`;
     }
@@ -529,11 +552,17 @@
       b.addEventListener('click', e=>{ e.stopPropagation(); openResultsModal(Number(b.dataset.id)); });
     });
     document.querySelectorAll('[data-action="mark-reviewed"]').forEach(b=>{
-      b.addEventListener('click', e=>{
+      b.addEventListener('click', async e=>{
         e.stopPropagation();
         const t = tests.find(x=>x.id===Number(b.dataset.id));
-        t.status = 'normal';
+        if(!t) return;
+        const updated = await LabService.updateOrder(t.labNo, {
+          resultClass: 'normal',
+          params: t.params.map(p => ({ ...p, flagged: false }))
+        });
+        if(!updated) return;
         showToast(`${t.labNo} marked as reviewed`);
+        await loadData();
         render();
       });
     });
@@ -552,7 +581,6 @@
   function openOrderTestModal(){
     el('fTestName').value = '';
     el('fCategory').value = 'Hematology';
-    el('fDoctor').value = 'Dr. Samuel O.';
     el('orderTestModal').classList.add('open');
   }
   function closeOrderTestModal(){ el('orderTestModal').classList.remove('open'); }
@@ -561,25 +589,27 @@
   el('orderTestCancel').addEventListener('click', closeOrderTestModal);
   el('orderTestModal').addEventListener('click', e=>{ if(e.target.id==='orderTestModal') closeOrderTestModal(); });
 
-  el('orderTestSubmit').addEventListener('click', ()=>{
+  el('orderTestSubmit').addEventListener('click', async ()=>{
     const name = el('fTestName').value.trim();
     if(!name){ showToast('Please enter a test name'); return; }
-    const now = new Date();
-    tests.unshift({
-      id: tests.length + 1,
-      labNo: 'LAB-' + String(100 + tests.length).padStart(6,'0'),
-      name,
+    const doctor = el('fDoctor').value;
+    if(!doctor){ showToast('No ordering doctor available'); return; }
+    if(!patientId){ showToast('Patient details are missing'); return; }
+    const created = await LabService.createOrder({
+      patientId,
+      patientName,
+      hospitalNo,
+      test: name,
       category: el('fCategory').value,
-      doctor: el('fDoctor').value,
-      date: now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),
-      status: 'pending',
-      open: true,
-      params: [],
-      notes: ''
+      orderedBy: doctor,
+      date: new Date().toISOString().slice(0, 10),
+      status: 'Pending'
     });
+    if(!created) return;
     closeOrderTestModal();
     state.page = 1;
     showToast('Test ordered');
+    await loadData();
     render();
   });
 
@@ -620,7 +650,7 @@
   el('resultsModal').addEventListener('click', e=>{ if(e.target.id==='resultsModal') closeResultsModal(); });
   el('addParamBtn').addEventListener('click', addParamRow);
 
-  el('resultsModalSubmit').addEventListener('click', ()=>{
+  el('resultsModalSubmit').addEventListener('click', async ()=>{
     const t = tests.find(x=>x.id===resultsTargetId);
     if(!t) return;
     const rows = [...el('paramRows').querySelectorAll('[data-param-row]')];
@@ -635,12 +665,18 @@
       };
     }).filter(p=>p.name);
     if(params.length === 0){ showToast('Add at least one parameter with a name'); return; }
-    t.params = params;
-    t.status = overall;
-    t.notes = el('fResultNotes').value.trim();
-    t.open = true;
+    const updated = await LabService.updateOrder(t.labNo, {
+      status: 'Completed',
+      result: overall === 'review' ? 'Abnormal — needs review' : 'Normal',
+      resultClass: overall === 'review' ? 'critical' : 'normal',
+      params,
+      resultNotes: el('fResultNotes').value.trim(),
+      completedOn: new Date().toISOString()
+    });
+    if(!updated) return;
     closeResultsModal();
     showToast('Results saved');
+    await loadData();
     render();
   });
 
@@ -665,7 +701,7 @@
       </div>
       <table class="lr-table">
         <thead><tr><th>Parameter</th><th>Result</th><th>Reference Range</th><th>Unit</th></tr></thead>
-        <tbody>${rows}</tbody>
+        <tbody>${rows || `<tr><td colspan="4">${escapeHtml(t.result || 'No parameter details recorded')}</td></tr>`}</tbody>
       </table>
       ${t.notes ? `<div class="lr-notes"><b>Notes:</b> ${escapeHtml(t.notes)}</div>` : ''}
       <div class="lr-doc-sign">

@@ -390,7 +390,7 @@
       ? `<div class="pd-empty">No patients found</div>`
       : matches.slice(0,8).map(p=>`
           <div class="pd-item" data-idx="${PATIENTS.indexOf(p)}">
-            <div class="pd-avatar" style="background-image:url('https://i.pravatar.cc/80?img=${p.img}')"></div>
+            <div class="pd-avatar" style="display:flex;align-items:center;justify-content:center;background:#e0e9ff;color:#1d4ed8;font-weight:800;font-size:11px;">${window.ShilohAvatar.initials(p.name)}</div>
             <div><div class="pd-name">${escapeHtml(p.name)}</div><div class="pd-meta">${escapeHtml(p.hosp)} · ${escapeHtml(p.gender)}, ${p.age} yrs</div></div>
           </div>
         `).join('');
@@ -417,7 +417,7 @@
     if(!selectedPatient){ card.style.display='none'; return; }
     card.style.display='flex';
     card.innerHTML = `
-      <div class="pd-avatar" style="width:40px;height:40px;background-image:url('https://i.pravatar.cc/80?img=${selectedPatient.img}')"></div>
+      <div class="pd-avatar" style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;background:#e0e9ff;color:#1d4ed8;font-weight:800;font-size:13px;">${window.ShilohAvatar.initials(selectedPatient.name)}</div>
       <div><div class="sp-name">${escapeHtml(selectedPatient.name)}</div><div class="sp-meta">${escapeHtml(selectedPatient.hosp)} · ${escapeHtml(selectedPatient.gender)}, ${selectedPatient.age} yrs</div></div>
       <div class="sp-clear" id="clearPatientBtn" title="Clear"><i class="fa-solid fa-xmark"></i></div>
     `;

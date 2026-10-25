@@ -36,6 +36,7 @@
   .patient-id-block{display:flex;align-items:center;gap:16px;}
   .patient-photo{position:relative;flex-shrink:0;}
   .patient-photo img{width:74px;height:74px;border-radius:14px;object-fit:cover;}
+  .patient-photo .photo-fallback{width:74px;height:74px;border-radius:14px;background:var(--blue-bg);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;}
   .photo-edit{position:absolute;bottom:-4px;right:-4px;width:22px;height:22px;border-radius:50%;background:var(--blue-accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;border:2px solid #fff;cursor:pointer;}
   .patient-name-row{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
   .patient-name{font-size:19px;font-weight:800;color:var(--text-dark);}
@@ -188,6 +189,63 @@
     <div style="padding:20px;" id="vmBody"></div>
   </div>
 </div>
+
+<!-- Edit Patient Modal -->
+<div class="modal-overlay" id="editPatientModal">
+  <div style="background:#fff;border-radius:14px;max-width:640px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.25);max-height:85vh;overflow-y:auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid #e5e7eb;">
+      <div style="font-size:16px;font-weight:700;color:#0f172a;">Edit Patient</div>
+      <div onclick="closeEditPatient()" style="width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#94a3b8;font-size:14px;border:1px solid #e5e7eb;">&#10005;</div>
+    </div>
+    <div style="padding:20px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <label style="grid-column:1/-1;font-size:11px;font-weight:700;color:#64748b;">Full Name
+          <input class="form-input" id="epName" style="width:100%;margin-top:4px;padding:9px 11px;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit;font-size:13px;">
+        </label>
+        <label style="font-size:11px;font-weight:700;color:#64748b;">Phone (Primary)
+          <input class="form-input" id="epPhonePrimary" style="width:100%;margin-top:4px;padding:9px 11px;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit;font-size:13px;">
+        </label>
+        <label style="font-size:11px;font-weight:700;color:#64748b;">Phone (Secondary)
+          <input class="form-input" id="epPhoneSecondary" style="width:100%;margin-top:4px;padding:9px 11px;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit;font-size:13px;">
+        </label>
+        <label style="grid-column:1/-1;font-size:11px;font-weight:700;color:#64748b;">Email
+          <input class="form-input" id="epEmail" type="email" style="width:100%;margin-top:4px;padding:9px 11px;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit;font-size:13px;">
+        </label>
+        <label style="grid-column:1/-1;font-size:11px;font-weight:700;color:#64748b;">Residential Address
+          <input class="form-input" id="epAddress" style="width:100%;margin-top:4px;padding:9px 11px;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit;font-size:13px;">
+        </label>
+        <label style="font-size:11px;font-weight:700;color:#64748b;">Blood Group
+          <input class="form-input" id="epBloodType" style="width:100%;margin-top:4px;padding:9px 11px;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit;font-size:13px;">
+        </label>
+        <label style="font-size:11px;font-weight:700;color:#64748b;">Genotype
+          <input class="form-input" id="epGenotype" style="width:100%;margin-top:4px;padding:9px 11px;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit;font-size:13px;">
+        </label>
+        <label style="grid-column:1/-1;font-size:11px;font-weight:700;color:#64748b;">Allergies
+          <input class="form-input" id="epAllergies" style="width:100%;margin-top:4px;padding:9px 11px;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit;font-size:13px;">
+        </label>
+        <label style="grid-column:1/-1;font-size:11px;font-weight:700;color:#64748b;">Chronic Conditions
+          <input class="form-input" id="epChronic" style="width:100%;margin-top:4px;padding:9px 11px;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit;font-size:13px;">
+        </label>
+        <label style="font-size:11px;font-weight:700;color:#64748b;">Emergency Contact Name
+          <input class="form-input" id="epEmName" style="width:100%;margin-top:4px;padding:9px 11px;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit;font-size:13px;">
+        </label>
+        <label style="font-size:11px;font-weight:700;color:#64748b;">Relationship
+          <input class="form-input" id="epEmRel" style="width:100%;margin-top:4px;padding:9px 11px;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit;font-size:13px;">
+        </label>
+        <label style="font-size:11px;font-weight:700;color:#64748b;">Emergency Phone
+          <input class="form-input" id="epEmPhone" style="width:100%;margin-top:4px;padding:9px 11px;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit;font-size:13px;">
+        </label>
+        <label style="font-size:11px;font-weight:700;color:#64748b;">Emergency Address
+          <input class="form-input" id="epEmAddress" style="width:100%;margin-top:4px;padding:9px 11px;border:1px solid #e5e7eb;border-radius:8px;font-family:inherit;font-size:13px;">
+        </label>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:20px;padding-top:16px;border-top:1px solid #e5e7eb;">
+        <div class="btn-secondary" onclick="closeEditPatient()" style="display:flex;align-items:center;padding:9px 16px;border:1px solid #e5e7eb;border-radius:9px;font-size:12.5px;font-weight:700;color:#64748b;cursor:pointer;">Cancel</div>
+        <div class="btn-primary" id="epSaveBtn" onclick="savePatientEdits()"><i class="fa-solid fa-floppy-disk"></i> Save Changes</div>
+      </div>
+    </div>
+  </div>
+</div>
 </main>
 
 <script src="shiloh-sidebar.js"></script>
@@ -203,14 +261,17 @@
   /* ── Init (backend-only, async) ─────────────────────────────────────── */
   document.addEventListener('DOMContentLoaded', async () => {
     ShilohSidebar.attach('#sidebarPlaceholder', {
-      activeFile: 'patients.html',
-      user: { name: 'Receptionist', role: 'Front Desk', avatar: 'https://i.pravatar.cc/64?img=47' }
+      activeFile: 'patients.html'
     });
     try { await AppointmentService.init(); } catch (e) { window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error'); }
     try { await PatientService.init(); } catch (e) { window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error'); }
 
     const params = new URLSearchParams(window.location.search);
-    const hospNo = params.get('hosp') || 'SHC-000001';
+    const hospNo = params.get('hosp');
+    if (!hospNo) {
+      document.getElementById('patientHeader').innerHTML = '<div class="panel"><div class="empty-state"><i class="fa-solid fa-user-slash"></i>No patient selected. Open a patient from the <a href="patients.html">patients list</a>.</div></div>';
+      return;
+    }
     let success = false, patient = null;
     try {
       const res = await PatientService.loadPatientByHospital(hospNo);
@@ -221,7 +282,6 @@
       renderHeader(patient);
       await renderTabContent(patient);
     } else {
-      window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error');
       document.getElementById('patientHeader').innerHTML = '<div class="panel"><div class="empty-state"><i class="fa-solid fa-user-slash"></i>Patient not found</div></div>';
     }
   });
@@ -232,8 +292,8 @@
       <div class="patient-card">
         <div class="patient-id-block">
           <div class="patient-photo">
-            <img src="https://i.pravatar.cc/160?img=${getAvatarIndex(p)}" alt="${p.name}">
-            <div class="photo-edit"><i class="fa-solid fa-camera"></i></div>
+            ${p.avatar ? `<img src="${p.avatar}" alt="${p.name}">` : `<div class="photo-fallback">${initials(p.name)}</div>`}
+            <div class="photo-edit" title="Change patient photo"><i class="fa-solid fa-camera"></i></div>
           </div>
           <div>
             <div class="patient-name-row">
@@ -243,7 +303,7 @@
             <div class="hosp-label" style="margin-bottom:2px;">Hospital No.</div>
             <div class="hosp-no-row">
               <div class="hosp-no">${p.hospitalNo}</div>
-              <div class="qr-icon-btn" title="Show QR Code"><i class="fa-solid fa-qrcode"></i></div>
+              <div class="qr-icon-btn" title="Print ID card with QR code" onclick="printCard()"><i class="fa-solid fa-qrcode"></i></div>
             </div>
             <div class="patient-meta-row">
               <div class="meta-item"><i class="fa-regular fa-clock"></i> ${p.age} Years</div>
@@ -262,6 +322,62 @@
           <div class="contact-item"><i class="fa-regular fa-clock"></i><div><div class="contact-label">Registered On</div><div class="contact-value">${p.registeredOn}</div></div></div>
         </div>
       </div>`;
+    wirePhotoEdit(p);
+  }
+
+  /* ── Patient photo ─────────────────────────────────────────────────── */
+  function initials(name) {
+    return String(name || '?').trim().split(/\s+/).slice(0, 2).map(w => w[0].toUpperCase()).join('') || '?';
+  }
+
+  function shrinkPhoto(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error('Could not read image'));
+      reader.onload = () => {
+        const img = new Image();
+        img.onerror = () => reject(new Error('Unsupported image'));
+        img.onload = () => {
+          const scale = Math.min(1, 320 / Math.max(img.width, img.height));
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.round(img.width * scale);
+          canvas.height = Math.round(img.height * scale);
+          canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+          resolve(canvas.toDataURL('image/jpeg', 0.8));
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function wirePhotoEdit(p) {
+    const btn = document.querySelector('#patientHeader .photo-edit');
+    if (!btn) return;
+    let input = document.getElementById('profilePhotoInput');
+    if (!input) {
+      input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.id = 'profilePhotoInput';
+      input.hidden = true;
+      document.body.appendChild(input);
+    }
+    btn.onclick = () => input.click();
+    input.onchange = async () => {
+      const file = input.files && input.files[0];
+      if (!file) return;
+      if (!/^image\//.test(file.type)) { window.ShilohAPI.toast('Please choose an image file', 'error'); return; }
+      try {
+        const avatar = await shrinkPhoto(file);
+        const res = await PatientService.updatePatient(p.id, { avatar });
+        if (res.success) renderHeader(res.patient);
+      } catch (e) {
+        window.ShilohAPI.toast('Could not update photo. Try another image.', 'error');
+      } finally {
+        input.value = '';
+      }
+    };
   }
 
   /* ── Tab Switch ────────────────────────────────────────────────────── */
@@ -500,12 +616,71 @@
       patientId: p.id,
       patientName: p.name,
       hospitalNo: p.hospitalNo,
-      onCreated: (appt) => { showToast('Appointment booked: ' + appt.id); }
+      onCreated: (appt) => { window.ShilohAPI.toast('Appointment booked: ' + appt.id); }
     });
   }
   function createVisit() { const p = PatientService.getCurrentPatient(); window.location.href = 'visits.html?new=' + encodeURIComponent(p.hospitalNo); }
   function printCard() { window.print(); }
-  function editPatient() { alert('Edit patient — coming soon'); }
+  function editPatient() {
+    const p = PatientService.getCurrentPatient();
+    if (!p) return;
+    const set = (id, v) => { const x = document.getElementById(id); if (x) x.value = v || ''; };
+    set('epName', p.name);
+    set('epPhonePrimary', p.phonePrimary);
+    set('epPhoneSecondary', p.phoneSecondary);
+    set('epEmail', p.email);
+    set('epAddress', p.address || p.residentialAddress);
+    set('epBloodType', p.bloodType);
+    set('epGenotype', p.genotype);
+    set('epAllergies', p.allergies);
+    set('epChronic', p.chronicConditions);
+    set('epEmName', p.emergencyContact && p.emergencyContact.name);
+    set('epEmRel', p.emergencyContact && p.emergencyContact.relationship);
+    set('epEmPhone', p.emergencyContact && p.emergencyContact.phone);
+    set('epEmAddress', p.emergencyContact && p.emergencyContact.address);
+    document.getElementById('editPatientModal').classList.add('open');
+  }
+  function closeEditPatient() { document.getElementById('editPatientModal').classList.remove('open'); }
+  async function savePatientEdits() {
+    const p = PatientService.getCurrentPatient();
+    if (!p) return;
+    const val = id => { const x = document.getElementById(id); return x ? x.value.trim() : ''; };
+    const name = val('epName');
+    if (!name) { window.ShilohAPI.toast('Full name is required', 'error'); return; }
+    const phonePrimary = val('epPhonePrimary');
+    if (!phonePrimary) { window.ShilohAPI.toast('Primary phone is required', 'error'); return; }
+    const email = val('epEmail');
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { window.ShilohAPI.toast('Enter a valid email address', 'error'); return; }
+
+    const patch = {
+      name,
+      phonePrimary,
+      phoneSecondary: val('epPhoneSecondary'),
+      address: val('epAddress'),
+      residentialAddress: val('epAddress'),
+      bloodType: val('epBloodType'),
+      genotype: val('epGenotype'),
+      allergies: val('epAllergies'),
+      chronicConditions: val('epChronic'),
+      emergencyContact: {
+        name: val('epEmName'),
+        relationship: val('epEmRel'),
+        phone: val('epEmPhone'),
+        address: val('epEmAddress')
+      }
+    };
+    if (email) patch.email = email;
+    const btn = document.getElementById('epSaveBtn');
+    const original = btn.innerHTML;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving…';
+    const res = await PatientService.updatePatient(p.id, patch);
+    btn.innerHTML = original;
+    if (!res.success) return;
+    closeEditPatient();
+    window.ShilohAPI.toast('Patient details updated');
+    renderHeader(res.patient);
+    await renderTabContent(res.patient);
+  }
 
   /* ── Helpers ───────────────────────────────────────────────────────── */
   function infoRow(label, value) { return `<div class="info-row"><span class="info-label">${label}</span><span class="info-value">${value || '—'}</span></div>`; }
@@ -516,10 +691,6 @@
       <div class="summary-label">${label}</div>
       <div class="summary-value">${value}</div>
     </div>`;
-  }
-  function getAvatarIndex(p) {
-    const idx = parseInt(p.id.split('-')[1]) || 1;
-    return 10 + (idx % 40);
   }
 </script>
 </body>

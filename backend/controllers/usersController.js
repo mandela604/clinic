@@ -43,8 +43,7 @@ exports.create = async (req, res, next) => {
       role: role || 'receptionist',
       dept: (dept || department || 'Front Desk').trim(),
       department: (dept || department || 'Front Desk').trim(),
-      status: status || 'active',
-      img: Math.floor(Math.random() * 70) + 1
+      status: status || 'active'
     });
     const out = doc.toObject(); delete out.password;
     res.status(201).json(out);

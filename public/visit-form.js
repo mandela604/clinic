@@ -76,7 +76,7 @@ const VisitForm = {
               <label style="display:block;font-size:12px;font-weight:600;color:#334155;margin-bottom:5px;">Doctor *</label>
               <select id="vfDoctor" style="width:100%;padding:9px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;color:#334155;background:#fff;">
                 <option value="">Select doctor...</option>
-                ${doctors.map(d => `<option value="${d.name}" data-dept="${d.department}">${d.name} — ${d.specialty}</option>`).join('')}
+                ${doctors.map(d => `<option value="${d.name}" data-dept="${d.department || d.dept || d.role || ''}">${d.name} — ${d.specialty || d.department || d.dept || d.role || 'General Medicine'}</option>`).join('')}
               </select>
             </div>
 

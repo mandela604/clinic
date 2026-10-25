@@ -167,6 +167,22 @@
   }
   .toast.show{ opacity:1; transform:translateY(0); }
 
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(15,20,40,.45); display:none; align-items:flex-start;
+    justify-content:center; z-index:1100; padding:40px 20px; overflow-y:auto;
+  }
+  .modal-overlay.open{display:flex;}
+  .modal-box{background:#fff; border-radius:16px; max-width:480px; width:100%; padding:22px; box-shadow:0 20px 60px rgba(10,15,40,.25);}
+  .modal-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;}
+  .modal-title{font-size:15px; font-weight:800; color:#0f172a;}
+  .modal-close{width:28px; height:28px; border-radius:8px; display:flex; align-items:center; justify-content:center; color:var(--text-gray); cursor:pointer;}
+  .modal-close:hover{background:var(--bg);}
+  .form-group{margin-bottom:12px;}
+  .form-label{display:block; font-size:11px; font-weight:800; color:var(--text-gray); text-transform:uppercase; letter-spacing:.03em; margin-bottom:5px;}
+  .form-input{width:100%; border:1px solid var(--border); border-radius:9px; padding:9px 12px; font-family:inherit; font-size:12.5px; color:#0f172a; outline:none; background:#fff; resize:vertical;}
+  .form-input:focus{border-color:var(--blue);}
+  .modal-actions{display:flex; justify-content:flex-end; gap:8px; margin-top:18px; padding-top:14px; border-top:1px solid var(--border);}
+
   @media (max-width:1000px){
     .view-grid{grid-template-columns:1fr;}
     .col-right{position:static;}
@@ -281,15 +297,30 @@
 
 <div class="toast" id="toast"></div>
 
+<div class="modal-overlay" id="editModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title">Edit Admission</div>
+      <div class="modal-close" id="editClose"><i class="fa-solid fa-xmark"></i></div>
+    </div>
+    <div class="form-group"><label class="form-label">Attending Doctor</label><input class="form-input" id="editDoctor"></div>
+    <div class="form-group"><label class="form-label">Ward</label><input class="form-input" id="editWard"></div>
+    <div class="form-group"><label class="form-label">Bed</label><input class="form-input" id="editBed"></div>
+    <div class="form-group"><label class="form-label">Diagnosis</label><textarea class="form-input" id="editDiagnosis" rows="2"></textarea></div>
+    <div class="form-group"><label class="form-label">Reason for Admission</label><textarea class="form-input" id="editReason" rows="2"></textarea></div>
+    <div class="modal-actions">
+      <div class="btn" id="editCancel">Cancel</div>
+      <div class="btn btn-primary" id="editSave"><i class="fa-solid fa-floppy-disk"></i> Save Changes</div>
+    </div>
+  </div>
+</div>
+
 <script src="shiloh-sidebar.js"></script>
 <script src="../services/api.js"></script>
 <script src="../services/admission-service.js"></script>
 <script>
 (async function(){
   const el = id => document.getElementById(id);
-
-  const WARDS_KEY = 'shiloh_wards_v1';
-  const STATUSES_KEY = 'shiloh_statuses_v1';
 
   const PALETTE = [
     {bg:'#eaf1ff', fg:'#1d54c9'}, {bg:'#e9f9f0', fg:'#0a8a52'}, {bg:'#f4efff', fg:'#6b3fd6'},
@@ -298,35 +329,16 @@
   ];
   const NEUTRAL = {bg:'#eef0f6', fg:'#6b7280'};
 
-  function loadJSON(key, fallback){
-    try{ const raw = localStorage.getItem(key); if(raw) return JSON.parse(raw); }catch(e){}
-    return fallback;
-  }
-  function saveJSON(key, value){ try{ localStorage.setItem(key, JSON.stringify(value)); }catch(e){} }
-
-  let wards = loadJSON(WARDS_KEY, [
-    {name:'General Ward', totalBeds:20, colorIndex:0},
-    {name:'Maternity', totalBeds:12, colorIndex:2},
-    {name:'ICU', totalBeds:8, colorIndex:4},
-  ]);
-  let statuses = loadJSON(STATUSES_KEY, [
-    {name:'Admitted', colorIndex:1},
-    {name:'Discharged', neutral:true},
-    {name:'Transferred', colorIndex:3},
-  ]);
-  saveJSON(WARDS_KEY, wards);
-  saveJSON(STATUSES_KEY, statuses);
-
   function wardColor(name){
-    const w = wards.find(x=>x.name===name);
+    const w = AdmissionService.state.wards.find(x=>x.name===name);
     if(!w) return NEUTRAL;
-    return PALETTE[w.colorIndex % PALETTE.length];
+    return PALETTE[(w.colorIdx || 0) % PALETTE.length];
   }
   function statusColor(name){
-    const s = statuses.find(x=>x.name===name);
+    const s = AdmissionService.state.statuses.find(x=>x.name===name);
     if(!s) return NEUTRAL;
     if(s.neutral) return NEUTRAL;
-    return PALETTE[s.colorIndex % PALETTE.length];
+    return PALETTE[(s.colorIdx || 0) % PALETTE.length];
   }
 
   async function loadAdmissions(){
@@ -396,7 +408,8 @@
   }
 
   function renderPatientCard(){
-    el('patientAvatar').style.backgroundImage = `url('https://i.pravatar.cc/120?img=${admission.img || 1}')`;
+    el('patientAvatar').style.backgroundImage = 'none';
+    el('patientAvatar').textContent = window.ShilohAvatar.initials(admission.name || 'Unknown Patient');
     el('patientName').textContent = admission.name || 'Unknown Patient';
 
     const wc = wardColor(admission.ward);
@@ -469,7 +482,7 @@
     el('statusBadge').querySelector('.dot').style.background = sc.fg;
     el('statusBadgeLabel').textContent = admission.status;
 
-    const others = statuses.filter(s => s.name !== admission.status);
+    const others = AdmissionService.state.statuses.filter(s => s.name !== admission.status);
     if(others.length === 0){
       el('actionStack').innerHTML = `<div class="btn" disabled>No other statuses available</div>`;
       return;
@@ -527,8 +540,49 @@
     showToast('Preparing admission summary for print…');
     setTimeout(()=> window.print(), 250);
   });
-  el('editBtn').addEventListener('click', ()=>{
-    window.location.href = 'admission-form.html?edit=' + encodeURIComponent(admission.id);
+  function openEditModal(){
+    if(!admission) return;
+    el('editDoctor').value = admission.doctor || '';
+    el('editWard').value = admission.ward || '';
+    el('editBed').value = admission.bed || '';
+    el('editDiagnosis').value = admission.diagnosis || '';
+    el('editReason').value = admission.reason || '';
+    el('editModal').classList.add('open');
+  }
+  function closeEditModal(){ el('editModal').classList.remove('open'); }
+
+  el('editBtn').addEventListener('click', openEditModal);
+  el('editClose').addEventListener('click', closeEditModal);
+  el('editCancel').addEventListener('click', closeEditModal);
+  el('editModal').addEventListener('click', e=>{ if(e.target.id === 'editModal') closeEditModal(); });
+  document.addEventListener('keydown', e=>{ if(e.key === 'Escape') closeEditModal(); });
+
+  el('editSave').addEventListener('click', async ()=>{
+    const ward = el('editWard').value.trim();
+    if(!ward){ window.ShilohAPI.toast('Ward is required', 'error'); return; }
+    const btn = el('editSave');
+    if(btn.dataset.busy) return;
+    btn.dataset.busy = '1';
+    const html = btn.innerHTML;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving…';
+    const updated = await AdmissionService.updateAdmission(admission.id, {
+      ward,
+      bed: el('editBed').value.trim(),
+      doctor: el('editDoctor').value.trim(),
+      diagnosis: el('editDiagnosis').value.trim(),
+      reason: el('editReason').value.trim()
+    });
+    delete btn.dataset.busy;
+    btn.innerHTML = html;
+    if(!updated) return;
+    admission.ward = updated.ward || ward;
+    admission.bed = updated.bed || '';
+    admission.doctor = updated.doctor || '';
+    admission.reason = updated.reason || '';
+    admission.diagnosis = updated.diagnosis || updated.reason || 'Observation';
+    closeEditModal();
+    renderAll();
+    showToast('Admission updated');
   });
   el('backBtn').addEventListener('click', ()=>{
     if(window.history.length > 1) window.history.back(); else window.location.href = 'admissions.html';
@@ -543,8 +597,7 @@
 
   if(window.ShilohSidebar){
     window.ShilohSidebar.attach('#sidebarPlaceholder', {
-      activeFile: 'admissions.html',
-      user: { name: 'Receptionist', role: 'Front Desk', avatar: 'https://i.pravatar.cc/64?img=47' }
+      activeFile: 'admissions.html'
     });
   }
 })();

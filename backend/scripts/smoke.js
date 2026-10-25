@@ -256,6 +256,66 @@ async function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
   const svcJs = await fetch('http://127.0.0.1:' + PORT + '/services/patient-service.js');
   ok('GET /services/patient-service.js served', svcJs.status === 200);
 
+  console.log('\n--- 14. Settings (config, backup, exports, admin guard) ---');
+  const s0 = await req('GET', '/settings', { token: tok });
+  ok('GET /api/settings returns defaults', s0.status === 200 && s0.data.settings && s0.data.settings.clinicName === 'Shiloh Clinic & Maternity', JSON.stringify(s0.data).slice(0, 200));
+
+  const sPut = await req('PUT', '/settings', { token: tok, body: {
+    tagline: 'Smoke tagline',
+    phonePrimary: '08011112222',
+    emergency247: false,
+    hours: [{ day: 'Monday', open: true, start: '09:00', end: '17:00' }],
+    logo: 'data:image/png;base64,iVBORw0KGgo='
+  } });
+  ok('PUT /api/settings saves config', sPut.status === 200 && sPut.data.settings.tagline === 'Smoke tagline' && sPut.data.settings.emergency247 === false && sPut.data.settings.hours.length === 1, JSON.stringify(sPut.data).slice(0, 250));
+
+  const s1 = await req('GET', '/settings', { token: tok });
+  ok('settings persist across requests', s1.status === 200 && s1.data.settings.phonePrimary === '08011112222');
+
+  const backup = await fetch(BASE + '/settings/backup', { method: 'POST', headers: { Authorization: 'Bearer ' + tok } });
+  const backupJson = await backup.json();
+  ok('POST /api/settings/backup returns data snapshot', backup.status === 200 && backupJson.collections && Array.isArray(backupJson.collections.patients) && Number(backup.headers.get('x-backup-size')) > 0, 'status=' + backup.status);
+
+  const s2 = await req('GET', '/settings', { token: tok });
+  ok('lastBackup recorded on settings', s2.status === 200 && s2.data.settings.lastBackup && !!s2.data.settings.lastBackup.at && s2.data.settings.lastBackup.size > 0, JSON.stringify(s2.data.settings.lastBackup));
+
+  const exp = await fetch(BASE + '/settings/export/patients', { headers: { Authorization: 'Bearer ' + tok } });
+  const expCsv = await exp.text();
+  ok('GET /api/settings/export/patients -> CSV', exp.status === 200 && (exp.headers.get('content-type') || '').includes('text/csv') && expCsv.includes('Hospital No'), 'status=' + exp.status);
+
+  const expBad = await req('GET', '/settings/export/nope', { token: tok });
+  ok('unknown export type -> 400', expBad.status === 400, 'status=' + expBad.status);
+
+  const resetS = await req('DELETE', '/settings', { token: tok });
+  ok('DELETE /api/settings resets defaults', resetS.status === 200 && resetS.data.settings.tagline.includes('Compassionate') && resetS.data.settings.logo === '', JSON.stringify(resetS.data.settings).slice(0, 200));
+
+  const staff = await req('POST', '/users', { token: tok, body: { name: 'Smoke Reception', username: 'srecep', email: 'recep@smoke.test', password: 'Recep@123', role: 'Receptionist', dept: 'Front Desk' } });
+  const staffLogin = await req('POST', '/auth/login', { body: { username: 'srecep', password: 'Recep@123' } });
+  const staffTok = staffLogin.data && staffLogin.data.token;
+  const staffGet = await req('GET', '/settings', { token: staffTok });
+  ok('non-admin can read settings', staffGet.status === 200, 'status=' + staffGet.status);
+  const staffPut = await req('PUT', '/settings', { token: staffTok, body: { tagline: 'nope' } });
+  ok('non-admin cannot update settings (403)', staffPut.status === 403, 'status=' + staffPut.status);
+  const staffExp = await req('GET', '/settings/export/patients', { token: staffTok });
+  ok('non-admin cannot export data (403)', staffExp.status === 403, 'status=' + staffExp.status);
+  await req('DELETE', '/users/' + (staff.data && staff.data.id), { token: tok });
+
+  console.log('\n--- 15. Reports aggregation ---');
+  const rp = await req('GET', '/stats/reports?from=2026-10-01&to=2026-10-31', { token: tok });
+  ok('GET /api/stats/reports', rp.status === 200 && rp.data.volume && Array.isArray(rp.data.volume.series) && rp.data.appointments && Array.isArray(rp.data.departments) && rp.data.revenue && Array.isArray(rp.data.billing), JSON.stringify(rp.data).slice(0, 250));
+  ok('reports filter options present', rp.status === 200 && Array.isArray(rp.data.options && rp.data.options.departments) && Array.isArray(rp.data.options && rp.data.options.doctors));
+
+  console.log('\n--- 16. Audit trail ---');
+  await wait(400);
+  const audit = await req('GET', '/audit-logs?limit=5', { token: tok });
+  ok('GET /api/audit-logs', audit.status === 200 && Array.isArray(audit.data.items) && audit.data.total > 0, 'total=' + (audit.data && audit.data.total));
+  const auditStats = await req('GET', '/audit-logs/stats', { token: tok });
+  ok('GET /api/audit-logs/stats', auditStats.status === 200 && typeof auditStats.data.eventsToday === 'number');
+  const auditMeta = await req('GET', '/audit-logs/meta', { token: tok });
+  ok('GET /api/audit-logs/meta includes actor', auditMeta.status === 200 && Array.isArray(auditMeta.data.users) && auditMeta.data.users.includes('Smoke Admin'), JSON.stringify(auditMeta.data).slice(0, 200));
+  const auditSettings = await req('GET', '/audit-logs?action=settings', { token: tok });
+  ok('settings changes recorded in audit trail', auditSettings.status === 200 && auditSettings.data.items.length >= 1 && auditSettings.data.items[0].targetType === 'Settings', JSON.stringify(auditSettings.data).slice(0, 250));
+
   console.log('\n========================================');
   console.log('SMOKE RESULT: ' + pass + ' passed, ' + fail + ' failed');
   if (failures.length) { console.log('Failures:'); failures.forEach(f => console.log('  - ' + f)); }

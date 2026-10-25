@@ -35,7 +35,7 @@ app.use(cors({
   },
   credentials: true
 }));
-app.use(express.json({ limit: '10kb' }));
+app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(cookieParser());
 app.use(xss());
@@ -52,6 +52,9 @@ if (process.env.NODE_ENV === 'production') {
 
 const limiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 300 });
 app.use('/api', limiter);
+
+// Record write operations into the audit trail
+app.use('/api', require('./middleware/audit').auditMiddleware);
 
 // ── Health ──
 app.get('/api/health', (req, res) => res.json({ ok: true, service: 'shiloh-clinic', time: new Date().toISOString() }));
@@ -72,6 +75,8 @@ app.use('/api/invoices', require('./routes/invoices'));
 app.use('/api/queue', require('./routes/queue'));
 app.use('/api/vitals', require('./routes/vitals'));
 app.use('/api/stats', require('./routes/stats'));
+app.use('/api/audit-logs', require('./routes/auditLogs'));
+app.use('/api/settings', require('./routes/settings'));
 
 // ── Serve frontend (single-service hosting: Render serves API + UI together) ──
 app.use(express.static(path.join(__dirname, '..', 'public')));

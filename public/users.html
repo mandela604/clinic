@@ -271,7 +271,7 @@ function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
 document.addEventListener('DOMContentLoaded', async () => {
-  ShilohSidebar.attach('#sidebarPlaceholder', { activeFile: 'users.html', user: { name: 'Admin Tolu', role: 'System Admin', avatar: 'https://i.pravatar.cc/64?img=47' } });
+  ShilohSidebar.attach('#sidebarPlaceholder', { activeFile: 'users.html' });
   await UserService.init();
   renderStats();
   renderTable();
@@ -316,7 +316,7 @@ function renderTable() {
     const isSpecial = u.status==='suspended'||u.status==='invited';
     return `<tr>
       <td>${(UserService.state.currentPage-1)*UserService.state.perPage+i+1}</td>
-      <td><div class="user-cell"><div class="avatar"><img src="https://i.pravatar.cc/80?img=${u.img}" alt=""></div><div><div class="user-fullname" onclick="openViewModal(${u.id})">${esc(u.name)}</div><div class="user-email">${esc(u.email)}</div></div></div></td>
+      <td><div class="user-cell"><div class="avatar" style="display:flex;align-items:center;justify-content:center;background:#e0e9ff;color:#1d4ed8;font-weight:800;font-size:11px;">${window.ShilohAvatar.initials(u.name)}</div><div><div class="user-fullname" onclick="openViewModal(${u.id})">${esc(u.name)}</div><div class="user-email">${esc(u.email)}</div></div></div></td>
       <td><span class="user-id">${u.userId}</span></td>
       <td><span class="role-chip ${r.cls}">${r.label}</span></td>
       <td>${esc(u.dept)}</td>
@@ -425,7 +425,16 @@ function openViewModal(id) {
   viewingId = id;
   const r = roleLabels[u.role]||{label:u.role,cls:''};
   const s = statusLabels[u.status]||{label:u.status,cls:''};
-  document.getElementById('viewAvatar').style.backgroundImage = "url('https://i.pravatar.cc/120?img="+u.img+"')";
+  const viewAv = document.getElementById('viewAvatar');
+  viewAv.style.backgroundImage = 'none';
+  viewAv.style.display = 'flex';
+  viewAv.style.alignItems = 'center';
+  viewAv.style.justifyContent = 'center';
+  viewAv.style.background = '#e0e9ff';
+  viewAv.style.color = '#1d4ed8';
+  viewAv.style.fontWeight = '800';
+  viewAv.style.fontSize = '22px';
+  viewAv.textContent = window.ShilohAvatar.initials(u.name);
   document.getElementById('viewName').textContent = u.name;
   document.getElementById('viewUsername').textContent = '@'+u.username;
   document.getElementById('viewBadges').innerHTML = '<span class="role-chip '+r.cls+'">'+r.label+'</span><span class="badge '+s.cls+'"><span class="dot"></span>'+s.label+'</span>';
