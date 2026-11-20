@@ -30,7 +30,7 @@
  *     });
  *
  *     sb.setActive('visits.html');       // programmatically change highlighted item
- *     sb.setUser({ name: 'Dr. Samuel O.', role: 'Physician' });
+ *     sb.setUser({ name: 'Dr. Jane Doe', role: 'Doctor' });
  *     sb.destroy();
  *
  * ── DEFAULT PAGES IT LINKS TO ─────────────────────────────────────────

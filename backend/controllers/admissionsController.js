@@ -88,11 +88,11 @@ exports.discharge = async (req, res, next) => {
 
 exports.stats = async (req, res, next) => {
   try {
-    const [total, admitted, discharged] = await Promise.all([
+    const [total, discharged, active] = await Promise.all([
       Admission.countDocuments({}),
-      Admission.countDocuments({ status: { $in: ['Admitted','admitted'] } }),
-      Admission.countDocuments({ status: { $in: ['Discharged','discharged'] } })
+      Admission.countDocuments({ status: /^discharged$/i }),
+      Admission.countDocuments({ status: { $not: /^discharged$/i } })
     ]);
-    res.json({ total, admitted, discharged });
+    res.json({ total, admitted: active, discharged });
   } catch (e) { next(e); }
 };

@@ -6,6 +6,7 @@
  *   PUT   /api/queue/:id              -> updateEntry
  *   DELETE /api/queue/:id             -> removeEntry
  *   PATCH /api/queue/:id/advance      -> advanceStatus
+ *   GET   /api/users?role=Doctor      -> loadDoctors (live doctor list)
  * No STORAGE_KEY / SEQ_KEY / localStorage / DemoData / _generateDemoQueue.
  */
 
@@ -14,12 +15,13 @@ const ConsultationService = {
   API_BASE: (window.ShilohAPI && window.ShilohAPI.BASE) || (window.__SHILOH_API__ || 'http://localhost:5001/api'),
 
   state: {
-    queue: []
+    queue: [],
+    doctors: []
   },
 
   TODAY: new Date().toISOString().slice(0, 10),
 
-  DOCTORS: ['Dr. Samuel O.', 'Dr. Adeola', 'Dr. Chinedu', 'Dr. Funke'],
+  get DOCTORS() { return this.state.doctors; },
   PRIORITIES: ['Routine', 'Urgent', 'Emergency'],
   STATUSES: ['Waiting', 'In Consultation', 'Completed'],
 
@@ -94,6 +96,24 @@ const ConsultationService = {
       this.state.queue = [];
       this._toast('Could not load consultation queue. Check connection / login.', 'error');
     }
+  },
+
+  async loadDoctors() {
+    try {
+      const res = await fetch(this.API_BASE + '/users?role=Doctor&limit=100', {
+        headers: this._headers()
+      });
+      if (!res.ok) throw new Error('Failed to load doctors (' + res.status + ')');
+      const data = await res.json();
+      const items = (data && data.items) || data;
+      this.state.doctors = Array.isArray(items)
+        ? items.map(u => u.name).filter(Boolean)
+        : [];
+    } catch (e) {
+      this.state.doctors = [];
+      this._toast('Could not load doctors. Check connection / login.', 'error');
+    }
+    return this.state.doctors;
   },
 
   getAll() { return this.state.queue; },

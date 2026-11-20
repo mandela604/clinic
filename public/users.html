@@ -177,7 +177,7 @@
 
   <div class="filter-bar">
     <div class="search-box"><input type="text" id="searchInput" placeholder="Search by name, username, email or user ID..."><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg></div>
-    <div class="filter-group"><label>Role</label><select class="filter-select" id="roleFilter"><option value="all">All</option><option value="admin">Admin</option><option value="doctor">Doctor</option><option value="nurse">Nurse</option><option value="labtech">Lab Technician</option><option value="pharmacist">Pharmacist</option><option value="receptionist">Receptionist</option><option value="cashier">Cashier</option></select></div>
+    <div class="filter-group"><label>Role</label><select class="filter-select" id="roleFilter"><option value="all">All</option><option value="Administrator">Administrator</option><option value="Doctor">Doctor</option><option value="Nurse">Nurse</option><option value="Lab Technician">Lab Technician</option><option value="Pharmacist">Pharmacist</option><option value="Receptionist">Receptionist</option><option value="Cashier">Cashier</option></select></div>
     <div class="filter-group"><label>Department</label><select class="filter-select" id="deptFilter"><option value="all">All</option><option>General OPD</option><option>Maternity</option><option>Nursing</option><option>Laboratory</option><option>Pharmacy</option><option>Front Desk</option><option>Billing</option><option>Administration</option></select></div>
     <div class="filter-group"><label>Status</label><select class="filter-select" id="statusFilter"><option value="all">All</option><option value="active">Active</option><option value="inactive">Inactive</option><option value="suspended">Suspended</option><option value="invited">Invited</option></select></div>
   </div>
@@ -196,9 +196,9 @@
   <div class="modal-box">
     <div class="modal-head"><div><div class="modal-title" id="userModalTitle">Add New User</div><div class="modal-subtitle" id="userModalSubtitle">Create a new staff account</div></div><button class="modal-close" onclick="closeModal('userModal')">&times;</button></div>
     <div class="modal-body">
-      <div class="field-row"><div class="field" id="uNameGroup"><label>Full Name *</label><input type="text" id="uName" placeholder="e.g. Dr. Samuel Okonkwo"><div class="field-error">Required</div></div><div class="field" id="uUsernameGroup"><label>Username *</label><input type="text" id="uUsername" placeholder="e.g. samuel.okonkwo"><div class="field-error">Required</div></div></div>
+      <div class="field-row"><div class="field" id="uNameGroup"><label>Full Name *</label><input type="text" id="uName" placeholder="e.g. Dr. Full Name"><div class="field-error">Required</div></div><div class="field" id="uUsernameGroup"><label>Username *</label><input type="text" id="uUsername" placeholder="e.g. jane.doe"><div class="field-error">Required</div></div></div>
       <div class="field-row"><div class="field" id="uEmailGroup"><label>Email *</label><input type="email" id="uEmail" placeholder="e.g. samuel@shiloh.clinic"><div class="field-error">Valid email required</div></div><div class="field" id="uPhoneGroup"><label>Phone *</label><input type="tel" id="uPhone" placeholder="e.g. 0803 123 4567"><div class="field-error">Required</div></div></div>
-      <div class="field-row"><div class="field"><label>Role</label><select class="filter-select" id="uRole"><option value="receptionist">Receptionist</option><option value="doctor">Doctor</option><option value="nurse">Nurse</option><option value="labtech">Lab Technician</option><option value="pharmacist">Pharmacist</option><option value="cashier">Cashier</option><option value="admin">Admin</option></select></div><div class="field"><label>Department</label><select class="filter-select" id="uDept"><option>Front Desk</option><option>General OPD</option><option>Maternity</option><option>Nursing</option><option>Laboratory</option><option>Pharmacy</option><option>Billing</option><option>Administration</option></select></div></div>
+      <div class="field-row"><div class="field"><label>Role</label><select class="filter-select" id="uRole"><option value="Receptionist">Receptionist</option><option value="Doctor">Doctor</option><option value="Nurse">Nurse</option><option value="Lab Technician">Lab Technician</option><option value="Pharmacist">Pharmacist</option><option value="Cashier">Cashier</option><option value="Administrator">Administrator</option></select></div><div class="field"><label>Department</label><select class="filter-select" id="uDept"><option>Front Desk</option><option>General OPD</option><option>Maternity</option><option>Nursing</option><option>Laboratory</option><option>Pharmacy</option><option>Billing</option><option>Administration</option></select></div></div>
       <div class="field"><label>Status</label><select class="filter-select" id="uStatus"><option value="active">Active</option><option value="inactive">Inactive</option><option value="suspended">Suspended</option><option value="invited">Invited</option></select></div>
       <div class="pw-toggle" id="pwToggleRow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg><span><span id="pwToggleText">Set a password for this user</span><br><small style="color:var(--text-gray);font-weight:400;" id="pwToggleSub">Click to add password fields</small></span></div>
       <div class="pw-fields" id="pwFields">
@@ -255,7 +255,11 @@
 <script src="../services/api.js"></script>
 <script src="../services/user-service.js"></script>
 <script>
-const roleLabels = {admin:{label:'Admin',cls:'role-admin'},doctor:{label:'Doctor',cls:'role-doctor'},nurse:{label:'Nurse',cls:'role-nurse'},labtech:{label:'Lab Technician',cls:'role-labtech'},pharmacist:{label:'Pharmacist',cls:'role-pharmacist'},receptionist:{label:'Receptionist',cls:'role-receptionist'},cashier:{label:'Cashier',cls:'role-cashier'}};
+const roleLabels = {administrator:{label:'Administrator',cls:'role-admin'},doctor:{label:'Doctor',cls:'role-doctor'},nurse:{label:'Nurse',cls:'role-nurse'},'lab technician':{label:'Lab Technician',cls:'role-labtech'},pharmacist:{label:'Pharmacist',cls:'role-pharmacist'},receptionist:{label:'Receptionist',cls:'role-receptionist'},cashier:{label:'Cashier',cls:'role-cashier'}};
+function roleMeta(role) {
+  const canonical = UserService.canonicalRole(role) || role || '';
+  return roleLabels[canonical.toLowerCase()] || {label:canonical,cls:''};
+}
 const statusLabels = {active:{label:'Active',cls:'badge-active'},inactive:{label:'Inactive',cls:'badge-inactive'},suspended:{label:'Suspended',cls:'badge-suspended'},invited:{label:'Invited',cls:'badge-invited'}};
 
 let editingId = null;
@@ -273,10 +277,25 @@ function closeModal(id) { document.getElementById(id).classList.remove('open'); 
 document.addEventListener('DOMContentLoaded', async () => {
   ShilohSidebar.attach('#sidebarPlaceholder', { activeFile: 'users.html' });
   await UserService.init();
+  populateRoleOptions();
   renderStats();
   renderTable();
   bindEvents();
 });
+
+function populateRoleOptions() {
+  const roles = UserService.getRoles();
+  if(!roles.length) return;
+  const targets = [document.getElementById('uRole'), document.getElementById('roleFilter')];
+  roles.forEach(r => {
+    if(!r || !r.name || r.status === 'disabled') return;
+    const canonical = UserService.canonicalRole(r.name);
+    targets.forEach(sel => {
+      const exists = Array.from(sel.options).some(o => o.value.toLowerCase() === canonical.toLowerCase());
+      if(!exists){ const opt=document.createElement('option'); opt.value=canonical; opt.textContent=canonical; sel.appendChild(opt); }
+    });
+  });
+}
 
 function renderStats() {
   const s = UserService.getStats();
@@ -309,21 +328,21 @@ function renderTable() {
   if (!page.length) { tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-light);">No users found</td></tr>'; document.getElementById('pageControls').innerHTML=''; return; }
 
   tbody.innerHTML = page.map((u, i) => {
-    const r = roleLabels[u.role]||{label:u.role,cls:''};
+    const r = roleMeta(u.role);
     const s = statusLabels[u.status]||{label:u.status,cls:''};
     const loginHtml = u.loginTime ? '<div class="last-login"><span class="login-time">'+esc(u.loginTime)+'</span><span class="login-date">'+esc(u.loginDate)+'</span></div>' : '<span class="login-dash">&mdash;</span>';
     const toggleOn = u.status === 'active';
     const isSpecial = u.status==='suspended'||u.status==='invited';
     return `<tr>
       <td>${(UserService.state.currentPage-1)*UserService.state.perPage+i+1}</td>
-      <td><div class="user-cell"><div class="avatar" style="display:flex;align-items:center;justify-content:center;background:#e0e9ff;color:#1d4ed8;font-weight:800;font-size:11px;">${window.ShilohAvatar.initials(u.name)}</div><div><div class="user-fullname" onclick="openViewModal(${u.id})">${esc(u.name)}</div><div class="user-email">${esc(u.email)}</div></div></div></td>
+      <td><div class="user-cell"><div class="avatar" style="display:flex;align-items:center;justify-content:center;background:#e0e9ff;color:#1d4ed8;font-weight:800;font-size:11px;">${window.ShilohAvatar.initials(u.name)}</div><div><div class="user-fullname" onclick="openViewModal('${u.id}')">${esc(u.name)}</div><div class="user-email">${esc(u.email)}</div></div></div></td>
       <td><span class="user-id">${u.userId}</span></td>
       <td><span class="role-chip ${r.cls}">${r.label}</span></td>
       <td>${esc(u.dept)}</td>
       <td>${loginHtml}</td>
       <td><span class="badge ${s.cls}"><span class="dot"></span>${s.label}</span></td>
-      <td><div class="toggle-switch ${toggleOn?'on':''} ${isSpecial?'locked':''}" onclick="${isSpecial?'':'toggleStatus('+u.id+')'}"><div class="toggle-knob"></div></div></td>
-      <td><div class="row-actions"><div class="icon-btn" onclick="openViewModal(${u.id})" title="View"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></div><div class="icon-btn" onclick="openEditModal(${u.id})" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></div><div class="icon-btn" onclick="openResetModal(${u.id})" title="Reset Password"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M21 2v6h-6M3 22v-6h6"/><path d="M3.5 9A9 9 0 0121 8.5M20.5 15A9 9 0 013 15.5"/></svg></div><div class="icon-btn danger" onclick="openDeleteModal(${u.id})" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z"/></svg></div></div></td>
+      <td><div class="toggle-switch ${toggleOn?'on':''} ${isSpecial?'locked':''}" ${isSpecial?'':'onclick="toggleStatus(this.dataset.id)"'} data-id="${u.id}"><div class="toggle-knob"></div></div></td>
+      <td><div class="row-actions"><div class="icon-btn" onclick="openViewModal('${u.id}')" title="View"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg></div><div class="icon-btn" onclick="openEditModal('${u.id}')" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></div><div class="icon-btn" onclick="openResetModal('${u.id}')" title="Reset Password"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M21 2v6h-6M3 22v-6h6"/><path d="M3.5 9A9 9 0 0121 8.5M20.5 15A9 9 0 013 15.5"/></svg></div><div class="icon-btn danger" onclick="openDeleteModal('${u.id}')" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z"/></svg></div></div></td>
     </tr>`;
   }).join('');
 
@@ -340,9 +359,10 @@ function renderTable() {
 function goPage(p) { UserService.setPage(p); renderTable(); window.scrollTo({top:0,behavior:'smooth'}); }
 function changePerPage(v) { UserService.setPerPage(parseInt(v)); renderTable(); }
 
-function toggleStatus(id) {
-  const result = UserService.toggleStatus(id);
-  if(result && result.error) { showToast(result.error, true); return; }
+async function toggleStatus(id) {
+  const result = await UserService.toggleStatus(id);
+  if(!result) return;
+  if(result.error) { showToast(result.error, true); return; }
   renderStats(); renderTable();
   showToast(result.name+' '+(result.status==='active'?'enabled':'disabled'));
 }
@@ -356,8 +376,24 @@ function openAddModal() {
   document.getElementById('userSubmitText').textContent = 'Create User';
   clearFormErrors();
   ['uName','uUsername','uEmail','uPhone','uPass','uPassConfirm'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('uRole').value = 'Receptionist';
+  document.getElementById('uDept').value = 'Front Desk';
+  document.getElementById('uStatus').value = 'active';
   setPwSection(true, true);
   openModal('userModal');
+}
+
+function setSelectValue(select, value) {
+  if (!value) return;
+  const canonical = UserService.canonicalRole(value);
+  const exists = Array.from(select.options).some(o => o.value === canonical);
+  if (!exists) {
+    const opt = document.createElement('option');
+    opt.value = canonical;
+    opt.textContent = canonical;
+    select.appendChild(opt);
+  }
+  select.value = canonical;
 }
 
 function openEditModal(id) {
@@ -372,8 +408,8 @@ function openEditModal(id) {
   document.getElementById('uUsername').value=u.username;
   document.getElementById('uEmail').value=u.email;
   document.getElementById('uPhone').value=u.phone;
-  document.getElementById('uRole').value=u.role;
-  document.getElementById('uDept').value=u.dept;
+  setSelectValue(document.getElementById('uRole'), u.role);
+  setSelectValue(document.getElementById('uDept'), u.dept);
   document.getElementById('uStatus').value=u.status;
   document.getElementById('uPass').value='';
   document.getElementById('uPassConfirm').value='';
@@ -389,8 +425,10 @@ function setPwSection(open, isCreate) {
   document.getElementById('pwToggleSub').textContent = open ? (isCreate?'Required':'Enter new password') : (isCreate?'Click to add':'Leave unchanged');
 }
 
-function submitUserForm() {
+async function submitUserForm() {
   clearFormErrors();
+  const password = document.getElementById('uPass').value;
+  const confirm = document.getElementById('uPassConfirm').value;
   const data = {
     name: document.getElementById('uName').value.trim(),
     username: document.getElementById('uUsername').value.trim(),
@@ -405,16 +443,29 @@ function submitUserForm() {
   if(!data.username){document.getElementById('uUsernameGroup').classList.add('invalid');ok=false;}
   if(!data.email||!isValidEmail(data.email)){document.getElementById('uEmailGroup').classList.add('invalid');ok=false;}
   if(!data.phone){document.getElementById('uPhoneGroup').classList.add('invalid');ok=false;}
+  if(!editingId || pwSectionOpen) {
+    if(password.length < 6){document.getElementById('uPassGroup').classList.add('invalid');ok=false;}
+    if(password !== confirm){document.getElementById('uPassConfirmGroup').classList.add('invalid');ok=false;}
+  }
   if(!ok){showToast('Please fix the highlighted fields',true);return;}
+  if(!editingId || pwSectionOpen) data.password = password;
   const btn = document.getElementById('userSubmit');
   setLoading(btn, true);
-  setTimeout(() => {
-    if(editingId){const result=UserService.updateUser(editingId, data); if(result && result.error){setLoading(btn,false);showToast(result.error,true);return;} showToast('User updated');}
-    else{UserService.addUser(data); showToast('User created');}
-    setLoading(btn, false);
+  try {
+    if(editingId){
+      const result = await UserService.updateUser(editingId, data);
+      if(!result || result.error){ if(result&&result.error) showToast(result.error,true); return; }
+      showToast('User updated');
+    } else {
+      const created = await UserService.addUser(data);
+      if(!created) return;
+      showToast('User created');
+    }
     closeModal('userModal');
     renderStats(); renderTable();
-  }, 500);
+  } finally {
+    setLoading(btn, false);
+  }
 }
 
 function setLoading(btn, loading) { if (!btn) return; if (loading) { btn.classList.add('loading'); btn._oldHTML = btn.innerHTML; } else { btn.classList.remove('loading'); if (btn._oldHTML) btn.innerHTML = btn._oldHTML; } }
@@ -423,7 +474,7 @@ function openViewModal(id) {
   const u = UserService.getById(id);
   if (!u) return;
   viewingId = id;
-  const r = roleLabels[u.role]||{label:u.role,cls:''};
+  const r = roleMeta(u.role);
   const s = statusLabels[u.status]||{label:u.status,cls:''};
   const viewAv = document.getElementById('viewAvatar');
   viewAv.style.backgroundImage = 'none';
@@ -439,12 +490,12 @@ function openViewModal(id) {
   document.getElementById('viewUsername').textContent = '@'+u.username;
   document.getElementById('viewBadges').innerHTML = '<span class="role-chip '+r.cls+'">'+r.label+'</span><span class="badge '+s.cls+'"><span class="dot"></span>'+s.label+'</span>';
   document.getElementById('viewInfoGrid').innerHTML = `
-    <div class="view-info-row"><span class="view-info-label">User ID</span><span>'+u.userId+'</span></div>
-    <div class="view-info-row"><span class="view-info-label">Department</span><span>'+esc(u.dept)+'</span></div>
-    <div class="view-info-row"><span class="view-info-label">Email</span><span>'+esc(u.email)+'</span></div>
-    <div class="view-info-row"><span class="view-info-label">Phone</span><span>'+esc(u.phone||'—')+'</span></div>
-    <div class="view-info-row"><span class="view-info-label">Last Login</span><span>'+(u.loginTime?u.loginTime+' · '+u.loginDate:'—')+'</span></div>
-    <div class="view-info-row"><span class="view-info-label">Joined</span><span>'+u.joined+'</span></div>`;
+    <div class="view-info-row"><span class="view-info-label">User ID</span><span>${esc(u.userId)}</span></div>
+    <div class="view-info-row"><span class="view-info-label">Department</span><span>${esc(u.dept)}</span></div>
+    <div class="view-info-row"><span class="view-info-label">Email</span><span>${esc(u.email)}</span></div>
+    <div class="view-info-row"><span class="view-info-label">Phone</span><span>${esc(u.phone||'—')}</span></div>
+    <div class="view-info-row"><span class="view-info-label">Last Login</span><span>${u.loginTime?esc(u.loginTime+' · '+u.loginDate):'—'}</span></div>
+    <div class="view-info-row"><span class="view-info-label">Joined</span><span>${esc(u.joined||'—')}</span></div>`;
   openModal('viewModal');
 }
 
@@ -459,10 +510,13 @@ function openResetModal(id) {
   openModal('resetModal');
 }
 
-function confirmReset() {
+async function confirmReset() {
   if (!resettingId) return;
-  const result = UserService.resetPassword(resettingId);
-  if(!result) return;
+  const btn = document.getElementById('confirmResetBtn');
+  setLoading(btn, true);
+  const result = await UserService.resetPassword(resettingId);
+  setLoading(btn, false);
+  if(!result || !result.tempPassword) return;
   document.getElementById('generatedPw').textContent=result.tempPassword;
   document.getElementById('generatedPwBox').style.display='flex';
   document.getElementById('confirmResetBtn').style.display='none';
@@ -475,14 +529,18 @@ function openDeleteModal(id) {
   if (!u) return;
   deletingId = id;
   document.getElementById('deleteUserName').textContent = u.name;
-  document.getElementById('deleteWarn').style.display = (u.role==='admin'&&UserService.adminCount()<=1) ? 'flex' : 'none';
+  document.getElementById('deleteWarn').style.display = (UserService.canonicalRole(u.role)==='Administrator'&&UserService.adminCount()<=1) ? 'flex' : 'none';
   openModal('deleteModal');
 }
 
-function confirmDelete() {
+async function confirmDelete() {
   if (!deletingId) return;
-  const result = UserService.deleteUser(deletingId);
-  if(result && result.error){showToast(result.error,true);closeModal('deleteModal');return;}
+  const btn = document.getElementById('confirmDeleteBtn');
+  setLoading(btn, true);
+  const result = await UserService.deleteUser(deletingId);
+  setLoading(btn, false);
+  if(!result) return;
+  if(result.error){showToast(result.error,true);closeModal('deleteModal');return;}
   closeModal('deleteModal');
   showToast('"'+result.name+'" deleted');
   deletingId=null;
@@ -492,7 +550,7 @@ function confirmDelete() {
 function exportCsv() {
   const filtered = UserService.getFiltered();
   const header=['User ID','Full Name','Username','Email','Role','Department','Status','Joined'];
-  const rows=filtered.map(u=>[u.userId,u.name,u.username,u.email,(roleLabels[u.role]||{}).label||u.role,u.dept,(statusLabels[u.status]||{}).label||u.status,u.joined]);
+  const rows=filtered.map(u=>[u.userId,u.name,u.username,u.email,roleMeta(u.role).label,u.dept,(statusLabels[u.status]||{}).label||u.status,u.joined]);
   const csv=[header,...rows].map(r=>r.map(v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"').join(',')).join('\n');
   const blob=new Blob([csv],{type:'text/csv'});
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='shiloh-users.csv'; a.click();

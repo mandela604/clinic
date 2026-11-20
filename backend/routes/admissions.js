@@ -17,14 +17,14 @@ router.post('/',
   body('ward').trim().notEmpty().withMessage('ward required').isLength({max:60}).escape(),
   body('bed').optional().trim().isLength({max:20}).escape(),
   body('admitDate').optional().isISO8601().withMessage('admitDate must be YYYY-MM-DD'),
-  body('status').optional().isIn(['Admitted','Discharged','Transferred','admitted','discharged','transferred']).escape(),
+  body('status').optional().trim().isLength({max:30}).escape(),
   handleValidation, ctrl.create);
 
 router.put('/:id',
   authorize('Administrator','admin','Doctor','Nurse'),
   body('ward').optional().trim().isLength({max:60}).escape(),
   body('bed').optional().trim().isLength({max:20}).escape(),
-  body('status').optional().isIn(['Admitted','Discharged','Transferred','admitted','discharged','transferred']).escape(),
+  body('status').optional().trim().isLength({max:30}).escape(),
   body('admitDate').optional().isISO8601().escape(),
   handleValidation, ctrl.update);
 

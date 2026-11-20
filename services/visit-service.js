@@ -104,7 +104,7 @@ const VisitService = {
 
   async getDoctors() {
     try {
-      const res = await fetch(this.API_BASE + '/users?limit=100', { headers: this._headers() });
+      const res = await fetch(this.API_BASE + '/users?role=Doctor&limit=100', { headers: this._headers() });
       if (!res.ok) throw new Error('Failed to load doctors (' + res.status + ')');
       const data = await res.json();
       const items = (data && data.items) || data;

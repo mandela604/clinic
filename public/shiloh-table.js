@@ -22,8 +22,6 @@
  *   <script src="shiloh-table.js"></script>
  *   <script>
  *     const tbl = ShilohTable.attach('#labTablePlaceholder', {
- *       storageKey: 'shiloh_lab_orders_v1',   // omit to skip persistence
- *       seedData: DEMO_ORDERS,                // used only on first load
  *       idField: 'id',
  *       pageTitle: 'Laboratory',
  *       breadcrumb: 'Dashboard / Laboratory / Test Orders',
@@ -329,26 +327,9 @@
     const entityName = options.entityName || 'item';
     const entityNamePlural = options.entityNamePlural || (entityName + 's');
     const columns = options.columns || [];
-    const storageKey = options.storageKey || null;
 
-    // ── Data layer ──
-    function loadRows() {
-      if (storageKey) {
-        try {
-          const raw = localStorage.getItem(storageKey);
-          if (raw) return JSON.parse(raw);
-        } catch (e) {}
-      }
-      const seed = (options.seedData || []).slice();
-      if (storageKey) saveRows(seed);
-      return seed;
-    }
-    function saveRows(list) {
-      if (!storageKey) return;
-      try { localStorage.setItem(storageKey, JSON.stringify(list)); } catch (e) {}
-    }
-
-    let allRows = loadRows();
+    // ── Data layer (in-memory only — rows come from the backend) ──
+    let allRows = Array.isArray(options.rows) ? options.rows.slice() : [];
     let rows = allRows.slice();     // after filters
     let currentPage = 1;
     let perPage = 10;
@@ -850,7 +831,6 @@
         const ns = nextStatus(row);
         if (ns) {
           row[statusField] = ns;
-          saveRows(allRows);
           options.onAdvanceStatus && options.onAdvanceStatus(row, ns);
           const lbl = (statusMap[ns] && statusMap[ns].label) || ns;
           _toastMsg(container, `${_get(row, idField)} marked as ${lbl}`);
@@ -860,7 +840,6 @@
         const ok = options.onDelete(row);
         if (ok === false) return;
         allRows = allRows.filter(r => String(_get(r, idField)) !== String(_get(row, idField)));
-        saveRows(allRows);
         _toastMsg(container, `${_get(row, idField)} cancelled`);
         applyFilters();
       }
@@ -903,13 +882,13 @@
     // ── Public control object ──
     return {
       getRows() { return allRows; },
-      setRows(list) { allRows = list.slice(); saveRows(allRows); applyFilters(); },
-      addRow(row) { allRows.push(row); saveRows(allRows); applyFilters(); },
+      setRows(list) { allRows = list.slice(); applyFilters(); },
+      addRow(row) { allRows.push(row); applyFilters(); },
       updateRow(id, patch) {
         const row = allRows.find(r => String(_get(r, idField)) === String(id));
-        if (row) { Object.assign(row, patch); saveRows(allRows); applyFilters(); }
+        if (row) { Object.assign(row, patch); applyFilters(); }
       },
-      removeRow(id) { allRows = allRows.filter(r => String(_get(r, idField)) !== String(id)); saveRows(allRows); applyFilters(); },
+      removeRow(id) { allRows = allRows.filter(r => String(_get(r, idField)) !== String(id)); applyFilters(); },
       refresh() { renderAll(); },
       exportCsv,
       destroy() { closeActionMenu(); container.innerHTML = ''; },

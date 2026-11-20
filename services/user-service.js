@@ -16,10 +16,27 @@ const UserService = {
     searchQuery: '',
     roleFilter: 'all',
     deptFilter: 'all',
-    statusFilter: 'all'
+    statusFilter: 'all',
+    roles: []
   },
 
-  ROLES: { admin: 'Admin', doctor: 'Doctor', nurse: 'Nurse', labtech: 'Lab Technician', pharmacist: 'Pharmacist', receptionist: 'Receptionist', cashier: 'Cashier' },
+  ROLES: { Administrator: 'Administrator', Doctor: 'Doctor', Nurse: 'Nurse', 'Lab Technician': 'Lab Technician', Pharmacist: 'Pharmacist', Receptionist: 'Receptionist', Cashier: 'Cashier' },
+
+  ROLE_ALIASES: {
+    admin: 'Administrator', administrator: 'Administrator', superadmin: 'Administrator', 'super admin': 'Administrator',
+    doctor: 'Doctor', physician: 'Doctor',
+    nurse: 'Nurse',
+    labtech: 'Lab Technician', 'lab tech': 'Lab Technician', 'lab technician': 'Lab Technician', 'laboratory technician': 'Lab Technician',
+    pharmacist: 'Pharmacist', pharmacy: 'Pharmacist',
+    receptionist: 'Receptionist', frontdesk: 'Receptionist', 'front desk': 'Receptionist',
+    cashier: 'Cashier', billing: 'Cashier'
+  },
+
+  canonicalRole(role) {
+    var raw = String(role == null ? '' : role).trim();
+    var key = raw.toLowerCase().replace(/[_-]+/g, ' ').replace(/\s+/g, ' ');
+    return this.ROLE_ALIASES[key] || raw;
+  },
 
   _headers(json) {
     if (window.ShilohAPI) return window.ShilohAPI.headers(json);
@@ -38,20 +55,28 @@ const UserService = {
 
   async init() {
     try {
-      const res = await fetch(this.API_BASE + '/users?limit=100', {
-        headers: this._headers()
-      });
-      if (!res.ok) throw new Error('Failed to load users (' + res.status + ')');
-      const data = await res.json();
+      const [usersRes, rolesRes] = await Promise.all([
+        fetch(this.API_BASE + '/users?limit=100', { headers: this._headers() }),
+        fetch(this.API_BASE + '/roles?limit=100', { headers: this._headers() }).catch(() => null)
+      ]);
+      if (!usersRes.ok) throw new Error('Failed to load users (' + usersRes.status + ')');
+      const data = await usersRes.json();
       const items = (data && data.items) || data;
       this.state.allUsers = Array.isArray(items) ? items : [];
       this.state.filtered = [...this.state.allUsers];
+      if (rolesRes && rolesRes.ok) {
+        const rolesData = await rolesRes.json().catch(() => null);
+        const roleItems = (rolesData && rolesData.items) || [];
+        if (Array.isArray(roleItems)) this.state.roles = roleItems;
+      }
     } catch (e) {
       this.state.allUsers = [];
       this.state.filtered = [];
       this._toast('Could not load users. Check connection / login.', 'error');
     }
   },
+
+  getRoles() { return this.state.roles || []; },
 
   getAll() { return this.state.allUsers; },
   getFiltered() { return this.state.filtered; },
@@ -69,12 +94,12 @@ const UserService = {
       active: all.filter(u => u.status === 'active').length,
       invited: all.filter(u => u.status === 'invited').length,
       suspended: all.filter(u => u.status === 'suspended').length,
-      admins: all.filter(u => u.role === 'admin').length,
-      loggedToday: all.filter(u => u.loginDate === 'Today').length
+      admins: all.filter(u => this.canonicalRole(u.role) === 'Administrator').length,
+      loggedToday: all.filter(u => u.loginDate === 'Today' || u.loginDate === new Date().toISOString().slice(0, 10)).length
     };
   },
 
-  adminCount() { return this.state.allUsers.filter(u => u.role === 'admin').length; },
+  adminCount() { return this.state.allUsers.filter(u => this.canonicalRole(u.role) === 'Administrator').length; },
 
   setPage(page) { this.state.currentPage = page; },
   setPerPage(n) { this.state.perPage = n; this.state.currentPage = 1; },
@@ -87,7 +112,7 @@ const UserService = {
   async toggleStatus(id) {
     const u = this.state.allUsers.find(x => x.id === id);
     if (!u) return null;
-    if (u.status === 'active' && u.role === 'admin' && this.adminCount() <= 1) return { error: 'Cannot disable the only Admin' };
+    if (u.status === 'active' && this.canonicalRole(u.role) === 'Administrator' && this.adminCount() <= 1) return { error: 'Cannot disable the only Administrator' };
     const next = u.status === 'active' ? 'inactive' : 'active';
     try {
       const res = await fetch(this.API_BASE + '/users/' + encodeURIComponent(id), {
@@ -133,7 +158,7 @@ const UserService = {
   async updateUser(id, data) {
     const u = this.state.allUsers.find(x => x.id === id);
     if (!u) return null;
-    if (u.role === 'admin' && data.role && data.role !== 'admin' && this.adminCount() <= 1) return { error: 'Cannot change role — only remaining Admin' };
+    if (this.canonicalRole(u.role) === 'Administrator' && data.role && this.canonicalRole(data.role) !== 'Administrator' && this.adminCount() <= 1) return { error: 'Cannot change role — only remaining Administrator' };
     try {
       const res = await fetch(this.API_BASE + '/users/' + encodeURIComponent(id), {
         method: 'PUT',
@@ -157,7 +182,7 @@ const UserService = {
   async deleteUser(id) {
     const u = this.state.allUsers.find(x => x.id === id);
     if (!u) return null;
-    if (u.role === 'admin' && this.adminCount() <= 1) return { error: 'Cannot delete the only Admin' };
+    if (this.canonicalRole(u.role) === 'Administrator' && this.adminCount() <= 1) return { error: 'Cannot delete the only Administrator' };
     try {
       const res = await fetch(this.API_BASE + '/users/' + encodeURIComponent(id), {
         method: 'DELETE',
@@ -199,7 +224,7 @@ const UserService = {
   _applyFilters() {
     const q = this.state.searchQuery.toLowerCase();
     this.state.filtered = this.state.allUsers.filter(u => {
-      if (this.state.roleFilter !== 'all' && u.role !== this.state.roleFilter) return false;
+      if (this.state.roleFilter !== 'all' && this.canonicalRole(u.role) !== this.canonicalRole(this.state.roleFilter)) return false;
       if (this.state.deptFilter !== 'all' && u.dept !== this.state.deptFilter) return false;
       if (this.state.statusFilter !== 'all' && u.status !== this.state.statusFilter) return false;
       if (q && !(u.name + ' ' + u.username + ' ' + u.email + ' ' + u.userId).toLowerCase().includes(q)) return false;

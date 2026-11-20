@@ -2,6 +2,9 @@ const { v4: uuidv4 } = require('uuid');
 const Role = require('../models/Role');
 const User = require('../models/User');
 
+function escapeRegex(v) { return String(v).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+function roleUsersQuery(name) { return { role: new RegExp('^' + escapeRegex(name) + '$', 'i') }; }
+
 // GET /api/roles?search=&type=&status=&page=1&limit=20
 exports.list = async (req, res, next) => {
   try {
@@ -17,7 +20,7 @@ exports.list = async (req, res, next) => {
     const items = await Role.find(q).sort({ createdAt: 1 }).skip((+page - 1) * +limit).limit(+limit);
     // attach live usersCount
     const withCounts = await Promise.all(items.map(async r => {
-      const cnt = await User.countDocuments({ role: r.name });
+      const cnt = await User.countDocuments(roleUsersQuery(r.name));
       return { ...r.toObject(), usersCount: cnt };
     }));
     res.json({ items: withCounts, total, page: +page, limit: +limit });
@@ -28,7 +31,7 @@ exports.getById = async (req, res, next) => {
   try {
     const doc = await Role.findOne({ id: req.params.id });
     if (!doc) return res.status(404).json({ error: 'Role not found' });
-    const cnt = await User.countDocuments({ role: doc.name });
+    const cnt = await User.countDocuments(roleUsersQuery(doc.name));
     res.json({ ...doc.toObject(), usersCount: cnt });
   } catch (e) { next(e); }
 };
@@ -58,8 +61,15 @@ exports.update = async (req, res, next) => {
     for (const k of allowed) if (req.body[k] !== undefined) updates[k] = req.body[k];
     if (updates.name) updates.name = updates.name.trim();
     if (updates.description !== undefined) updates.description = updates.description.trim();
+    const existing = await Role.findOne({ id: req.params.id });
+    if (!existing) return res.status(404).json({ error: 'Role not found' });
+    if (updates.name && existing.type === 'system' && updates.name !== existing.name) {
+      return res.status(400).json({ error: 'System role names cannot be changed' });
+    }
     const doc = await Role.findOneAndUpdate({ id: req.params.id }, updates, { new: true, runValidators: true });
-    if (!doc) return res.status(404).json({ error: 'Role not found' });
+    if (updates.name && updates.name !== existing.name) {
+      await User.updateMany(roleUsersQuery(existing.name), { role: doc.name, roleId: doc.id });
+    }
     res.json(doc);
   } catch (e) {
     if (e.code === 11000) return res.status(409).json({ error: 'Role name already exists' });
@@ -72,7 +82,7 @@ exports.remove = async (req, res, next) => {
     const doc = await Role.findOne({ id: req.params.id });
     if (!doc) return res.status(404).json({ error: 'Role not found' });
     if (doc.type === 'system') return res.status(400).json({ error: 'System roles cannot be deleted' });
-    const cnt = await User.countDocuments({ role: doc.name });
+    const cnt = await User.countDocuments(roleUsersQuery(doc.name));
     if (cnt > 0) return res.status(400).json({ error: `Cannot delete: ${cnt} user(s) still assigned to this role` });
     await Role.deleteOne({ id: req.params.id });
     res.json({ ok: true, id: req.params.id });

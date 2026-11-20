@@ -17,7 +17,7 @@ router.post('/',
   body('total').isFloat({min:0}).withMessage('total must be >=0'),
   body('paid').optional().isFloat({min:0}).escape(),
   body('status').optional().isIn(['Paid','Unpaid','Pending','Overdue','Cancelled']).escape(),
-  body('method').optional().isIn(['Cash','Card','Transfer','Mobile Money','Insurance']).escape(),
+  body('method').optional().isIn(['Cash','Card','Transfer','Bank Transfer','Mobile Money','Insurance']).escape(),
   handleValidation, ctrl.create);
 
 router.put('/:id',
@@ -28,7 +28,7 @@ router.put('/:id',
 router.post('/:id/payments',
   authorize('Administrator','admin','Cashier','Receptionist'),
   body('amount').isFloat({ gt: 0 }).withMessage('amount must be > 0'),
-  body('method').optional().isIn(['Cash','Card','Transfer','Mobile Money','Insurance']).escape(),
+  body('method').optional().isIn(['Cash','Card','Transfer','Bank Transfer','Mobile Money','Insurance']).escape(),
   handleValidation, ctrl.addPayment);
 
 router.delete('/:id', authorize('Administrator','admin'), ctrl.remove);

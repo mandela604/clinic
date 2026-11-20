@@ -297,7 +297,7 @@
         <!-- new / walk-in patient -->
         <div id="newPatientBlock" style="display:none;">
           <div class="field-grid cols-3">
-            <div class="field" data-field="newFirst"><label>First Name<span class="req">*</span></label><input type="text" id="newFirst" placeholder="e.g. Grace"><div class="field-err">Required</div></div>
+            <div class="field" data-field="newFirst"><label>First Name<span class="req">*</span></label><input type="text" id="newFirst" placeholder="First name"><div class="field-err">Required</div></div>
             <div class="field" data-field="newLast"><label>Last Name<span class="req">*</span></label><input type="text" id="newLast" placeholder="e.g. Emu"><div class="field-err">Required</div></div>
             <div class="field"><label>Gender</label>
               <select id="newGender"><option>Female</option><option>Male</option></select>
@@ -480,7 +480,7 @@
   let DOCTORS = [];
   try {
     PATIENTS = PatientService.getAllPatients().map(p => ({
-      name: p.name, hospNo: p.hospitalNo, phone: p.phonePrimary,
+      id: p.id, name: p.name, hospNo: p.hospitalNo, phone: p.phonePrimary,
       gender: p.gender, age: parseInt(p.age)||0,
       color: '#2f6fed'
     }));
@@ -488,12 +488,19 @@
   try {
     const base = (window.ShilohAPI && window.ShilohAPI.BASE) || (window.__SHILOH_API__ || 'http://localhost:5001/api');
     const headers = window.ShilohAPI ? window.ShilohAPI.headers() : {};
-    const res = await fetch(base + '/users?limit=100', { headers });
+    const res = await fetch(base + '/users?role=Doctor&limit=100', { headers });
     if(!res.ok) throw new Error('Failed to load doctors (' + res.status + ')');
     const data = await res.json();
     const users = (data && data.items) || data;
     const list = Array.isArray(users) ? users : [];
-    DOCTORS = list.map(d => ({ name: d.name || String(d), specialty: d.specialty || d.department || 'General Medicine' }));
+    const isDoctor = r => String(r||'').trim().toLowerCase().replace(/[\s_-]+/g,'') === 'doctor';
+    DOCTORS = list
+      .filter(d => isDoctor(d.role))
+      .map(d => ({ id: d.id, name: d.name || String(d), specialty: d.specialty || d.department || 'General Medicine' }));
+    if(!DOCTORS.length) {
+      const current = (() => { try { return JSON.parse(localStorage.getItem('shiloh_user')||'null'); } catch(e){ return null; } })();
+      if(current && current.name) DOCTORS.push({ id: current.id || '', name: current.name, specialty: current.dept || 'General Medicine' });
+    }
   } catch (e) { window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error'); DOCTORS = []; }
 
   const TEST_CATALOG = [
@@ -504,8 +511,8 @@
     { id:'lft', name:'Liver Function Test', cat:'Chemistry', sample:'Blood (Serum)', price:8500, turnaround:'Same day' },
     { id:'kft', name:'Kidney Function Test', cat:'Chemistry', sample:'Blood (Serum)', price:8500, turnaround:'Same day' },
     { id:'lipid', name:'Lipid Profile', cat:'Chemistry', sample:'Blood (Serum, Fasting)', price:9000, turnaround:'Same day' },
-    { id:'urine-cult', name:'Urine Culture &amp; Sensitivity', cat:'Microbiology', sample:'Urine (MSU)', price:6000, turnaround:'48 hrs' },
-    { id:'stool-mc', name:'Stool Microscopy, C&amp;S', cat:'Microbiology', sample:'Stool', price:4000, turnaround:'24 hrs' },
+    { id:'urine-cult', name:'Urine Culture & Sensitivity', cat:'Microbiology', sample:'Urine (MSU)', price:6000, turnaround:'48 hrs' },
+    { id:'stool-mc', name:'Stool Microscopy, C&S', cat:'Microbiology', sample:'Stool', price:4000, turnaround:'24 hrs' },
     { id:'hep-b', name:'Hepatitis B Screening', cat:'Serology', sample:'Blood (Serum)', price:4500, turnaround:'2 hrs' },
     { id:'hiv', name:'HIV Screening', cat:'Serology', sample:'Blood (Serum)', price:3000, turnaround:'1 hr' },
     { id:'widal', name:'Widal Test', cat:'Serology', sample:'Blood (Serum)', price:3000, turnaround:'2 hrs' },
@@ -513,13 +520,12 @@
     { id:'urinalysis', name:'Urinalysis', cat:'Urinalysis', sample:'Urine', price:1500, turnaround:'30 mins' },
     { id:'bhcg', name:'Pregnancy Test (BHCG)', cat:'Urinalysis', sample:'Urine', price:2000, turnaround:'30 mins' },
     { id:'genotype', name:'Genotype', cat:'Immunology', sample:'Blood (EDTA)', price:3500, turnaround:'2 hrs' },
-    { id:'bloodgroup', name:'Blood Grouping &amp; Rhesus', cat:'Immunology', sample:'Blood (EDTA)', price:2500, turnaround:'1 hr' },
+    { id:'bloodgroup', name:'Blood Grouping & Rhesus', cat:'Immunology', sample:'Blood (EDTA)', price:2500, turnaround:'1 hr' },
     { id:'malaria', name:'Malaria Parasite (MP)', cat:'Immunology', sample:'Blood (Capillary)', price:1500, turnaround:'30 mins' },
   ];
 
   const TURNAROUND_RANK = { '30 mins':1, '1 hr':2, '2 hrs':3, 'Same day':4, '24 hrs':5, '48 hrs':6 };
 
-  let nextOrderNum = 351; // continues from LAB-000350
   let selectedPatient = null;
   let patientMode = 'existing';
   let selectedTests = [];   // array of test ids
@@ -611,9 +617,9 @@
 
   /* ============ DOCTORS ============ */
   const doctorSelect = el('fDoctor');
-  DOCTORS.forEach((d,i)=>{
+  DOCTORS.forEach((d)=>{
     const opt = document.createElement('option');
-    opt.value = i; opt.textContent = `${d.name} — ${d.specialty}`;
+    opt.value = d.name; opt.textContent = `${d.name} — ${d.specialty}`;
     doctorSelect.appendChild(opt);
   });
   doctorSelect.addEventListener('change', ()=>{ updateSummary(); validateForm(); });
@@ -691,7 +697,7 @@
     return d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
   }
   function updateSummary(){
-    el('sumId').textContent = 'LAB-' + String(nextOrderNum).padStart(6,'0');
+    el('sumId').textContent = 'Generated on submit';
 
     if(patientMode==='existing'){
       el('sumPatient').textContent = selectedPatient ? selectedPatient.name : 'Not selected';
@@ -701,7 +707,7 @@
     }
 
     const docVal = doctorSelect.value;
-    el('sumDoctor').textContent = docVal!=='' ? DOCTORS[Number(docVal)].name : 'Not selected';
+    el('sumDoctor').textContent = docVal || 'Not selected';
 
     const date = el('fDate').value, time = el('fTime').value;
     el('sumDateTime').textContent = (date && time) ? `${fmtDateNice(date)}, ${fmtTimeNice(time)}` : '—';
@@ -783,28 +789,38 @@
       showToast('Please complete all required fields', true);
       return;
     }
-    let created = null;
-    try {
-      created = await LabService.createOrder({
-        patientName: selectedPatient ? selectedPatient.name : ((el('newFirst').value.trim()+' '+el('newLast').value.trim()).trim()),
-        hospitalNo: selectedPatient ? selectedPatient.hospNo : '',
-        doctor: doctorSelect.value || '',
-        test: selectedTests.map(id => (TEST_CATALOG.find(t=>t.id===id)||{}).name).join(', '),
-        tests: selectedTests,
-        date: el('fDate').value,
-        time: el('fTime').value,
-        priority
+    let patient = selectedPatient;
+    if(!patient){
+      const reg = await PatientService.registerPatient({
+        firstName: el('newFirst').value.trim(),
+        lastName: el('newLast').value.trim(),
+        phonePrimary: el('newPhone').value.trim(),
+        gender: el('newGender').value || 'Female',
+        age: '0'
       });
-    } catch (e) { window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error'); }
-    if(!created){ window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error'); return; }
-    const orderId = created.id || ('LAB-' + String(nextOrderNum).padStart(6,'0'));
-    nextOrderNum++;
+      if(!reg || !reg.success){ showToast('Could not register the new patient', true); return; }
+      patient = reg.patient;
+    }
+    const selectedDoctor = DOCTORS.find(d => d.name === doctorSelect.value);
+    const created = await LabService.createOrder({
+      patientId: patient.id,
+      patientName: patient.name,
+      hospitalNo: patient.hospitalNo,
+      test: selectedTests.map(id => (TEST_CATALOG.find(t=>t.id===id)||{}).name).join(', '),
+      category: (TEST_CATALOG.find(t=>t.id===selectedTests[0])||{}).cat || 'Chemistry',
+      orderedBy: selectedDoctor ? selectedDoctor.name : doctorSelect.value,
+      orderedById: selectedDoctor ? (selectedDoctor.id || '') : '',
+      date: el('fDate').value,
+      time: el('fTime').value,
+      priority
+    });
+    if(!created) return;
+    const orderId = created.id;
     showToast(`${orderId} submitted · labels sent to printer`);
     resetForm();
   }
   function saveDraft(){
-    const orderId = 'LAB-' + String(nextOrderNum).padStart(6,'0');
-    showToast(`Draft ${orderId} saved`);
+    showToast('Drafts are not stored - submit the order to save it.', true);
   }
 
   el('submitBtn').addEventListener('click', submitOrder);
@@ -844,8 +860,9 @@
   }
 
   /* ============ INIT ============ */
-  el('fDate').value = '2025-05-17';
-  el('fTime').value = '09:30';
+  const now = new Date();
+  el('fDate').value = now.toISOString().slice(0,10);
+  el('fTime').value = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
   renderTestGrid();
   updateSummary();
   validateForm();

@@ -8,6 +8,7 @@ const User = require('../models/User');
 
 async function seedPhase1() {
   await connectDB();
+  console.warn('WARNING: this resets ALL roles and users. Do not run on a live database with real accounts.');
   console.log('Seeding Phase 1 (empty DB -> system roles + admin) with id: uuidv4');
 
   await Role.deleteMany({});

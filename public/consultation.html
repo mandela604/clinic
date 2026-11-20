@@ -221,8 +221,13 @@
   function setLoading(btn,loading){if(!btn)return;if(loading){btn.classList.add('loading');btn._oldHTML=btn.innerHTML;}else{btn.classList.remove('loading');if(btn._oldHTML)btn.innerHTML=btn._oldHTML;}}
 
   await ConsultationService.init();
+  await ConsultationService.loadDoctors();
 
   var DOCTORS=ConsultationService.DOCTORS;
+  function doctorOptions(selected){
+    if(!DOCTORS.length) return '<option value="">No doctors available</option>';
+    return DOCTORS.map(function(d){return '<option value="'+esc(d)+'"'+(d===selected?' selected':'')+'>'+esc(d)+'</option>';}).join('');
+  }
   var PRIORITY_MAP=ConsultationService.PRIORITY_MAP;
   var STATUS_MAP=ConsultationService.STATUS_MAP;
 
@@ -285,8 +290,7 @@
 
   var tbl=null;
   tbl=ShilohTable.attach('#consultTablePlaceholder',{
-    storageKey:ConsultationService.STORAGE_KEY,
-    seedData:ConsultationService.getAll(),
+    rows:ConsultationService.getAll(),
     idField:'id',
     pageTitle:'Consultation',
     breadcrumb:'Dashboard / Consultation / Doctor Queue',
@@ -396,7 +400,7 @@
     el('cDiagnosis').value=c.diagnosis||'';
     el('cNotes').value=c.notes||'';
     renderRxRows(c.rx);
-    el('cDoctor').innerHTML=DOCTORS.map(function(d){return '<option value="'+esc(d)+'"'+(d===c.doctor?' selected':'')+'>'+esc(d)+'</option>';}).join('');
+    el('cDoctor').innerHTML=doctorOptions(c.doctor);
     el('cDiagnosisGroup').classList.remove('invalid');
     openModal('consultModal');
   };
@@ -466,7 +470,7 @@
     openModal('viewModal');
   };
 
-  el('cDoctor').innerHTML=DOCTORS.map(function(d){return '<option value="'+esc(d)+'">'+esc(d)+'</option>';}).join('');
+  el('cDoctor').innerHTML=doctorOptions();
 
   window.ShilohSidebar.attach('#sidebarPlaceholder',{
     activeFile:'consultation.html'

@@ -5,7 +5,7 @@ const patientSchema = new mongoose.Schema({
   id: { type: String, default: uuidv4, unique: true, index: true },
   hospitalNo: { type: String, required: true, unique: true, index: true },
   // name fields — frontend sends split, backend stores both split + full
-  name: { type: String, required: true, trim: true, index: true }, // full "John O. Adekunle"
+  name: { type: String, required: true, trim: true, index: true }, // full name from firstName/middleName/lastName
   title: { type: String, default: 'Mr.' },
   firstName: { type: String, required: true, trim: true },
   middleName: { type: String, default: '' },

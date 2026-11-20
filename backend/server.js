@@ -81,7 +81,6 @@ app.use('/api/settings', require('./routes/settings'));
 // ── Serve frontend (single-service hosting: Render serves API + UI together) ──
 app.use(express.static(path.join(__dirname, '..', 'public')));
 app.use('/services', express.static(path.join(__dirname, '..', 'services')));
-app.use('/data', express.static(path.join(__dirname, '..', 'data')));
 app.get('/', (req, res) => res.redirect('/login.html'));
 
 // ── 404 + error handler ──

@@ -81,22 +81,6 @@ const PatientService = {
     this.state.isGridView = !this.state.isGridView;
   },
 
-  getFilteredPatients() {
-    const { allPatients, currentFilter } = this.state;
-    if (currentFilter === 'all') return allPatients;
-
-    const filterMap = {
-      nursing: p => p.allergies && !p.allergies.includes('No known'),
-      doctor: p => p.visitHistory && p.visitHistory.length > 0,
-      lab: p => p.prescriptionHistory && p.prescriptionHistory.length > 0,
-      pharmacy: p => p.contactHistory && p.contactHistory.length > 0,
-      billing: p => true
-    };
-
-    const predicate = filterMap[currentFilter];
-    return predicate ? allPatients.filter(predicate).sort((a, b) => a.name.localeCompare(b.name)) : allPatients;
-  },
-
   async loadPatientByHospital(hospitalNo) {
     try {
       const res = await fetch(this.API_BASE + '/patients/hospital/' + encodeURIComponent(hospitalNo), {
@@ -182,6 +166,21 @@ const PatientService = {
       return Array.isArray(items) ? items : [];
     } catch (e) {
       this._toast('Could not load appointments. Check connection / login.', 'error');
+      return [];
+    }
+  },
+
+  async getPatientVisits(patientId) {
+    try {
+      const res = await fetch(this.API_BASE + '/visits?patientId=' + encodeURIComponent(patientId) + '&limit=100', {
+        headers: this._headers()
+      });
+      if (!res.ok) throw new Error('Failed to load visits (' + res.status + ')');
+      const data = await res.json();
+      const items = (data && data.items) || data;
+      return Array.isArray(items) ? items : [];
+    } catch (e) {
+      this._toast('Could not load visits. Check connection / login.', 'error');
       return [];
     }
   },

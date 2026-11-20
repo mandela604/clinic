@@ -17,7 +17,7 @@ const admissionSchema = new mongoose.Schema({
   dischargeDate: { type: String, default: null },
   reason: { type: String, default: 'Observation' },
   diagnosis: { type: String, default: '' },
-  status: { type: String, enum: ['Admitted','Discharged','Transferred','admitted','discharged','transferred'], default: 'Admitted', index: true }
+  status: { type: String, default: 'Admitted', index: true }
 }, { timestamps: true });
 
 admissionSchema.index({ patientId: 1, status: 1 });

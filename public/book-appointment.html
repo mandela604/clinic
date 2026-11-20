@@ -250,7 +250,7 @@
         <!-- new / walk-in patient -->
         <div id="newPatientBlock" style="display:none;">
           <div class="field-grid cols-3">
-            <div class="field" data-field="newFirst"><label>First Name<span class="req">*</span></label><input type="text" id="newFirst" placeholder="e.g. Grace"><div class="field-err">Required</div></div>
+            <div class="field" data-field="newFirst"><label>First Name<span class="req">*</span></label><input type="text" id="newFirst" placeholder="First name"><div class="field-err">Required</div></div>
             <div class="field" data-field="newLast"><label>Last Name<span class="req">*</span></label><input type="text" id="newLast" placeholder="e.g. Emu"><div class="field-err">Required</div></div>
             <div class="field"><label>Gender</label>
               <select id="newGender"><option>Female</option><option>Male</option></select>
@@ -429,7 +429,6 @@
     labtest:{ label:'Lab Test', cls:'type-labtest' }
   };
 
-  let nextApptNum = 220; // continues from APT-000219
   let selectedPatient = null;
   let selectedDoctorIdx = null;
   let patientMode = 'existing';
@@ -605,7 +604,7 @@
     return d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
   }
   function updateSummary(){
-    el('sumId').textContent = 'APT-' + String(nextApptNum).padStart(6,'0');
+    el('sumId').textContent = 'Generated on submit';
 
     if(patientMode==='existing'){
       el('sumPatient').textContent = selectedPatient ? selectedPatient.name : 'Not selected';
@@ -681,8 +680,7 @@
       });
     } catch (e) { window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error'); }
     if(!appt){ window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error'); return; }
-    const apptId = appt ? appt.id : ('APT-' + String(nextApptNum).padStart(6,'0'));
-    if(appt) nextApptNum = parseInt(appt.id.split('-')[1])+1;
+    const apptId = appt.id;
     showToast(`${apptId} booked successfully`);
     resetForm();
     if(bookAnother){

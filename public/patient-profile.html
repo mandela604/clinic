@@ -400,15 +400,16 @@
   /* ── Render Tab Content (backend-only, async) ────────────────────────── */
   async function renderTabContent(p) {
     const el = document.getElementById('tabContent');
-    let labTests = [], appointments = [], prescriptions = [], invoices = [];
+    let labTests = [], appointments = [], prescriptions = [], invoices = [], visits = [];
     try {
       labTests = await PatientService.getPatientLabTests(p.id);
       appointments = await PatientService.getPatientAppointments(p.id);
       prescriptions = await PatientService.getPatientPrescriptions(p.id);
       invoices = await PatientService.getPatientInvoices(p.id);
+      visits = await PatientService.getPatientVisits(p.id);
+      _visits = visits;
     } catch (e) { window.ShilohAPI.toast('Could not load data. Check connection / login.', 'error'); }
 
-    const visits = p.visitHistory || [];
     const totalBilled = invoices.reduce((s, i) => s + i.total, 0);
     const totalPaid = invoices.reduce((s, i) => s + i.paid, 0);
 
@@ -509,11 +510,16 @@
 
   let _currentVisitPatient = null;
   let _currentVisitId = null;
+  let _visits = [];
 
-  window.openVisitModal = function(visitId) {
+  window.openVisitModal = async function(visitId) {
     const p = PatientService.getCurrentPatient();
     if (!p) return;
-    const v = (p.visitHistory || []).find(x => x.id === visitId);
+    let v = _visits.find(x => x.id === visitId);
+    if (!v) {
+      _visits = await PatientService.getPatientVisits(p.id);
+      v = _visits.find(x => x.id === visitId);
+    }
     if (!v) return;
     _currentVisitPatient = p;
     _currentVisitId = visitId;

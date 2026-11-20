@@ -1,6 +1,8 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const Role = require('../models/Role');
+const { canonicalRole } = require('../middleware/auth');
 const { v4: uuidv4 } = require('uuid');
 
 function signToken(user) {
@@ -20,13 +22,12 @@ exports.register = async (req, res, next) => {
         const jwt = require('jsonwebtoken');
         const decoded = jwt.verify(auth.split(' ')[1], process.env.JWT_SECRET);
         const requester = await User.findOne({ id: decoded.id });
-        if (!requester || !['Administrator','admin'].includes(requester.role)) return res.status(403).json({ error: 'Only Administrators can create new accounts' });
+        if (!requester || canonicalRole(requester.role) !== 'Administrator') return res.status(403).json({ error: 'Only Administrators can create new accounts' });
       } catch { return res.status(403).json({ error: 'Registration is closed — please sign in' }); }
     }
-    const finalRole = userCount === 0 ? 'Administrator' : (role || 'receptionist');
+    const finalRole = userCount === 0 ? 'Administrator' : (canonicalRole(role) || 'Receptionist');
     const finalDept = userCount === 0 ? 'Administration' : (dept || 'Front Desk');
-    const Role = require('../models/Role');
-    const roleDoc = await Role.findOne({ name: finalRole });
+    const roleDoc = await Role.findOne({ name: new RegExp('^' + finalRole.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$', 'i') });
     const hashed = await bcrypt.hash(password, 10);
     const user = await User.create({
       id: uuidv4(),
@@ -48,7 +49,10 @@ exports.login = async (req, res, next) => {
     const ok = await bcrypt.compare(password, user.password);
     if (!ok) return res.status(401).json({ error: 'Invalid credentials' });
     if (user.status !== 'active') return res.status(403).json({ error: 'Account is ' + user.status });
-    user.lastLogin = new Date();
+    const now = new Date();
+    user.lastLogin = now;
+    user.loginTime = now.toISOString().slice(11, 16);
+    user.loginDate = now.toISOString().slice(0, 10);
     await user.save();
     const token = signToken(user);
     res.json({ token, user: { id: user.id, name: user.name, username: user.username, email: user.email, role: user.role, dept: user.dept } });
